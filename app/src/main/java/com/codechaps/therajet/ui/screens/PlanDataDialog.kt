@@ -167,7 +167,7 @@ fun PlanDataDialog(
                                             shape = RoundedCornerShape(16.dp)
                                         )
                                         .padding(horizontal = 12.dp, vertical = 4.dp)
-                                        .throttledClickable { onAddSession() }
+                                        .throttledClickable { onAddCredit() }
                                 )
                             }
                         }

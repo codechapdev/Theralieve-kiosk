@@ -221,7 +221,7 @@ private fun AddonPlanCard(
                         } else {
                             Text(
                                 text = "$currency${plan.detail?.plan_price ?: ""}",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = TheraColorTokens.Primary,
                             )
                         }

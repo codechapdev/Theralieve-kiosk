@@ -87,7 +87,7 @@ fun CheckoutScreen(
             val granted = result.values.all { it }
             if (granted) {
                 activity?.let {
-//                    viewModel.showReaderConnection()
+                    viewModel.showReaderConnection()
                 }
             } else {
                 viewModel.onPermissionDenied()

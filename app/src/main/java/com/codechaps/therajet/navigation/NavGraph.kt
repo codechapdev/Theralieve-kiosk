@@ -144,10 +144,10 @@ fun NavGraph(
                     navController.navigate(Routes.PROFILE)
                 },
                 onAddSession =  {
-                    navController.navigate(Routes.addonPlanListRoute(Routes.addonPlanListRoute(Routes.ADDON_TYPE_SESSION)))
+                    navController.navigate(Routes.addonPlanListRoute("session"))
                 },
                 onAddCredit = {
-                    navController.navigate(Routes.addonPlanListRoute(Routes.addonPlanListRoute(Routes.ADDON_TYPE_CREDIT)))
+                    navController.navigate(Routes.addonPlanListRoute("credit"))
                 }
                 )
         }
