@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">TheraJet Kiosk</string>
+
+    <!-- Actions -->
+    <string name="action_download">Download</string>
+    <string name="action_bill_detail">Bill Detail</string>
+    <string name="action_start_session">Start Session</string>
+    <string name="action_view_details">View Details</string>
+    <string name="action_enroll_now">Buy Now</string>
+    <string name="action_pay_now">Pay Now</string>
+    <string name="action_login">Log In</string>
+    <string name="action_logout">Log Out</string>
+    <string name="action_confirm">Okay</string>
+    <string name="action_try_again">Try Again</string>
+
+    <!-- Tabs -->
+    <string name="tab_non_member">Non-Member</string>
+    <string name="tab_membership">Membership</string>
+    <string name="tab_payment_history">Payment History</string>
+    <string name="tab_my_sessions">My Session</string>
+
+    <!-- Screen titles -->
+    <string name="title_payment_history">Payment History</string>
+    <string name="title_membership_plans">Membership Plans</string>
+    <string name="title_non_member_equipment">Choose Your Experience</string>
+    <string name="title_equipment_details">Equipment Details</string>
+    <string name="title_membership_detail">Plan Details</string>
+    <string name="title_member_dashboard">Welcome</string>
+    <string name="title_enrollment">Membership Enrollment</string>
+    <string name="title_login">Existing Member Login</string>
+
+    <!-- Labels -->
+    <string name="label_duration">Duration</string>
+    <string name="label_price">Price</string>
+    <string name="label_validity">Validity</string>
+    <string name="label_included_equipment">Included Equipment</string>
+    <string name="label_terms_conditions">Terms &amp; Conditions</string>
+    <string name="label_total_amount">Total Amount</string>
+    <string name="label_member_plan">Current Plan</string>
+    <string name="label_plan_expiry">Plan Expiry</string>
+    <string name="label_pending_sessions">Pending Sessions</string>
+    <string name="label_select_equipment">Select Equipment</string>
+    <string name="label_select_duration">Select Duration</string>
+    <string name="label_payment_method">Pay with card reader</string>
+    <string name="label_buffer_time">Starting in</string>
+    <string name="label_session_time_remaining">Time Remaining</string>
+
+    <!-- Form fields -->
+    <string name="field_name">Name</string>
+    <string name="field_email">Email</string>
+    <string name="field_phone">Phone Number</string>
+    <string name="field_user_id">User ID</string>
+    <string name="field_passcode">Passcode</string>
+
+    <!-- Messages -->
+    <string name="message_payment_success">Thank you for your payment! Enjoy your session on equipment #%1$s.</string>
+    <string name="message_membership_success">Thank you for your payment! Enjoy your sessions under your new membership plan.</string>
+    <string name="message_session_start">Please go to equipment #%1$s and enjoy your session!</string>
+    <string name="message_welcome_member">Welcome, %1$s! Enjoy your session today.</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_headline">What Every Body Wants</string>
+    <string name="welcome_tagline">Best-in-Class Therapies. Turn-key Recovery Solutions. Amazing Terms.</string>
+    <string name="button_non_member">Single Session</string>
+    <string name="button_membership">Pricing Plans</string>
+    <string name="button_existing_member">Existing Client</string>
+</resources>

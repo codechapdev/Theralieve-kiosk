@@ -1,0 +1,69 @@
+# cursor.rule - Theralive App Theme & Component Rules
+
+[theme.colors]
+primary = #2196F3
+primary_dark = #1976D2
+primary_light = #BBDEFB
+accent = #03A9F4
+background_gradient_start = #87CEEB
+background_gradient_end = #FFFFFF
+surface = #FFFFFF
+background = #F5F5F5
+text_primary = #212121
+text_secondary = #757575
+text_tertiary = #9E9E9E
+text_white = #FFFFFF
+text_green = #188639
+button_primary = #2196F3
+button_primary_pressed = #1976D2
+button_disabled = #BDBDBD
+button_text = #FFFFFF
+stroke_color = #E6E6E6
+stroke_focused = #2196F3
+stroke_error = #F44336
+input_background = #FFFFFF
+input_text = #212121
+input_hint = #9E9E9E
+ripple_light = #1F000000
+ripple_dark = #1FFFFFFF
+
+[theme.typography]
+title = Inter-Medium, 18sp
+heading = Inter-Bold, 28sp
+body = Inter-Light, 14sp
+medium = Inter-Medium, 14sp
+small = Poppins-Regular, 12sp
+semi_bold = Inter-SemiBold, 16sp
+
+[components.button]
+background = gradient_background
+textColor = button_text
+textSize = 16sp
+ripple = ripple_light
+
+[components.otp_input]
+size = 50x68dp
+gravity = center
+textColor = primary
+textStyle = bold
+
+[components.text_input]
+boxStrokeColor = stroke_color
+hintColor = input_hint
+background = input_background
+
+[components.bottom_navigation]
+iconSize = 24dp
+activeTextStyle = BottomNavTextActive
+inactiveTextStyle = BottomNavTextInactive
+
+[theme.settings]
+statusBar = translucent
+windowContentTransitions = true
+themeParent = Material3.DayNight
+useCompose = true
+
+[project.structure]
+tabs = 3
+tabContent = placeholder
+bottomNavigation = true
