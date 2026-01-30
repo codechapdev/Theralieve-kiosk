@@ -1,6 +1,7 @@
 package com.codechaps.therajet.domain.repository
 
 import com.codechaps.therajet.domain.model.Payment
+import com.codechaps.therajet.domain.model.StartMachineResponse
 
 
 interface PaymentRepository {
@@ -17,7 +18,8 @@ interface PaymentRepository {
         userId:String,
         planId: String,
         paymentId: String,
-        isFree: Boolean = false
+        isFree: Boolean = false,
+        autoRenew:Boolean
     ): Result<String?>
     
     suspend fun startMachine(
@@ -31,7 +33,7 @@ interface PaymentRepository {
         planId: Int?,
         planType: String? = "Session Pack",
         creditPoints:String?
-    ): Result<Unit>
+    ): Result<StartMachineResponse?>
 
     suspend fun getCardReaderToken(
     ): Result<String>

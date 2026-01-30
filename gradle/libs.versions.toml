@@ -45,7 +45,7 @@ coroutines = "1.10.2"
 splash-screen-version = "1.2.0"
 awsAndroidSdkCore = "2.81.1"
 awsAndroidSdkIot = "2.81.1"
-stripe-terminal = "5.1.1"
+#stripe-terminal = "5.1.1"
 
 [libraries]
 
@@ -90,7 +90,7 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 # Coroutines
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
-stripe-terminal = { group = "com.stripe", name = "stripeterminal", version.ref = "stripe-terminal" }
+#stripe-terminal = { group = "com.stripe", name = "stripeterminal", version.ref = "stripe-terminal" }
 
 # DataStore
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }

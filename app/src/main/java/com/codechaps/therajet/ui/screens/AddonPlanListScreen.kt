@@ -19,6 +19,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -40,10 +44,12 @@ import com.codechaps.therajet.ui.components.TheraGradientBackground
 import com.codechaps.therajet.ui.components.TheraPrimaryButton
 import com.codechaps.therajet.ui.components.TheraSecondaryButton
 import com.codechaps.therajet.ui.theme.TheraColorTokens
+import com.codechaps.therajet.ui.utils.IosLikeSwitch
 import com.codechaps.therajet.ui.utils.throttledClickable
 import com.codechaps.therajet.utils.DiscountResult
 import com.codechaps.therajet.utils.calculateDiscount
 import com.codechaps.therajet.utils.getCurrencySymbol
+import java.text.DecimalFormat
 
 @Composable
 fun AddonPlanListScreen(
@@ -54,7 +60,7 @@ fun AddonPlanListScreen(
     isLoading: Boolean,
     error: String?,
     onBack: () -> Unit,
-    onSelectPlan: (Plan) -> Unit,
+    onSelectPlan: (Plan, Boolean) -> Unit,
     onViewDetail: (Plan) -> Unit
 ) {
     val title = when (type.lowercase()) {
@@ -110,7 +116,7 @@ fun AddonPlanListScreen(
                             plan = plan,
                             isForEmployee = isForEmployee,
                             vipDiscount = vipDiscount,
-                            onClick = { onSelectPlan(plan) },
+                            onClick = { onSelectPlan(plan,it) },
                             onViewDetail = {
                                 onViewDetail(plan)
                             }
@@ -128,14 +134,19 @@ private fun AddonPlanCard(
     plan: Plan,
     isForEmployee: Boolean,
     vipDiscount: String,
-    onClick: () -> Unit,
+    onClick: (Boolean) -> Unit,
     onViewDetail: (Plan) -> Unit,
 ) {
+
+    var checked by remember { mutableStateOf((plan.detail?.is_vip_plan?:0) == 1) }
+
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
         tonalElevation = 4.dp,
         modifier = Modifier
-            .throttledClickable { onClick() }
+            .throttledClickable {
+                onClick(checked)
+            }
             .fillMaxWidth()
     ) {
         Box {
@@ -191,24 +202,12 @@ private fun AddonPlanCard(
                             )
                         }
 
-//                        val discountResult = calculateDiscount(
-//                            planPrice = plan.detail?.plan_price,
-//                            discount = plan.detail?.discount,
-//                            discountType = plan.detail?.discount_type,
-//                            discountValidity = plan.detail?.discount_validity,
-//                            employeeDiscount = plan.detail?.employee_discount,
-//                            isForEmployee = isForEmployee,
-//                            appliedVipDiscount = vipDiscount
-//                        )
                         val currency = getCurrencySymbol(plan.detail?.currency)
 
                         if (discountResult.hasDiscount) {
                             Text(
                                 text = "$currency${
-                                    String.format(
-                                        "%.2f",
-                                        discountResult.originalPrice
-                                    )
+                                    DecimalFormat("0.##").format(discountResult.originalPrice)
                                 }",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Gray,
@@ -217,10 +216,7 @@ private fun AddonPlanCard(
                             )
                             Text(
                                 text = "$currency${
-                                    String.format(
-                                        "%.2f",
-                                        discountResult.discountedPrice
-                                    )
+                                    DecimalFormat("0.##").format(discountResult.discountedPrice)
                                 }",
                                 style = MaterialTheme.typography.titleSmall,
                                 color = TheraColorTokens.Primary,
@@ -281,6 +277,29 @@ private fun AddonPlanCard(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        text = "Auto Renew :",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 20.sp,
+                        color = Color.Black
+                    )
+
+                    IosLikeSwitch(
+                        checked = checked,
+                        onCheckedChange = {
+                            if((plan.detail?.is_vip_plan?:0) != 1)
+                                checked = it
+                        }
+                    )
+
+                }
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -298,7 +317,7 @@ private fun AddonPlanCard(
                             .height(70.dp),
                         label = stringResource(id = R.string.action_enroll_now),
                         onClick = {
-                            onClick()
+                            onClick(checked)
                         })
                 }
 
@@ -311,13 +330,13 @@ private fun AddonPlanCard(
                         .offset(x = 14.dp, y = (12).dp) // adjust these
                         .rotate(45f)
                         .background(Color(0xFFFFEB3B))
-                        .padding(horizontal = 24.dp, vertical = 4.dp)
+                        .padding(horizontal = 18.dp, vertical = 2.dp)
                 ) {
                     Text(
                         text = "VIP",
                         color = Color(0xFFFF9800),
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        fontSize = 14.sp
                     )
                 }
             }

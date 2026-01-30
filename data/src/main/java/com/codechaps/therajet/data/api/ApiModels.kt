@@ -287,10 +287,6 @@ data class LocationTimeDTO(
 )
 
 
-data class StartMachineResponse(
-    val success: Boolean?,
-)
-
 /**
  * Get User Plan Response
  */

@@ -27,7 +27,7 @@ public class PlanDao_Impl(
   init {
     this.__db = __db
     this.__insertAdapterOfPlanEntity = object : EntityInsertAdapter<PlanEntity>() {
-      protected override fun createQuery(): String = "INSERT OR REPLACE INTO `plans` (`id`,`planName`,`planPrice`,`validity`,`bulletPoints`,`planDesc`,`image`,`customerId`,`planType`,`membershipType`,`currency`,`points`,`status`,`createdDate`,`updatedDate`,`equipmentJson`,`frequency`,`frequencyLimit`,`discount`,`discountType`,`discountValidity`,`employeeDiscount`,`isForEmployee`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+      protected override fun createQuery(): String = "INSERT OR REPLACE INTO `plans` (`id`,`planName`,`planPrice`,`validity`,`bulletPoints`,`planDesc`,`image`,`customerId`,`planType`,`membershipType`,`currency`,`points`,`status`,`createdDate`,`updatedDate`,`equipmentJson`,`frequency`,`frequencyLimit`,`discount`,`discountType`,`discountValidity`,`employeeDiscount`,`isForEmployee`,`isVipPlan`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 
       protected override fun bind(statement: SQLiteStatement, entity: PlanEntity) {
         statement.bindLong(1, entity.id.toLong())
@@ -73,6 +73,7 @@ public class PlanDao_Impl(
           statement.bindText(22, _tmpEmployeeDiscount)
         }
         statement.bindLong(23, entity.isForEmployee.toLong())
+        statement.bindLong(24, entity.isVipPlan.toLong())
       }
     }
   }
@@ -111,6 +112,7 @@ public class PlanDao_Impl(
         val _columnIndexOfDiscountValidity: Int = getColumnIndexOrThrow(_stmt, "discountValidity")
         val _columnIndexOfEmployeeDiscount: Int = getColumnIndexOrThrow(_stmt, "employeeDiscount")
         val _columnIndexOfIsForEmployee: Int = getColumnIndexOrThrow(_stmt, "isForEmployee")
+        val _columnIndexOfIsVipPlan: Int = getColumnIndexOrThrow(_stmt, "isVipPlan")
         val _result: MutableList<PlanEntity> = mutableListOf()
         while (_stmt.step()) {
           val _item: PlanEntity
@@ -176,7 +178,9 @@ public class PlanDao_Impl(
           }
           val _tmpIsForEmployee: Int
           _tmpIsForEmployee = _stmt.getLong(_columnIndexOfIsForEmployee).toInt()
-          _item = PlanEntity(_tmpId,_tmpPlanName,_tmpPlanPrice,_tmpValidity,_tmpBulletPoints,_tmpPlanDesc,_tmpImage,_tmpCustomerId,_tmpPlanType,_tmpMembershipType,_tmpCurrency,_tmpPoints,_tmpStatus,_tmpCreatedDate,_tmpUpdatedDate,_tmpEquipmentJson,_tmpFrequency,_tmpFrequencyLimit,_tmpDiscount,_tmpDiscountType,_tmpDiscountValidity,_tmpEmployeeDiscount,_tmpIsForEmployee)
+          val _tmpIsVipPlan: Int
+          _tmpIsVipPlan = _stmt.getLong(_columnIndexOfIsVipPlan).toInt()
+          _item = PlanEntity(_tmpId,_tmpPlanName,_tmpPlanPrice,_tmpValidity,_tmpBulletPoints,_tmpPlanDesc,_tmpImage,_tmpCustomerId,_tmpPlanType,_tmpMembershipType,_tmpCurrency,_tmpPoints,_tmpStatus,_tmpCreatedDate,_tmpUpdatedDate,_tmpEquipmentJson,_tmpFrequency,_tmpFrequencyLimit,_tmpDiscount,_tmpDiscountType,_tmpDiscountValidity,_tmpEmployeeDiscount,_tmpIsForEmployee,_tmpIsVipPlan)
           _result.add(_item)
         }
         _result
@@ -216,6 +220,7 @@ public class PlanDao_Impl(
         val _columnIndexOfDiscountValidity: Int = getColumnIndexOrThrow(_stmt, "discountValidity")
         val _columnIndexOfEmployeeDiscount: Int = getColumnIndexOrThrow(_stmt, "employeeDiscount")
         val _columnIndexOfIsForEmployee: Int = getColumnIndexOrThrow(_stmt, "isForEmployee")
+        val _columnIndexOfIsVipPlan: Int = getColumnIndexOrThrow(_stmt, "isVipPlan")
         val _result: PlanEntity?
         if (_stmt.step()) {
           val _tmpId: Int
@@ -280,7 +285,9 @@ public class PlanDao_Impl(
           }
           val _tmpIsForEmployee: Int
           _tmpIsForEmployee = _stmt.getLong(_columnIndexOfIsForEmployee).toInt()
-          _result = PlanEntity(_tmpId,_tmpPlanName,_tmpPlanPrice,_tmpValidity,_tmpBulletPoints,_tmpPlanDesc,_tmpImage,_tmpCustomerId,_tmpPlanType,_tmpMembershipType,_tmpCurrency,_tmpPoints,_tmpStatus,_tmpCreatedDate,_tmpUpdatedDate,_tmpEquipmentJson,_tmpFrequency,_tmpFrequencyLimit,_tmpDiscount,_tmpDiscountType,_tmpDiscountValidity,_tmpEmployeeDiscount,_tmpIsForEmployee)
+          val _tmpIsVipPlan: Int
+          _tmpIsVipPlan = _stmt.getLong(_columnIndexOfIsVipPlan).toInt()
+          _result = PlanEntity(_tmpId,_tmpPlanName,_tmpPlanPrice,_tmpValidity,_tmpBulletPoints,_tmpPlanDesc,_tmpImage,_tmpCustomerId,_tmpPlanType,_tmpMembershipType,_tmpCurrency,_tmpPoints,_tmpStatus,_tmpCreatedDate,_tmpUpdatedDate,_tmpEquipmentJson,_tmpFrequency,_tmpFrequencyLimit,_tmpDiscount,_tmpDiscountType,_tmpDiscountValidity,_tmpEmployeeDiscount,_tmpIsForEmployee,_tmpIsVipPlan)
         } else {
           _result = null
         }
@@ -319,6 +326,7 @@ public class PlanDao_Impl(
         val _columnIndexOfDiscountValidity: Int = getColumnIndexOrThrow(_stmt, "discountValidity")
         val _columnIndexOfEmployeeDiscount: Int = getColumnIndexOrThrow(_stmt, "employeeDiscount")
         val _columnIndexOfIsForEmployee: Int = getColumnIndexOrThrow(_stmt, "isForEmployee")
+        val _columnIndexOfIsVipPlan: Int = getColumnIndexOrThrow(_stmt, "isVipPlan")
         val _result: MutableList<PlanEntity> = mutableListOf()
         while (_stmt.step()) {
           val _item: PlanEntity
@@ -384,7 +392,9 @@ public class PlanDao_Impl(
           }
           val _tmpIsForEmployee: Int
           _tmpIsForEmployee = _stmt.getLong(_columnIndexOfIsForEmployee).toInt()
-          _item = PlanEntity(_tmpId,_tmpPlanName,_tmpPlanPrice,_tmpValidity,_tmpBulletPoints,_tmpPlanDesc,_tmpImage,_tmpCustomerId,_tmpPlanType,_tmpMembershipType,_tmpCurrency,_tmpPoints,_tmpStatus,_tmpCreatedDate,_tmpUpdatedDate,_tmpEquipmentJson,_tmpFrequency,_tmpFrequencyLimit,_tmpDiscount,_tmpDiscountType,_tmpDiscountValidity,_tmpEmployeeDiscount,_tmpIsForEmployee)
+          val _tmpIsVipPlan: Int
+          _tmpIsVipPlan = _stmt.getLong(_columnIndexOfIsVipPlan).toInt()
+          _item = PlanEntity(_tmpId,_tmpPlanName,_tmpPlanPrice,_tmpValidity,_tmpBulletPoints,_tmpPlanDesc,_tmpImage,_tmpCustomerId,_tmpPlanType,_tmpMembershipType,_tmpCurrency,_tmpPoints,_tmpStatus,_tmpCreatedDate,_tmpUpdatedDate,_tmpEquipmentJson,_tmpFrequency,_tmpFrequencyLimit,_tmpDiscount,_tmpDiscountType,_tmpDiscountValidity,_tmpEmployeeDiscount,_tmpIsForEmployee,_tmpIsVipPlan)
           _result.add(_item)
         }
         _result

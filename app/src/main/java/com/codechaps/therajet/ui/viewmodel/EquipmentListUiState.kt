@@ -14,7 +14,8 @@ data class EquipmentListUiState(
     val memberName: String? = null,
     val planExpired: Boolean = false,
     val sessionPlan: List<SessionData>? = null,
-    val creditPlan: List<CreditPlan>? = null
+    val creditPlan: List<CreditPlan>? = null,
+    val showDialog: String? = null,
 )
 
 

@@ -17,6 +17,7 @@ data class CheckoutUiState(
     val isWaitingForCard: Boolean = false,
     val showSuccessDialog: Boolean = false,
     val error: String? = null,
+    val isRenew: Boolean = false,
     val paymentStatus: PaymentStatus = PaymentStatus.Idle
 )
 

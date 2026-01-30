@@ -31,5 +31,6 @@ data class PlanEntity(
     val discountType: String?,
     val discountValidity: String?,
     val employeeDiscount: String?,
-    val isForEmployee: Int
+    val isForEmployee: Int,
+    val isVipPlan: Int,
 )

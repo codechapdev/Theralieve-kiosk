@@ -11,6 +11,7 @@ data class AddonPlanCheckoutUiState(
     val showSuccessDialog: Boolean = false,
     val error: String? = null,
     val userProfile: UserProfile? = null,
+    val isRenew: Boolean = false,
     val paymentStatus: PaymentStatus = PaymentStatus.Idle
 )
 

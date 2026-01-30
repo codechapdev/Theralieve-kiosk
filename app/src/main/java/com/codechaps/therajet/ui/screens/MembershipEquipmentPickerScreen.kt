@@ -18,6 +18,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -38,15 +42,17 @@ import com.codechaps.therajet.ui.components.TheraGradientBackground
 import com.codechaps.therajet.ui.components.TheraPrimaryButton
 import com.codechaps.therajet.ui.components.TheraSecondaryButton
 import com.codechaps.therajet.ui.theme.TheraColorTokens
+import com.codechaps.therajet.ui.utils.IosLikeSwitch
 import com.codechaps.therajet.ui.utils.throttledClickable
 import com.codechaps.therajet.utils.calculateDiscount
 import com.codechaps.therajet.utils.getCurrencySymbol
+import java.text.DecimalFormat
 
 @Composable
 fun MembershipGridScreen(
     plans: List<Plan>,
     onViewDetail: (Plan) -> Unit,
-    onPlanSelected: (Plan) -> Unit,
+    onPlanSelected: (Plan, Boolean) -> Unit,
     onBack: () -> Unit,
     showQuestionnaire: Boolean = false,
     isVerifying: Boolean = false,
@@ -117,11 +123,15 @@ fun MembershipGridScreen(
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 items(plans) { plan ->
+
+                    var checked by remember { mutableStateOf((plan.detail?.is_vip_plan?:0) == 1) }
+
+
                     Surface(
                         shape = MaterialTheme.shapes.extraLarge,
                         tonalElevation = 4.dp,
                         modifier = Modifier
-                            .throttledClickable { onPlanSelected(plan) }
+                            .throttledClickable { onPlanSelected(plan,checked) }
                             .fillMaxWidth()
                             .shadow(
                                 4.dp,
@@ -179,28 +189,20 @@ fun MembershipGridScreen(
                                         if (discountResult.hasDiscount) {
                                             Text(
                                                 text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                    String.format(
-                                                        "%.2f",
-                                                        discountResult.originalPrice
-                                                    )
+                                                    DecimalFormat("0.##").format(discountResult.originalPrice)
                                                 }",
-                                                style = MaterialTheme.typography.bodyMedium,
+                                                style = MaterialTheme.typography.titleLarge,
                                                 color = Color.Gray,
                                                 textDecoration = TextDecoration.LineThrough,
-                                                fontSize = 16.sp,
                                             )
                                             // Show discounted price
                                             Text(
                                                 text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                    String.format(
-                                                        "%.2f",
-                                                        discountResult.discountedPrice
-                                                    )
+                                                    DecimalFormat("0.##").format(discountResult.discountedPrice)
                                                 }",
-                                                style = MaterialTheme.typography.titleSmall,
+                                                style = MaterialTheme.typography.titleLarge,
                                                 color = TheraColorTokens.Primary,
                                                 fontWeight = FontWeight.Bold,
-                                                fontSize = 18.sp,
                                             )
                                             // Show discount percentage
                                             /* Text(
@@ -255,6 +257,28 @@ fun MembershipGridScreen(
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ){
+                                    Text(
+                                        text = "Auto Renew :",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontSize = 20.sp,
+                                        color = Color.Black
+                                    )
+
+                                    IosLikeSwitch(
+                                        checked = checked,
+                                        onCheckedChange = {
+                                            if((plan.detail?.is_vip_plan?:0) != 1)
+                                                checked = it
+                                        }
+                                    )
+
+                                }
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -272,7 +296,7 @@ fun MembershipGridScreen(
                                             .height(70.dp),
                                         label = stringResource(id = R.string.action_enroll_now),
                                         onClick = {
-                                            onPlanSelected(plan)
+                                            onPlanSelected(plan,checked)
                                         })
                                 }
                             }
@@ -310,7 +334,7 @@ fun PreviewMembershipGridScreen() {
         MembershipGridScreen(
             plans = emptyList(),
             onViewDetail = {},
-            onPlanSelected = {},
+            onPlanSelected = {_,_->},
             onBack = {})
     }
 }

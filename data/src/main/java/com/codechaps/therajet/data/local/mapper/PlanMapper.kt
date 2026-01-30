@@ -34,7 +34,7 @@ fun PlanEntity.toDomain(): Plan {
         introductory_plan = 0, // Not stored in entity
         is_for_employee = isForEmployee, // Not stored in entity
         is_gift = 0, // Not stored in entity
-        is_vip_plan = 0, // Not stored in entity
+        is_vip_plan = isVipPlan, // Not stored in entity
         membership_type = membershipType,
         order_plan = "", // Not stored in entity
         plan_desc = planDesc,
@@ -79,6 +79,7 @@ fun Plan.toEntity(): PlanEntity {
         discountType = detail?.discount_type?:"",
         discountValidity = detail?.discount_validity?:"",
         employeeDiscount = detail?.employee_discount?:"",
-        isForEmployee = detail?.is_for_employee?:0
+        isForEmployee = detail?.is_for_employee?:0,
+        isVipPlan = detail?.is_vip_plan?:0
     )
 }

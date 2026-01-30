@@ -1,12 +1,43 @@
 package com.codechaps.therajet.ui.utils
 
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.tooling.preview.Preview
+import com.codechaps.therajet.ui.components.TheraGradientBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+
+@Composable
+fun IosLikeSwitch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        colors = SwitchDefaults.colors(
+            checkedThumbColor = Color.White,
+            checkedTrackColor = Color(0xFF34C759), // iOS green
+            uncheckedThumbColor = Color.White,
+            uncheckedTrackColor = Color(0xFFE5E5EA)
+        )
+    )
+}
+
+@Preview
+@Composable
+fun PreviewIosLikeSwitch(){
+    TheraGradientBackground {
+        IosLikeSwitch(checked = false, onCheckedChange = {})
+    }
+}
 
 
 fun Modifier.throttledClickable(

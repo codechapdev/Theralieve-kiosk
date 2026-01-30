@@ -36,7 +36,7 @@ import com.codechaps.therajet.ui.viewmodel.AddonPlanCheckoutViewModel
 import com.codechaps.therajet.ui.viewmodel.PaymentStatus
 import com.codechaps.therajet.ui.viewmodel.ReaderUiState
 import com.codechaps.therajet.utils.DiscountResult
-import com.codechaps.therajet.utils.StripeCheckoutCoordinator
+//import com.codechaps.therajet.utils.StripeCheckoutCoordinator
 import com.codechaps.therajet.utils.calculateDiscount
 import com.codechaps.therajet.utils.getCurrencySymbol
 
@@ -52,9 +52,9 @@ fun AddonPlanCheckoutScreen(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { result ->
             val granted = result.values.all { it }
-            if (!granted) {
+            if (granted) {
                 // Keep UX consistent: just fail gracefully; user can back out.
-
+//                viewModel.showReaderConnection()
             }
         }
 
@@ -64,12 +64,13 @@ fun AddonPlanCheckoutScreen(
     val readerUiState by viewModel.readerUiState.collectAsState()
     val readerError by viewModel.readerError.collectAsState()
 
-    val coordinator = remember(activity) {
-        activity?.let { StripeCheckoutCoordinator(it) }
-    }
+//    val coordinator = remember(activity) {
+//        activity?.let { StripeCheckoutCoordinator(it) }
+//    }
 
-    LaunchedEffect(uiState.plan, coordinator) {
-        if (activity == null || coordinator == null) return@LaunchedEffect
+    LaunchedEffect(uiState.plan) {
+//        viewModel.showReaderConnection()
+        /*if (activity == null || coordinator == null) return@LaunchedEffect
 
         // Wait until plan is loaded
         if (uiState.plan == null) return@LaunchedEffect
@@ -78,7 +79,7 @@ fun AddonPlanCheckoutScreen(
             viewModel.showReaderConnection()
         } else {
             coordinator.requestPermissions(permissionLauncher)
-        }
+        }*/
     }
 
     ReaderConnectionOverlay(

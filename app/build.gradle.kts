@@ -120,7 +120,7 @@ dependencies {
 
 //    implementation(libs.mockreader.ui)
     implementation(libs.splash.screen)
-    implementation(libs.stripe.terminal)
+//    implementation(libs.stripe.terminal)
 
     // ViewModel
     implementation(libs.lifecycle.viewmodel.compose)

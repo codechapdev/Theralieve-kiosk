@@ -24,8 +24,8 @@ object Routes {
     const val ADDON_TYPE_SESSION = "session"
     const val ADDON_TYPE_CREDIT = "credit"
 
-    fun registrationRoute(planId: String, isForEmployee: Boolean,memberNo:String?, employeeNo:String?,membershipType:String?): String {
-        return "${REGISTRATION}/${planId}?isForEmployee=${isForEmployee}?memberNo=${memberNo}?employeeNo=${employeeNo}?membershipType=${membershipType}"
+    fun registrationRoute(planId: String, isForEmployee: Boolean,memberNo:String?, employeeNo:String?,membershipType:String?,isRenew: Boolean): String {
+        return "${REGISTRATION}/${planId}?isForEmployee=${isForEmployee}?memberNo=${memberNo}?employeeNo=${employeeNo}?membershipType=${membershipType}?isRenew=${isRenew}"
     }
 
     fun membershipDetailRoute(planId: String, isForEmployee: Boolean,memberNo:String?, employeeNo:String?,membershipType:String?): String {
@@ -37,8 +37,8 @@ object Routes {
         return "${ADDON_PLAN_LIST}/${type}"
     }
 
-    fun addonPlanCheckoutRoute(planId: String, isForEmployee: Boolean): String {
-        return "${ADDON_PLAN_CHECKOUT}/${planId}?isForEmployee=${isForEmployee}"
+    fun addonPlanCheckoutRoute(planId: String, isForEmployee: Boolean,isRenew:Boolean): String {
+        return "${ADDON_PLAN_CHECKOUT}/${planId}?isForEmployee=${isForEmployee}?isRenew=${isRenew}"
     }
 }
 

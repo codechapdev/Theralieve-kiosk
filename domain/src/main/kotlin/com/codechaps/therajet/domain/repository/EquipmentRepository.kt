@@ -11,6 +11,7 @@ import com.codechaps.therajet.domain.model.EquipmentList
 import com.codechaps.therajet.domain.model.Member
 import com.codechaps.therajet.domain.model.Plan
 import com.codechaps.therajet.domain.model.TransactionResponse
+import com.codechaps.therajet.domain.model.UpdateRenewResponse
 import com.codechaps.therajet.domain.model.UserPlan
 import kotlinx.coroutines.flow.Flow
 interface EquipmentRepository {
@@ -38,6 +39,7 @@ interface EquipmentRepository {
     suspend fun getUserPlan(userId: Int): Result<UserPlan?>
 
     suspend fun getCurrentPlan(userId: Int): Result<CurrentPlanResponse>
+    suspend fun updateRenewal(userId: Int,planId: String): Result<UpdateRenewResponse>
     suspend fun getTransactionHistory(userId: Int): Result<TransactionResponse>
 
     suspend fun getSecretsUsingIot(macAddress: String): Result<DeviceData?>

@@ -2,7 +2,9 @@ package com.codechaps.therajet.data.api
 
 import androidx.annotation.FractionRes
 import com.codechaps.therajet.domain.model.CurrentPlanResponse
+import com.codechaps.therajet.domain.model.StartMachineResponse
 import com.codechaps.therajet.domain.model.TransactionResponse
+import com.codechaps.therajet.domain.model.UpdateRenewResponse
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -121,6 +123,7 @@ interface ApiService {
         @Part("plan_id") planId: RequestBody,
         @Part("txnid") paymentId: RequestBody,
         @Part("is_free_plan") isFree: RequestBody? = null,
+        @Part("auto_renew") auto_renew: RequestBody? = null,
     ): Response<ProcessPaymentResponse>
 
     /**
@@ -208,6 +211,25 @@ interface ApiService {
     suspend fun currentPlan(
         @Field("user_id") userId:String,
     ): Response<CurrentPlanResponse>
+
+    @POST("kiosk/update-renew-details")
+    @FormUrlEncoded
+    @JvmSuppressWildcards
+    suspend fun updateRenewDetail(
+        @Field("user_id") user_id:String,
+        @Field("plan_id") plan_id:String,
+    ): Response<UpdateRenewResponse>
+
+
+    @POST("kiosk/vip-cancellation")
+    @FormUrlEncoded
+    @JvmSuppressWildcards
+    suspend fun vipCancellation(
+        @Field("user_id") user_id:String,
+        @Field("plan_id") plan_id:String,
+    ): Response<UpdateRenewResponse>
+
+
 
     @POST("get-payment")
     @FormUrlEncoded

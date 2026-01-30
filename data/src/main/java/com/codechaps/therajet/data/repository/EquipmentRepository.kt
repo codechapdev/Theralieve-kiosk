@@ -12,6 +12,7 @@ import com.codechaps.therajet.domain.model.Equipment
 import com.codechaps.therajet.domain.model.EquipmentDetail
 import com.codechaps.therajet.domain.model.EquipmentList
 import com.codechaps.therajet.domain.model.TransactionResponse
+import com.codechaps.therajet.domain.model.UpdateRenewResponse
 import com.codechaps.therajet.domain.model.UserPlan
 import com.codechaps.therajet.domain.repository.DeviceStatus
 import com.codechaps.therajet.domain.repository.EquipmentRepository
@@ -351,12 +352,35 @@ class EquipmentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCurrentPlan(userId: Int): Result<CurrentPlanResponse> {
+    override suspend fun getCurrentPlan(userId: Int,): Result<CurrentPlanResponse> {
         return try {
             val response = apiService.currentPlan(
-                userId = userId.toString()
+                userId = userId.toString(),
             )
-            if (response.isSuccessful && response.body()?.success == true) {
+            if (response.isSuccessful) {
+                val body = response.body()
+                if(body != null) {
+                    Result.success(body)
+                }else Result.failure(Exception("Failed to getCurrentPlan 1: ${response.message()}"))
+            } else {
+                Result.failure(Exception("Failed to getCurrentPlan  2: ${response.message()}"))
+            }
+        } catch (e: HttpException) {
+            Result.failure(Exception("HTTP error: ${e.message()}"))
+        } catch (e: IOException) {
+            Result.failure(Exception("Network error: ${e.message}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun updateRenewal(userId: Int,planId:String): Result<UpdateRenewResponse> {
+        return try {
+            val response = apiService.updateRenewDetail(
+                user_id = userId.toString(),
+                plan_id= planId
+            )
+            if (response.isSuccessful) {
                 val body = response.body()
                 if(body != null) {
                     Result.success(body)

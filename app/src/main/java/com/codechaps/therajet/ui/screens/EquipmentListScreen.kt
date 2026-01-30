@@ -113,6 +113,8 @@ fun EquipmentUnit.borderColor(): Color = statusColor()
 
 @Composable
 fun EquipmentListScreen(
+    error: String?,
+    showDialog: String?,
     planExpired: Boolean,
     equipmentData: List<EquipmentList>,
     isMember: Boolean,
@@ -125,7 +127,8 @@ fun EquipmentListScreen(
     onViewDetail: (EquipmentList) -> Unit = {},
     onStartMachine: (EquipmentList, Equipment, Int,String?) -> Unit = { _, _, _,_ -> },
     onProfileClicked: () -> Unit = {},
-    onPlanData:()->Unit = {}
+    onPlanData:()->Unit = {},
+            onErrorConsumed:()->Unit = {}
     ) {
 
     LocalContext.current
@@ -135,6 +138,22 @@ fun EquipmentListScreen(
 //    }
 
     TheraGradientBackground { alert ->
+
+        if(!error.isNullOrEmpty()){
+            LaunchedEffect(error) {
+                alert.show(error)
+                onErrorConsumed() // clear error after showing
+            }
+        }
+
+        if(showDialog != null){
+            SuccessDialog(
+                title = "Enjoy Your Session!",
+                message = "Your session has been confirmed. Please proceed directly to your selected device ${showDialog}.",
+                onDismiss = {
+                    onBack()
+                })
+        }
 
         if(equipmentData.isNullOrEmpty()){
             Text(
@@ -333,18 +352,18 @@ fun EquipmentListScreen(
 
                             if (isMember) {
                                 val item = type.units.firstOrNull()
-                                if (!item?.sessionTime.isNullOrEmpty()) {
-                                    val label =
-                                        if (item.remainingBalance.isNullOrEmpty()) "Unlimited"
-                                        else item.remainingBalance
-
-                                    Spacer(modifier = Modifier.width(16.dp))
-
-                                    CounterBox(
-                                        label = "Remaining",
-                                        value = label.toString()
-                                    )
-                                }
+//                                if (!item?.sessionTime.isNullOrEmpty()) {
+//                                    val label =
+//                                        if (item.remainingBalance.isNullOrEmpty()) "Unlimited"
+//                                        else item.remainingBalance
+//
+//                                    Spacer(modifier = Modifier.width(16.dp))
+//
+//                                    CounterBox(
+//                                        label = "Remaining",
+//                                        value = label.toString()
+//                                    )
+//                                }
                             }
                         }
 
@@ -683,19 +702,6 @@ fun HorizontalSelectionPanel(
     alert: TheraAlertState? = null
 ) {
 
-    var showSuccessDialog by remember { mutableStateOf(false) }
-
-    if (showSuccessDialog) {
-
-        SuccessDialog(
-            title = "Enjoy Your Session!",
-            message = "Your session has been confirmed. Please proceed directly to your selected device ${unit?.device_name}.",
-            onDismiss = {
-                showSuccessDialog = false
-                onBack()
-            })
-    }
-
 
     Column(
         modifier = Modifier
@@ -812,13 +818,11 @@ fun HorizontalSelectionPanel(
                             val totalPoints =  userPlan?.totalCreditPoints?.toIntOrNull()?:0
                             if(totalPoints >= points){
                                 onStartMachine(points.toString())
-                                showSuccessDialog = true
                             }else{
                                 alert?.show("Insufficient Credit Points")
                             }
                         }else {
                             onStartMachine(null)
-                            showSuccessDialog = true
                         }
                     }
                 } else {
@@ -964,6 +968,8 @@ private fun DurationOption(
 fun PreviewEquipmentList(){
     TheraGradientBackground {
         EquipmentListScreen(
+            showDialog = null,
+            error = null,
             planExpired = false,
             equipmentData = emptyList(),
             isMember = false,

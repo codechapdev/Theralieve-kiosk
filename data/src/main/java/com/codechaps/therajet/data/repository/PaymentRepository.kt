@@ -1,6 +1,7 @@
 package com.codechaps.therajet.data.repository
 
 import com.codechaps.therajet.data.api.ApiService
+import com.codechaps.therajet.domain.model.StartMachineResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
@@ -70,7 +71,7 @@ class PaymentRepositoryImpl @Inject constructor(
 
 
     override suspend fun addPaymentToRecord(
-        userId: String, planId: String, paymentId: String, isFree: Boolean
+        userId: String, planId: String, paymentId: String, isFree: Boolean,autoRenew:Boolean
     ): Result<String?> {
         return try {
 
@@ -78,7 +79,8 @@ class PaymentRepositoryImpl @Inject constructor(
                 userId = userId.toRequestBody(MultipartBody.FORM),
                 planId = planId.toRequestBody(MultipartBody.FORM),
                 paymentId = paymentId.toRequestBody(MultipartBody.FORM),
-                isFree = if (isFree) "true".toRequestBody(MultipartBody.FORM) else null
+                isFree = if (isFree) "true".toRequestBody(MultipartBody.FORM) else null,
+                auto_renew = if(autoRenew) "1".toRequestBody(MultipartBody.FORM) else null
             )
 
             if (response.isSuccessful && response.body()?.success == true) {
@@ -109,7 +111,7 @@ class PaymentRepositoryImpl @Inject constructor(
         planId: Int?,
         planType: String?,
         creditPoints: String?
-    ): Result<Unit> {
+    ): Result<StartMachineResponse?> {
         return try {
             val response = if (isMember) {
                 // For members: send equipmentId, locationId, duration, deviceName, isMember, userId, planId, planType
@@ -142,9 +144,14 @@ class PaymentRepositoryImpl @Inject constructor(
             }
 
             if (response.isSuccessful) {
-                Result.success(Unit)
+                if(response.body()?.success == "true" ||
+                    response.body()?.success == "Success" || response.body()?.success == "success" ||  response.body()?.status == "success")
+                    Result.success(response.body())
+                else
+                    Result.failure(Exception(response.body()?.msg))
+
             } else {
-                val errorMsg = response.body()?.let { "Start machine failed" } ?: "Start machine failed"
+                val errorMsg = response.message()
                 Result.failure(Exception(errorMsg))
             }
         } catch (e: HttpException) {

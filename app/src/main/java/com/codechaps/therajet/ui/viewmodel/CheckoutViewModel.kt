@@ -1,6 +1,5 @@
 package com.codechaps.therajet.ui.viewmodel
 
-import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,16 +9,12 @@ import com.codechaps.therajet.domain.model.Equipment
 import com.codechaps.therajet.domain.model.EquipmentList
 import com.codechaps.therajet.domain.usecase.AddPaymentUseCase
 import com.codechaps.therajet.domain.usecase.CreatePaymentUseCase
-import com.codechaps.therajet.domain.usecase.GetCardReaderTokenUseCase
 import com.codechaps.therajet.domain.usecase.GetDeviceFilesByMacAddressUseCase
 import com.codechaps.therajet.domain.usecase.GetPlanUseCase
 import com.codechaps.therajet.domain.usecase.StartMachineUseCase
 import com.codechaps.therajet.domain.usecase.VerifyPaymentUseCase
 import com.codechaps.therajet.utils.IoTManager
-import com.codechaps.therajet.utils.StripeTerminalPaymentManager
 import com.codechaps.therajet.utils.calculateDiscount
-import com.stripe.stripeterminal.external.models.DiscoveryConfiguration
-import com.stripe.stripeterminal.external.models.Reader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +26,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CheckoutViewModel @Inject constructor(
-    private val stripePaymentManager: StripeTerminalPaymentManager,
     private val verifyPaymentUseCase: VerifyPaymentUseCase,
     private val addPaymentUseCase: AddPaymentUseCase,
     private val startMachineUseCase: StartMachineUseCase,
@@ -59,44 +53,18 @@ class CheckoutViewModel @Inject constructor(
     }
 
     private fun discoverReaders() {
-        if(stripePaymentManager.getConnectedReader() != null){
-            startCardReaderCheckout()
-            return
-        }
-        stripePaymentManager.discoverReaders(
-            isSimulated = true,
-            {
-                connectReader(it.first())
-            },
-            {
-                _readerError.value = it.errorMessage
-                _readerUiState.value = ReaderUiState.Error
-            }
-        )
+//        startCardReaderCheckout()
+        connectReader()
+
     }
 
-    private fun connectReader(reader: Reader) {
+    private fun connectReader() {
         _readerUiState.value = ReaderUiState.Connecting
 
         viewModelScope.launch {
-            try {
-//                tml_GW6FVAjohKbdzY
-                stripePaymentManager.connectReader(
-                    reader,
-                    "tml_GW6FVAjohKbdzY",
-                    {
-                        _readerUiState.value = ReaderUiState.Connected
-                        startCardReaderCheckout()
-                    },
-                    { error ->
-                        _readerError.value = error.errorMessage
-                        _readerUiState.value = ReaderUiState.Error
-                    }
-                )
-            } catch (e: Exception) {
-                _readerError.value = e.message ?: "Failed to load location"
-                _readerUiState.value = ReaderUiState.Error
-            }
+            delay(1500)
+            _readerUiState.value = ReaderUiState.Connected
+            startCardReaderCheckout()
         }
     }
 
@@ -104,7 +72,6 @@ class CheckoutViewModel @Inject constructor(
     fun dismissReaderOverlay() {
         _readerUiState.value = ReaderUiState.Hidden
     }
-
 
 
     private val _uiState = MutableStateFlow(CheckoutUiState())
@@ -129,6 +96,17 @@ class CheckoutViewModel @Inject constructor(
         }
     }
 
+    fun setIsRenew(
+        isRenew: Boolean
+    ) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isRenew = isRenew,
+                )
+            }
+        }
+    }
     fun setPlanCheckoutData(
         planId: String, isForEmployee: Boolean = false
     ) {
@@ -356,32 +334,9 @@ class CheckoutViewModel @Inject constructor(
         Log.d(TAG, "CustomerId=${customerId ?: "N/A"}")
 
         try {
-            // Get currency from plan, default to USD
-            val state = _uiState.value
-            val plan = state.plan
-            val secret = createPaymentUseCase(
-                amount = amountCents.toString(),
-                currency = plan?.detail?.currency ?: "USD",
-                userId = preferenceManager.getMemberId()
-            ).getOrNull()?:""
-            val paymentResult = stripePaymentManager.startCardReaderPayment(secret)
-
-            if(paymentResult.id.isNullOrEmpty()) {
-                _uiState.update {
-                    it.copy(
-                        isWaitingForCard = false,
-                        isProcessing = false,
-                        paymentStatus = PaymentStatus.PaymentFailed,
-                        error = "Payment succeeded but payment ID is missing"
-                    )
-                }
-            }else{
-                processPaymentWithBackend(paymentResult.id?:"", amountCents)
-            }
-
+            processPaymentWithBackend(System.currentTimeMillis().toString(), amountCents)
         } catch (e: Exception) {
             Log.e(TAG, "Exception during processCheckout()", e)
-
             _uiState.update {
                 it.copy(
                     isWaitingForCard = false,
@@ -412,6 +367,7 @@ class CheckoutViewModel @Inject constructor(
             val state = _uiState.value
             val plan = state.plan
             val isMember = state.isMember
+            val isRenew = state.isRenew
 
             // For membership plan payment: first verify-payment, then add-payment
             if (plan != null && isMember) {
@@ -436,7 +392,7 @@ class CheckoutViewModel @Inject constructor(
                     "Step 2: Adding payment to record: paymentId=$paymentId, userId=$userId, planId=$planId"
                 )
                 val addPaymentResult = addPaymentUseCase(
-                    userId = userId, planId = planId, paymentId = paymentId
+                    userId = userId, planId = planId, paymentId = paymentId, autoRenew = isRenew
                 )
 
                 if (addPaymentResult.isSuccess) {
@@ -592,7 +548,6 @@ class CheckoutViewModel @Inject constructor(
         Log.d(TAG, "clearError()")
         _uiState.update { it.copy(error = null) }
     }
-
 
 
     /**

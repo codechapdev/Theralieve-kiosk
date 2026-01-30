@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codechaps.therajet.data.storage.PreferenceManager
 import com.codechaps.therajet.domain.usecase.GetCurrentPlanUseCase
+import com.codechaps.therajet.domain.usecase.UpdateRenewalUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PlanDataViewModel @Inject constructor(
     private val currentPlanUseCase: GetCurrentPlanUseCase,
+    private val updateRenewalUseCase: UpdateRenewalUseCase,
     private  val  preferenceManager: PreferenceManager
     ) : ViewModel() {
 
@@ -38,6 +40,18 @@ class PlanDataViewModel @Inject constructor(
 
     init {
         loadCurrentPlan()
+    }
+
+    fun updateRenewal(planId:String){
+        _uiState.value = _uiState.value.copy(isLoading = true)
+        viewModelScope.launch {
+            updateRenewalUseCase(
+                (preferenceManager.getMemberId()?:"0").toInt(),
+                planId
+            )
+            loadCurrentPlan()
+
+        }
     }
 
 }

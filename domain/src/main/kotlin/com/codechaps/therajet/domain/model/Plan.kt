@@ -86,7 +86,9 @@ data class CreditPlan(
     val updated_date: String?,
     val used: Int?,
     val user_id: Int?,
-    val validity: String?
+    val validity: String?,
+    val is_vip_plan: Int?,
+    val vip_cancel_details: String?
 )
 
 data class SessionData(
@@ -128,6 +130,7 @@ data class PurchasedPlan(
     val user_id: Int?,
     val validity: String?,
     val plan_image: String?,
+    val vip_cancel_details: String?,
 )
 
 
@@ -244,7 +247,14 @@ data class PlanInfo(
 
 
 
+data class StartMachineResponse(
+    val msg: String,
+    val success: String,
+    val status: String,
+)
 
 
-
-
+data class UpdateRenewResponse(
+    val message: String,
+    val status: String
+)

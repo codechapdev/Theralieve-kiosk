@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -118,6 +119,8 @@ fun NavGraph(
             val equipments by equipmentListViewModel.equipmentList.collectAsStateWithLifecycle()
 
             EquipmentListScreen(
+                error = uiState.error,
+                showDialog = uiState.showDialog,
                 planExpired = uiState.planExpired,
                 equipmentData = equipments,
                 isMember = uiState.isMember,
@@ -149,7 +152,11 @@ fun NavGraph(
                 },
                 onPlanData = {
                     navController.navigate(Routes.PLAN_DATA)
-                })
+                },
+                onErrorConsumed ={
+                    equipmentListViewModel.onErrorConsumed()
+                }
+                )
         }
 
         composable(Routes.PLAN_DATA) {
@@ -162,7 +169,14 @@ fun NavGraph(
                 navController.navigate(Routes.addonPlanListRoute("session"))
             }, onAddCredit = {
                 navController.navigate(Routes.addonPlanListRoute("credit"))
-            })
+            },
+                onAutoRenewal = {
+                    viewModel.updateRenewal(it)
+                },
+                onAutoRenewalCancel = {_,_ ->
+
+                }
+            )
         }
 
         composable(
@@ -380,13 +394,14 @@ fun NavGraph(
             }
             MembershipGridScreen(
                 plans = uiState.plans,
-                onPlanSelected = { plan ->
+                onPlanSelected = { plan,checked ->
                     val route = Routes.registrationRoute(
                         plan.detail?.id.toString(),
                         uiState.isForEmployee,
                         uiState.memberNo,
                         uiState.employeeNo,
-                        uiState.membershipType
+                        uiState.membershipType,
+                        checked
                     )
                     navController.navigate(route)
                 },
@@ -476,7 +491,8 @@ fun NavGraph(
                                 isForEmployee,
                                 memberNo,
                                 employeeNo,
-                                membershipType
+                                membershipType,
+                                false
                             )
                             navController.navigate(route)
 //                            navController.navigate("${Routes.REGISTRATION}/${plan.detail?.id}?isForEmployee=${isForEmployee}")
@@ -491,16 +507,22 @@ fun NavGraph(
         }
 
         composable(
-            route = "${Routes.REGISTRATION}/{planId}?isForEmployee={isForEmployee}?memberNo={memberNo}?employeeNo={employeeNo}?membershipType={membershipType}",
+            route = "${Routes.REGISTRATION}/{planId}?isForEmployee={isForEmployee}?memberNo={memberNo}?employeeNo={employeeNo}?membershipType={membershipType}?isRenew={isRenew}",
             arguments = listOf(
                 navArgument("planId") { type = NavType.StringType },
                 navArgument("isForEmployee") {
                     type = NavType.BoolType
                     defaultValue = false
-                })
+                },
+                navArgument("isRenew") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
         ) { backStackEntry ->
             val planId = backStackEntry.arguments?.getString("planId") ?: ""
             val isForEmployee = backStackEntry.arguments?.getBoolean("isForEmployee") ?: false
+            val isRenew = backStackEntry.arguments?.getBoolean("isRenew") ?: false
 
             val memberNo = backStackEntry.arguments?.getString("memberNo") ?: ""
             val employeeNo = backStackEntry.arguments?.getString("employeeNo") ?: ""
@@ -512,6 +534,9 @@ fun NavGraph(
             val coroutineScope = rememberCoroutineScope()
 
             // Try to load plans if plan is not found
+            LaunchedEffect(isRenew) {
+                registrationViewModel.setIsRenew(isRenew = isRenew)
+            }
             LaunchedEffect(planId, isForEmployee) {
                 Log.d(
                     "NavGraph",
@@ -598,7 +623,7 @@ fun NavGraph(
                         uiState.plan
                         val isForEmployeeToStore = uiState.isForEmployee
                         // Pass isForEmployee as navigation argument to ensure it's retained
-                        navController.navigate("${Routes.MEMBERSHIP_CHECKOUT}/${planId}?isForEmployee=${isForEmployeeToStore}?memberNo=${memberNo}?employeeNo=${employeeNo}?membershipType=${membershipType}") {
+                        navController.navigate("${Routes.MEMBERSHIP_CHECKOUT}/${planId}?isForEmployee=${isForEmployeeToStore}?memberNo=${memberNo}?employeeNo=${employeeNo}?membershipType=${membershipType}?isRenew=${isRenew}") {
                             popUpTo(Routes.WELCOME) { inclusive = false }
                         }
                     }
@@ -609,17 +634,22 @@ fun NavGraph(
 
 
         composable(
-            route = "${Routes.MEMBERSHIP_CHECKOUT}/{planId}?isForEmployee={isForEmployee}?memberNo={memberNo}?employeeNo={employeeNo}?membershipType={membershipType}",
+            route = "${Routes.MEMBERSHIP_CHECKOUT}/{planId}?isForEmployee={isForEmployee}?memberNo={memberNo}?employeeNo={employeeNo}?membershipType={membershipType}?isRenew={isRenew}",
             arguments = listOf(
                 navArgument("planId") { type = NavType.StringType },
                 navArgument("isForEmployee") {
                     type = NavType.BoolType
                     defaultValue = false
-                })
+                },
+                navArgument("isRenew") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
         ) { backStackEntry ->
             val planId = backStackEntry.arguments?.getString("planId") ?: ""
-            val isForEmployeeFromNav =
-                backStackEntry.arguments?.getBoolean("isForEmployee") ?: false
+            val isForEmployeeFromNav = backStackEntry.arguments?.getBoolean("isForEmployee") ?: false
+            val isRenew = backStackEntry.arguments?.getBoolean("isRenew") ?: false
             val checkoutViewModel: CheckoutViewModel = hiltViewModel()
             val membershipListViewModel: MembershipListViewModel = hiltViewModel()
             val membershipListUiState by membershipListViewModel.uiState.collectAsStateWithLifecycle()
@@ -632,7 +662,11 @@ fun NavGraph(
                 ?: membershipListUiState.plans.firstOrNull { it.detail?.id.toString() == planId }
 
             // If plan is still not found, reload plans from API with correct parameters
-            LaunchedEffect(planId) {
+            LaunchedEffect(isRenew) {
+                checkoutViewModel.setIsRenew(isRenew)
+            }
+
+             LaunchedEffect(planId) {
                 checkoutViewModel.setPlanCheckoutData(planId, isForEmployeeFromNav)
             }
 
@@ -764,10 +798,11 @@ fun NavGraph(
                 isLoading = uiState.isLoading,
                 error = uiState.error,
                 onBack = { navController.popBackStack() },
-                onSelectPlan = { plan ->
+                onSelectPlan = { plan,isRenew ->
                     val route = Routes.addonPlanCheckoutRoute(
                         planId = plan.detail?.id?.toString() ?: "",
-                        isForEmployee = uiState.isForEmployee
+                        isForEmployee = uiState.isForEmployee,
+                        isRenew = isRenew
                     )
                     navController.navigate(route)
                 },
@@ -805,19 +840,30 @@ fun NavGraph(
         }
 
         composable(
-            route = "${Routes.ADDON_PLAN_CHECKOUT}/{planId}?isForEmployee={isForEmployee}",
+            route = "${Routes.ADDON_PLAN_CHECKOUT}/{planId}?isForEmployee={isForEmployee}?isRenew={isRenew}",
             arguments = listOf(
                 navArgument("planId") { type = NavType.StringType },
                 navArgument("isForEmployee") {
                     type = NavType.BoolType
                     defaultValue = false
-                })
+                },
+                navArgument("isRenew") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
         ) { backStackEntry ->
             val planId = backStackEntry.arguments?.getString("planId") ?: ""
             val isForEmployee = backStackEntry.arguments?.getBoolean("isForEmployee") ?: false
+            val isRenew = backStackEntry.arguments?.getBoolean("isRenew") ?: false
             val vm: AddonPlanCheckoutViewModel = hiltViewModel()
 
-            LaunchedEffect(planId, isForEmployee) {
+
+            LaunchedEffect( isRenew) {
+                vm.setIsRenew(isRenew)
+            }
+
+            LaunchedEffect(planId) {
                 vm.setPlan(planId, isForEmployee)
             }
 

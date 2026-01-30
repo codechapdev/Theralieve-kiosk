@@ -92,7 +92,10 @@ class EquipmentListViewModel @Inject constructor(
 //                })
 //        }
 
-        _uiState.update { it.copy(equipment = equipment, isLoading = false) }
+        _uiState.update { it.copy(equipment = equipment,
+            error = null,
+            showDialog = null,
+            isLoading = false) }
     }
 
 
@@ -101,7 +104,10 @@ class EquipmentListViewModel @Inject constructor(
         if(isMember) {
             loadCurrentPlan()
         }
-        _uiState.update { it.copy(isMember = isMember, isLoading = true) }
+        _uiState.update { it.copy(isMember = isMember,
+            error = null,
+            showDialog = null,
+            isLoading = true) }
 
         viewModelScope.launch {
             // Fetch member name if member
@@ -131,7 +137,9 @@ class EquipmentListViewModel @Inject constructor(
                                     it.copy(
                                         userPlan = plan,
                                         memberName = memberName,
-                                        planExpired = plan == null
+                                        planExpired = plan == null,
+                                        error = null,
+                                        showDialog = null,
                                     )
                                 }
                             }.onFailure {
@@ -141,22 +149,31 @@ class EquipmentListViewModel @Inject constructor(
                                 )
                                 _uiState.update {
                                     it.copy(
-                                        memberName = memberName, planExpired = true
+                                        memberName = memberName, planExpired = true,
+                                        error = null,
+                                        showDialog = null,
                                     )
                                 }
                             }
                         } else {
-                            _uiState.update { it.copy(memberName = memberName) }
+                            _uiState.update { it.copy(memberName = memberName,
+                                error = null,
+                                showDialog = null,
+                            ) }
                         }
                     } else {
-                        _uiState.update { it.copy(memberName = memberName) }
+                        _uiState.update { it.copy(memberName = memberName,
+                            error = null,
+                            showDialog = null,
+                            ) }
                     }
                 }.onFailure {
                     _uiState.update {
                         it.copy(
                             error = "Failed to load equipment",
                             isLoading = false,
-                            memberName = memberName
+                            memberName = memberName,
+                            showDialog = null,
                         )
                     }
                 }
@@ -178,7 +195,9 @@ class EquipmentListViewModel @Inject constructor(
                                     it.copy(
                                         userPlan = plan,
                                         memberName = memberName,
-                                        planExpired = plan == null
+                                        planExpired = plan == null,
+                                        error = null,
+                                        showDialog = null,
                                     )
                                 }
                             }.onFailure {
@@ -188,22 +207,27 @@ class EquipmentListViewModel @Inject constructor(
                                 )
                                 _uiState.update {
                                     it.copy(
-                                        memberName = memberName, planExpired = true
+                                        memberName = memberName, planExpired = true,
+                                        error = null,
+                                        showDialog = null,
                                     )
                                 }
                             }
                         } else {
-                            _uiState.update { it.copy(memberName = memberName) }
+                            _uiState.update { it.copy(memberName = memberName, error = null,
+                                showDialog = null,) }
                         }
                     } else {
-                        _uiState.update { it.copy(memberName = memberName) }
+                        _uiState.update { it.copy(memberName = memberName, error = null,
+                            showDialog = null,) }
                     }
                 }.onFailure {
                     _uiState.update {
                         it.copy(
                             error = "Failed to load equipment",
                             isLoading = false,
-                            memberName = memberName
+                            memberName = memberName,
+                            showDialog = null,
                         )
                     }
                 }
@@ -324,17 +348,35 @@ class EquipmentListViewModel @Inject constructor(
                     Log.i("EquipmentListViewModel", "Machine started successfully for membership")
                     // Also start via IoT if possible
                     startMachineViaIoT(unit, duration)
+                    _uiState.update { it.copy(
+                        showDialog = unit.device_name ?: "",
+                        error = null
+                    )
+                    }
                 } else {
                     Log.e(
                         "EquipmentListViewModel",
                         "Failed to start machine: ${result.exceptionOrNull()?.message}"
                     )
+                    _uiState.update { it.copy(
+                        showDialog = null,
+                        error = result.exceptionOrNull()?.message
+                    )
+                    }
                 }
             } catch (e: Exception) {
                 Log.e("EquipmentListViewModel", "Exception starting machine", e)
             }
         }
     }
+
+
+    fun onErrorConsumed() {
+        _uiState.update {
+            it.copy(error = null)
+        }
+    }
+
 
     private fun startMachineViaIoT(unit: Equipment, duration: Int) {
         viewModelScope.launch {

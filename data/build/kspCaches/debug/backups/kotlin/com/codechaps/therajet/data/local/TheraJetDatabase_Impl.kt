@@ -40,12 +40,12 @@ public class TheraJetDatabase_Impl : TheraJetDatabase() {
   }
 
   protected override fun createOpenDelegate(): RoomOpenDelegate {
-    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(4, "f49909eda8e896d543cc36185ed3e9c4", "60a5956bc6db98e8e7e5180d47a82d79") {
+    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(5, "40e00ce3abf2d44246866d5b35d78668", "8de8654eba807c215f79f2bc22f02a16") {
       public override fun createAllTables(connection: SQLiteConnection) {
-        connection.execSQL("CREATE TABLE IF NOT EXISTS `plans` (`id` INTEGER NOT NULL, `planName` TEXT NOT NULL, `planPrice` TEXT NOT NULL, `validity` TEXT NOT NULL, `bulletPoints` TEXT NOT NULL, `planDesc` TEXT NOT NULL, `image` TEXT NOT NULL, `customerId` TEXT NOT NULL, `planType` TEXT NOT NULL, `membershipType` TEXT NOT NULL, `currency` TEXT NOT NULL, `points` INTEGER NOT NULL, `status` INTEGER NOT NULL, `createdDate` TEXT NOT NULL, `updatedDate` TEXT NOT NULL, `equipmentJson` TEXT NOT NULL, `frequency` TEXT NOT NULL, `frequencyLimit` TEXT NOT NULL, `discount` TEXT, `discountType` TEXT, `discountValidity` TEXT, `employeeDiscount` TEXT, `isForEmployee` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `plans` (`id` INTEGER NOT NULL, `planName` TEXT NOT NULL, `planPrice` TEXT NOT NULL, `validity` TEXT NOT NULL, `bulletPoints` TEXT NOT NULL, `planDesc` TEXT NOT NULL, `image` TEXT NOT NULL, `customerId` TEXT NOT NULL, `planType` TEXT NOT NULL, `membershipType` TEXT NOT NULL, `currency` TEXT NOT NULL, `points` INTEGER NOT NULL, `status` INTEGER NOT NULL, `createdDate` TEXT NOT NULL, `updatedDate` TEXT NOT NULL, `equipmentJson` TEXT NOT NULL, `frequency` TEXT NOT NULL, `frequencyLimit` TEXT NOT NULL, `discount` TEXT, `discountType` TEXT, `discountValidity` TEXT, `employeeDiscount` TEXT, `isForEmployee` INTEGER NOT NULL, `isVipPlan` INTEGER NOT NULL, PRIMARY KEY(`id`))")
         connection.execSQL("CREATE TABLE IF NOT EXISTS `equipment` (`equipmentId` INTEGER NOT NULL, `deviceName` TEXT NOT NULL, `equipmentCount` INTEGER NOT NULL, `equipmentName` TEXT NOT NULL, `equipmentPoint` TEXT NOT NULL, `equipmentPoints` INTEGER NOT NULL, `equipmentPrice` TEXT NOT NULL, `equipmentTime` TEXT NOT NULL, `image` TEXT NOT NULL, `isOneMinuteAccording` TEXT NOT NULL, `macAddress` TEXT NOT NULL, `equipmentDataJson` TEXT, `status` TEXT, `statusUpdatedAt` TEXT, `remainingBalance` TEXT, `sessionTime` TEXT, PRIMARY KEY(`deviceName`))")
         connection.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
-        connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f49909eda8e896d543cc36185ed3e9c4')")
+        connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '40e00ce3abf2d44246866d5b35d78668')")
       }
 
       public override fun dropAllTables(connection: SQLiteConnection) {
@@ -92,6 +92,7 @@ public class TheraJetDatabase_Impl : TheraJetDatabase() {
         _columnsPlans.put("discountValidity", TableInfo.Column("discountValidity", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsPlans.put("employeeDiscount", TableInfo.Column("employeeDiscount", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsPlans.put("isForEmployee", TableInfo.Column("isForEmployee", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsPlans.put("isVipPlan", TableInfo.Column("isVipPlan", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         val _foreignKeysPlans: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
         val _indicesPlans: MutableSet<TableInfo.Index> = mutableSetOf()
         val _infoPlans: TableInfo = TableInfo("plans", _columnsPlans, _foreignKeysPlans, _indicesPlans)

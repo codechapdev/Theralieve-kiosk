@@ -10,6 +10,7 @@ class AddPaymentUseCase @Inject constructor(
         userId: String,
         planId: String,
         paymentId: String,
-        isFree: Boolean = false
-    ): Result<String?> = paymentRepository.addPaymentToRecord(userId, planId, paymentId, isFree)
+        isFree: Boolean = false,
+        autoRenew: Boolean = false,
+    ): Result<String?> = paymentRepository.addPaymentToRecord(userId, planId, paymentId, isFree,autoRenew)
 }

@@ -58,7 +58,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.draw.shadow
 import com.codechaps.therajet.ui.viewmodel.ReaderUiState
-import com.codechaps.therajet.utils.StripeCheckoutCoordinator
+//import com.codechaps.therajet.utils.StripeCheckoutCoordinator
 import com.codechaps.therajet.utils.getCurrencySymbol
 import com.codechaps.therajet.utils.calculateDiscount
 
@@ -94,29 +94,30 @@ fun CheckoutScreen(
             }
         }
 
-    val coordinator = remember(activity) {
-        activity?.let { StripeCheckoutCoordinator(it) }
-    }
+//    val coordinator = remember(activity) {
+//        activity?.let { StripeCheckoutCoordinator(it) }
+//    }
 
     LaunchedEffect(Unit) {
-        if (activity == null || coordinator == null) return@LaunchedEffect
+        if (activity == null) return@LaunchedEffect
 
-        if (coordinator.isReady()) {
-            // Check authorization state first before checking readers
-            // If authorized and no ready reader, show settings
-            // Otherwise proceed with checkout (which will handle authorization)
-            val needsSettings = coordinator.needsReaderSettings()
-            if (needsSettings) {
-                // Show settings to allow user to pair/manage readers
-                viewModel.showReaderConnection()
-            } else {
-                // Reader is ready or will be checked during checkout
-
-                viewModel.showReaderConnection()
-            }
-        } else {
-            coordinator.requestPermissions(permissionLauncher)
-        }
+        viewModel.showReaderConnection()
+//        if (coordinator.isReady()) {
+//            // Check authorization state first before checking readers
+//            // If authorized and no ready reader, show settings
+//            // Otherwise proceed with checkout (which will handle authorization)
+//            val needsSettings = coordinator.needsReaderSettings()
+//            if (needsSettings) {
+//                // Show settings to allow user to pair/manage readers
+//                viewModel.showReaderConnection()
+//            } else {
+//                // Reader is ready or will be checked during checkout
+//
+//                viewModel.showReaderConnection()
+//            }
+//        } else {
+//            coordinator.requestPermissions(permissionLauncher)
+//        }
     }
 
 

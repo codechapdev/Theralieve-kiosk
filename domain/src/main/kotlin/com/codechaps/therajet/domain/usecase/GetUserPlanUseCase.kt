@@ -15,6 +15,12 @@ class GetCurrentPlanUseCase @Inject constructor(
     suspend operator fun invoke(userId: Int) = equipmentRepository.getCurrentPlan(userId)
 }
 
+class UpdateRenewalUseCase @Inject constructor(
+    private val equipmentRepository: EquipmentRepository
+) {
+    suspend operator fun invoke(userId: Int,planId:String) = equipmentRepository.updateRenewal(userId,planId)
+}
+
 class GetTransactionHistoryUseCase @Inject constructor(
     private val equipmentRepository: EquipmentRepository
 ) {

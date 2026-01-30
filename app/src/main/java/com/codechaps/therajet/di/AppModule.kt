@@ -2,8 +2,8 @@ package com.codechaps.therajet.di
 
 import android.content.Context
 import com.codechaps.therajet.utils.IoTManager
-import com.codechaps.therajet.utils.StripeConnectionTokenProvider
-import com.codechaps.therajet.utils.StripeTerminalPaymentManager
+//import com.codechaps.therajet.utils.StripeConnectionTokenProvider
+//import com.codechaps.therajet.utils.StripeTerminalPaymentManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,14 +15,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
     
-    @Provides
-    @Singleton
-    fun provideStripePaymentManager(
-        @ApplicationContext context: Context,
-        stripeConnectionTokenProvider: StripeConnectionTokenProvider
-    ): StripeTerminalPaymentManager {
-        return StripeTerminalPaymentManager(context,stripeConnectionTokenProvider)
-    }
+//    @Provides
+//    @Singleton
+//    fun provideStripePaymentManager(
+//        @ApplicationContext context: Context,
+//        stripeConnectionTokenProvider: StripeConnectionTokenProvider
+//    ): StripeTerminalPaymentManager {
+//        return StripeTerminalPaymentManager(context,stripeConnectionTokenProvider)
+//    }
 
 
         @Provides
