@@ -24,17 +24,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.codechaps.therajet.R
 import com.codechaps.therajet.domain.model.Plan
 import com.codechaps.therajet.navigation.Routes
 import com.codechaps.therajet.ui.components.Header
 import com.codechaps.therajet.ui.components.NetworkImage
 import com.codechaps.therajet.ui.components.TheraGradientBackground
+import com.codechaps.therajet.ui.components.TheraPrimaryButton
+import com.codechaps.therajet.ui.components.TheraSecondaryButton
 import com.codechaps.therajet.ui.theme.TheraColorTokens
 import com.codechaps.therajet.ui.utils.throttledClickable
 import com.codechaps.therajet.utils.DiscountResult
@@ -51,6 +55,7 @@ fun AddonPlanListScreen(
     error: String?,
     onBack: () -> Unit,
     onSelectPlan: (Plan) -> Unit,
+    onViewDetail: (Plan) -> Unit
 ) {
     val title = when (type.lowercase()) {
         Routes.ADDON_TYPE_SESSION -> "Session Plans"
@@ -105,7 +110,10 @@ fun AddonPlanListScreen(
                             plan = plan,
                             isForEmployee = isForEmployee,
                             vipDiscount = vipDiscount,
-                            onClick = { onSelectPlan(plan) }
+                            onClick = { onSelectPlan(plan) },
+                            onViewDetail = {
+                                onViewDetail(plan)
+                            }
                         )
                     }
                 }
@@ -121,6 +129,7 @@ private fun AddonPlanCard(
     isForEmployee: Boolean,
     vipDiscount: String,
     onClick: () -> Unit,
+    onViewDetail: (Plan) -> Unit,
 ) {
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
@@ -269,6 +278,30 @@ private fun AddonPlanCard(
                     color = Color.Black,
                     maxLines = 1
                 )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TheraSecondaryButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(70.dp),
+                        label = stringResource(id = R.string.action_view_details),
+                        onClick = {
+                            onViewDetail(plan)
+                        })
+                    TheraPrimaryButton(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(70.dp),
+                        label = stringResource(id = R.string.action_enroll_now),
+                        onClick = {
+                            onClick()
+                        })
+                }
+
             }
 
             if ((plan.detail?.is_vip_plan ?: 0) == 1) {

@@ -4,6 +4,7 @@ object Routes {
     const val WELCOME = "welcome"
     const val EQUIPMENT_LIST = "equipment_list"
     const val EQUIPMENT_DETAIL = "equipment_detail"
+    const val PLAN_DATA = "plan_data"
     const val CHECKOUT = "checkout"
     const val MEMBERSHIP_LIST = "membership_list"
     const val MEMBERSHIP_DETAIL = "membership_detail"
@@ -17,6 +18,7 @@ object Routes {
 
     // Add-on (Session/Credit) purchase flows (NEW)
     const val ADDON_PLAN_LIST = "addon_plan_list" // {type}
+    const val ADDON_PLAN_DETAIL = "addon_plan_detail" // {type}
     const val ADDON_PLAN_CHECKOUT = "addon_plan_checkout" // {planId}
 
     const val ADDON_TYPE_SESSION = "session"

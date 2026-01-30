@@ -222,7 +222,7 @@ fun PolishedTransactionCard(transactions: List<Transactions>) {
 fun SectionTitle(text: String) {
     Text(
         text = text,
-        fontSize = 18.sp,
+        fontSize = 24.sp,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.padding(start = 6.dp)
     )

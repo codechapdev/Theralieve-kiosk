@@ -30,6 +30,7 @@ import androidx.navigation.navArgument
 import com.codechaps.therajet.ui.components.SuccessDialog
 import com.codechaps.therajet.ui.components.TheraGradientBackground
 import com.codechaps.therajet.ui.components.TheraPrimaryButton
+import com.codechaps.therajet.ui.screens.AddOnPlanDetailScreen
 import com.codechaps.therajet.ui.screens.AddonPlanCheckoutScreen
 import com.codechaps.therajet.ui.screens.AddonPlanListScreen
 import com.codechaps.therajet.ui.screens.CheckoutScreen
@@ -39,10 +40,12 @@ import com.codechaps.therajet.ui.screens.MemberLoginDialog
 import com.codechaps.therajet.ui.screens.MemberRegistrationDialog
 import com.codechaps.therajet.ui.screens.MembershipGridScreen
 import com.codechaps.therajet.ui.screens.MyProfile
+import com.codechaps.therajet.ui.screens.PlanDataScreen
 import com.codechaps.therajet.ui.screens.PlanDetailScreen
 import com.codechaps.therajet.ui.screens.WelcomeScreen
 import com.codechaps.therajet.ui.theme.TheraColorTokens
 import com.codechaps.therajet.ui.viewmodel.AddonPlanCheckoutViewModel
+import com.codechaps.therajet.ui.viewmodel.AddonPlanDetailViewModel
 import com.codechaps.therajet.ui.viewmodel.AddonPlansViewModel
 import com.codechaps.therajet.ui.viewmodel.CheckoutViewModel
 import com.codechaps.therajet.ui.viewmodel.EquipmentDetailViewModel
@@ -51,6 +54,7 @@ import com.codechaps.therajet.ui.viewmodel.MemberLoginViewModel
 import com.codechaps.therajet.ui.viewmodel.MembershipDetailViewModel
 import com.codechaps.therajet.ui.viewmodel.MembershipListViewModel
 import com.codechaps.therajet.ui.viewmodel.MyPlanViewModel
+import com.codechaps.therajet.ui.viewmodel.PlanDataViewModel
 import com.codechaps.therajet.ui.viewmodel.RegistrationViewModel
 import com.codechaps.therajet.ui.viewmodel.WelcomeViewModel
 import kotlinx.coroutines.launch
@@ -143,13 +147,22 @@ fun NavGraph(
                 onProfileClicked = {
                     navController.navigate(Routes.PROFILE)
                 },
-                onAddSession =  {
-                    navController.navigate(Routes.addonPlanListRoute("session"))
-                },
-                onAddCredit = {
-                    navController.navigate(Routes.addonPlanListRoute("credit"))
-                }
-                )
+                onPlanData = {
+                    navController.navigate(Routes.PLAN_DATA)
+                })
+        }
+
+        composable(Routes.PLAN_DATA) {
+            val viewModel: PlanDataViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            PlanDataScreen(uiState = uiState, onDismiss = {
+                navController.popBackStack()
+            }, onAddSession = {
+                navController.navigate(Routes.addonPlanListRoute("session"))
+            }, onAddCredit = {
+                navController.navigate(Routes.addonPlanListRoute("credit"))
+            })
         }
 
         composable(
@@ -757,7 +770,38 @@ fun NavGraph(
                         isForEmployee = uiState.isForEmployee
                     )
                     navController.navigate(route)
+                },
+                onViewDetail = {
+                    navController.navigate("${Routes.ADDON_PLAN_DETAIL}/${it.detail?.id}")
                 })
+        }
+
+        composable(
+            route = "${Routes.ADDON_PLAN_DETAIL}/{planId}",
+            arguments = listOf(navArgument("planId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val planId = backStackEntry.arguments?.getString("planId") ?: ""
+            val vm: AddonPlanDetailViewModel = hiltViewModel()
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(planId) {
+                vm.load(planId)
+            }
+
+            AddOnPlanDetailScreen(
+                plan = uiState.plan,
+                onBack = {
+                    navController.popBackStack()
+                },
+                onEnroll = {
+
+                },
+                onHome = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+                )
         }
 
         composable(
@@ -767,7 +811,8 @@ fun NavGraph(
                 navArgument("isForEmployee") {
                     type = NavType.BoolType
                     defaultValue = false
-                })) { backStackEntry ->
+                })
+        ) { backStackEntry ->
             val planId = backStackEntry.arguments?.getString("planId") ?: ""
             val isForEmployee = backStackEntry.arguments?.getBoolean("isForEmployee") ?: false
             val vm: AddonPlanCheckoutViewModel = hiltViewModel()

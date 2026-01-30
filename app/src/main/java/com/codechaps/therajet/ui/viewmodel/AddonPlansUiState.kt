@@ -12,3 +12,12 @@ data class AddonPlansUiState(
     val isForEmployee: Boolean = false,
 )
 
+data class AddonPlanDetailUiState(
+    val type: String = "",
+    val plan: Plan? = null,
+    val userProfile: UserProfile? = null,
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val isForEmployee: Boolean = false,
+)
+

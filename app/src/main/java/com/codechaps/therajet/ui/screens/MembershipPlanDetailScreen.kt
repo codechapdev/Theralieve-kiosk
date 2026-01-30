@@ -45,7 +45,8 @@ fun PlanDetailScreen(
     plan: Plan,
     onBack: () -> Unit,
     onHome: () -> Unit,
-    onEnroll: () -> Unit = {}
+    onEnroll: () -> Unit = {},
+    fromMember:Boolean = false
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
@@ -272,21 +273,23 @@ fun PlanDetailScreen(
             }
             
             Spacer(modifier = Modifier.height(24.dp))
-            
-            // Enroll Button
-            TheraPrimaryButton(
-                label = "Enroll Now",
-                onClick = onEnroll,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(
-                        when {
-                            screenHeight > 1000 -> 100.dp
-                            screenHeight > 800 -> 90.dp
-                            else -> 80.dp
-                        }
-                    )
-            )
+
+            if(!fromMember) {
+                // Enroll Button
+                TheraPrimaryButton(
+                    label = "Enroll Now",
+                    onClick = onEnroll,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(
+                            when {
+                                screenHeight > 1000 -> 100.dp
+                                screenHeight > 800 -> 90.dp
+                                else -> 80.dp
+                            }
+                        )
+                )
+            }
         }
     }
 }

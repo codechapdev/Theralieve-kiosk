@@ -125,26 +125,11 @@ fun EquipmentListScreen(
     onViewDetail: (EquipmentList) -> Unit = {},
     onStartMachine: (EquipmentList, Equipment, Int,String?) -> Unit = { _, _, _,_ -> },
     onProfileClicked: () -> Unit = {},
-    onAddSession: () -> Unit = {},
-    onAddCredit: () -> Unit = {},
+    onPlanData:()->Unit = {}
     ) {
 
     LocalContext.current
 
-    var showPlanDataDialog by remember { mutableStateOf(false) }
-    if(showPlanDataDialog){
-        PlanDataDialog(
-            sessionPlans = sessionPlan?:emptyList(),
-            creditPlans = creditPlan?:emptyList(),
-            onDismiss = {
-                showPlanDataDialog = false
-                        },
-            onAddSession = onAddSession,
-            onAddCredit = onAddCredit,
-            onCheckSession = {},
-            onCheckCredit = {}
-        )
-    }
 //    if (planExpired) {
 //        PlanExpiredDialog(onBack)
 //    }
@@ -175,9 +160,7 @@ fun EquipmentListScreen(
                 onBack = onBack,
                 onHome = onBack,
                 onProfileClicked = onProfileClicked,
-                onPlanData = {
-                    showPlanDataDialog = true
-                }
+                onPlanData = onPlanData
             )
 
             Spacer(Modifier.height(20.dp))

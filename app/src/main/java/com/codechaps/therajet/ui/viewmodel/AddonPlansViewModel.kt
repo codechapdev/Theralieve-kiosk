@@ -75,3 +75,59 @@ class AddonPlansViewModel @Inject constructor(
     }
 }
 
+
+@HiltViewModel
+class AddonPlanDetailViewModel @Inject constructor(
+    private val getPlansUseCase: GetPlansUseCase,
+    private val preferenceManager: PreferenceManager,
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(AddonPlanDetailUiState())
+    val uiState: StateFlow<AddonPlanDetailUiState> = _uiState.asStateFlow()
+
+    private fun loadUserProfile() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                userProfile = preferenceManager.getLoggedInUser()
+            )
+        }
+    }
+
+    fun load(planId: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(type = planId, isLoading = true, error = null) }
+
+            // Member context (Profile flow implies member is logged in)
+            val membershipType = preferenceManager.getMemberMembershipType()
+            val customerId = preferenceManager.getCustomerId()
+                ?: preferenceManager.getMemberCustomerId()
+                ?: ""
+
+            val employeeNo = preferenceManager.getEmployeeNumber()
+            val isForEmployeeInt = if (!employeeNo.isNullOrBlank()) 1 else null
+            val isForEmployeeBool = isForEmployeeInt == 1
+            loadUserProfile()
+            getPlansUseCase(
+                customerId = customerId,
+                membershipType = membershipType,
+                isForEmployee = isForEmployeeInt,
+                forceRefresh = true,
+            ).fold(onSuccess = { plans ->
+
+                _uiState.update {
+                    it.copy(
+                        plan = plans.find { (it.detail?.id?:0).toString() == planId },
+                        isLoading = false,
+                        isForEmployee = isForEmployeeBool,
+                        error = null
+                    )
+                }
+            }, onFailure = { e ->
+                _uiState.update { it.copy(plan = null, isLoading = false, error = e.message) }
+            })
+        }
+    }
+}
+
+
+
