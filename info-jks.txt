@@ -1,0 +1,3 @@
+store pass : Theralieve
+store key alias : key0
+file app/release.jks

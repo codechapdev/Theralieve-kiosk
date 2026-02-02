@@ -75,7 +75,7 @@
 -keep class com.google.gson.** { *; }
 
 # Keep model classes used in JSON
--keep class com.codechaps.therajet.** { *; }
+-keep class com.theralieve.** { *; }
 
 # Gson reflection
 #-keepclassmembers class * {

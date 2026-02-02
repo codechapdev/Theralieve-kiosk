@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.codechaps.therajet"
+    namespace = "com.theralieve"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.codechaps.therajet"
+        applicationId = "com.theralieve"
         minSdk = 28
         targetSdk = 36
         versionCode = 1
@@ -20,10 +20,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("kozen.jks")
+            storePassword = "kozen"
+            keyAlias = "xc-buildsrv"
+            keyPassword = "kozen"
+            enableV1Signing = true
+            enableV2Signing = true
+        }
+    }
+
+
+
     buildTypes {
 
-
         debug {
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled =  false
 //            isShrinkResources = true   // keep false for faster debug builds
             proguardFiles(
@@ -124,6 +137,7 @@ dependencies {
 
     // ViewModel
     implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.invoke.dvpay.lite)
 
     // Testing
     testImplementation(libs.junit)

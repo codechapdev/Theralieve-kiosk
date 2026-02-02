@@ -1,4 +1,4 @@
-package com.codechaps.therajet
+package com.theralieve
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.codechaps.therajet", appContext.packageName)
+        assertEquals("com.theralieve", appContext.packageName)
     }
 }

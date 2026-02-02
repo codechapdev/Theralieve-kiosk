@@ -1,4 +1,4 @@
-package com.codechaps.therajet
+package com.theralieve
 
 import org.junit.Test
 

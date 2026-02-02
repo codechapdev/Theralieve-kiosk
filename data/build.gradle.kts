@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.codechaps.therajet.data"
+    namespace = "com.theralieve.data"
     compileSdk =  36
 //    compileSdk {
 //        version = release(36)
