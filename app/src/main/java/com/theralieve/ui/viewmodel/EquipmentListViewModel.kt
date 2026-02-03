@@ -398,7 +398,6 @@ class EquipmentListViewModel @Inject constructor(
                                 } else {
                                     null
                                 }
-
 //                                "session": $duration,
                                 val payload = """
                                     {
@@ -423,6 +422,7 @@ class EquipmentListViewModel @Inject constructor(
                     Log.e("EquipmentListViewModel", "Failed to get IoT device files: ${e.message}")
                 }
             } catch (e: Exception) {
+
                 Log.e("EquipmentListViewModel", "Exception starting machine via IoT", e)
             }
         }
