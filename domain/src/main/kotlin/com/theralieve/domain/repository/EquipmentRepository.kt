@@ -7,7 +7,6 @@ import com.theralieve.domain.model.DeviceData
 import com.theralieve.domain.model.DeviceFiles
 import com.theralieve.domain.model.Equipment
 import com.theralieve.domain.model.EquipmentDetail
-import com.theralieve.domain.model.EquipmentList
 import com.theralieve.domain.model.Member
 import com.theralieve.domain.model.Plan
 import com.theralieve.domain.model.TransactionResponse
@@ -19,15 +18,20 @@ interface EquipmentRepository {
     suspend fun getEquipments(
         customerId: String,
         forceRefresh: Boolean = false
-    ): Result<List<EquipmentList>>
+    ): Result<List<Equipment>>
 
-    suspend fun getEquipmentsFlow(): Flow<List<EquipmentList>>
+    suspend fun getEquipmentsCredit(
+        customerId: String,
+        userId: String?,
+    ): Result<List<Equipment>>
+
+    suspend fun getEquipmentsFlow(): Flow<List<Equipment>>
 
     suspend fun getMembershipEquipments(
         customerId: String,
         isMember:Boolean,
         userId:String?,
-    ): Result<List<EquipmentList>>
+    ): Result<List<Equipment>>
 
     
     suspend fun getEquipmentStatus(deviceNames: List<String>): Result<Map<String?, DeviceStatus>?>
@@ -42,6 +46,7 @@ interface EquipmentRepository {
     suspend fun updateRenewal(userId: Int,planId: String): Result<UpdateRenewResponse>
     suspend fun cancelVip(userId: Int,planId: String,reason:String): Result<UpdateRenewResponse>
     suspend fun getTransactionHistory(userId: Int): Result<TransactionResponse>
+    suspend fun getGeneratedUsername(): Result<String>
 
     suspend fun getSecretsUsingIot(macAddress: String): Result<DeviceData?>
 

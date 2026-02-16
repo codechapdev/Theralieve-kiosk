@@ -8,6 +8,7 @@ import com.theralieve.data.storage.PreferenceManager
 import com.theralieve.domain.model.Plan
 import com.theralieve.domain.usecase.AddMemberUseCase
 import com.theralieve.domain.usecase.AddPaymentUseCase
+import com.theralieve.domain.usecase.GetGeneratedUsernameUseCase
 import com.theralieve.domain.usecase.GetPlanUseCase
 import com.theralieve.ui.screens.RegistrationFormState
 import com.theralieve.utils.calculateDiscount
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class RegistrationViewModel @Inject constructor(
     private val addMemberUseCase: AddMemberUseCase,
     private val addPaymentUseCase: AddPaymentUseCase,
+    private val getGeneratedUsernameUseCase: GetGeneratedUsernameUseCase,
     private val preferenceManager: PreferenceManager,
     private val getPlanUseCase: GetPlanUseCase,
 ) : ViewModel() {
@@ -33,6 +35,7 @@ class RegistrationViewModel @Inject constructor(
 
     fun setPlan(plan: Plan) {
         _uiState.update { it.copy(plan = plan) }
+//        getUsername()
     }
 
     fun setIsRenew(isRenew: Boolean){
@@ -300,6 +303,20 @@ class RegistrationViewModel @Inject constructor(
 
     fun resetForm() {
         _uiState.update { it.copy(formState = RegistrationFormState()) }
+    }
+
+    fun  getUsername(){
+        viewModelScope.launch {
+            getGeneratedUsernameUseCase().onSuccess { result->
+                _uiState.update { it.copy(formState = it.formState.copy(username = result)) }
+            }.onFailure {
+                _uiState.update { it.copy(error = it.error) }
+            }
+        }
+    }
+
+    init {
+        getUsername()
     }
 }
 

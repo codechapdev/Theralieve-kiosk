@@ -1,5 +1,6 @@
 package com.theralieve.ui.viewmodel
 
+import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -73,7 +74,7 @@ class AddonPlanCheckoutViewModel @Inject constructor(
             getPlanUseCase(planId).onSuccess { cached ->
                 if (cached != null) {
                     _uiState.update { it.copy(plan = cached) }
-                    showReaderConnection()
+//                    showReaderConnection()
                     return@onSuccess
                 }
 
@@ -94,7 +95,7 @@ class AddonPlanCheckoutViewModel @Inject constructor(
 
                 getPlanUseCase(planId).onSuccess { refreshed ->
                     _uiState.update { it.copy(plan = refreshed) }
-                    showReaderConnection()
+//                    showReaderConnection()
                 }
             }.onFailure { e ->
                 _uiState.update { it.copy(error = e.message ?: "Failed to load plan") }
@@ -176,7 +177,7 @@ class AddonPlanCheckoutViewModel @Inject constructor(
             "Discount calculation: original=${discountResult.originalPrice}, discounted=$price, hasDiscount=${discountResult.hasDiscount}"
         )
 
-        val amountCents = (price * 100).toLong()
+        val amountCents = price
 
         Log.i(TAG, "Starting checkout process with amountCents=$amountCents")
         viewModelScope.launch {
@@ -192,7 +193,7 @@ class AddonPlanCheckoutViewModel @Inject constructor(
         }
     }
 
-    private suspend fun processCheckout(amountCents: Long) {
+    private suspend fun processCheckout(amountCents: Double) {
         Log.i(TAG, "processCheckout() amountCents=$amountCents")
 
         try {
@@ -201,7 +202,6 @@ class AddonPlanCheckoutViewModel @Inject constructor(
 
             if (amountCents <= 0) {
                 processPaymentWithBackend(System.currentTimeMillis().toString(), true)
-
             } else {
                 startSale(amountCents.toString())
                 // Get payment intent client secret
@@ -344,9 +344,11 @@ class AddonPlanCheckoutViewModel @Inject constructor(
         }
 
         intentApplication.setTransactionListener(object : TransactionListener {
+
             override fun onApplicationLaunched(result: JSONObject?) {
 
             }
+
             override fun onApplicationLaunchFailed(errorResult: JSONObject) {
                 Log.d(TAG, "onApplicationLaunchFailed: $errorResult")
                 _uiState.update {
@@ -357,15 +359,20 @@ class AddonPlanCheckoutViewModel @Inject constructor(
                         error = "Failed to launch onApplicationLaunchFailed  ${errorResult}"
                     )
                 }
-                viewModelScope.launch {
-
-                    delay(15000)
-                    processPaymentWithBackend(System.currentTimeMillis().toString(), false)
-                }
-//                statusMessage.value = "Payment app not found"
+//                viewModelScope.launch {
+//                    delay(1000)
+//                    processPaymentWithBackend(System.currentTimeMillis().toString(), false)
+//                }
             }
+
             override fun onTransactionSuccess(transactionResult: JSONObject?) {
                 Log.d(TAG, "Payment Success: $transactionResult")
+                val tnxId =try {
+                    val tnId = transactionResult?.optString("transId")
+                    if(tnId.isNullOrEmpty()) System.currentTimeMillis().toString() else tnId
+                } catch (e: Exception) {
+                    System.currentTimeMillis().toString()
+                }
                 _uiState.update {
                     it.copy(
                         isWaitingForCard = false,
@@ -375,11 +382,11 @@ class AddonPlanCheckoutViewModel @Inject constructor(
                     )
                 }
                 viewModelScope.launch {
-                    delay(15000)
-                    processPaymentWithBackend(System.currentTimeMillis().toString(), false)
+                    processPaymentWithBackend(tnxId, false)
                 }
 
             }
+
             override fun onTransactionFailed(errorResult: JSONObject) {
                 Log.d(TAG, "Payment Failed: $errorResult")
                 _uiState.update {
@@ -390,11 +397,6 @@ class AddonPlanCheckoutViewModel @Inject constructor(
                         error = "Failed at.. onTransactionFailed  ${errorResult}"
                     )
                 }
-                viewModelScope.launch {
-                    delay(15000)
-                    processPaymentWithBackend(System.currentTimeMillis().toString(), false)
-                }
-//                statusMessage.value = "Payment Failed: $errorResult"
             }
         })
 
@@ -402,7 +404,7 @@ class AddonPlanCheckoutViewModel @Inject constructor(
     }
 
     override fun handleResult(result: ActivityResult) {
-
+        intentApplication.handleResultCallBack(result)
     }
 
 }

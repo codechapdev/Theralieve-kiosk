@@ -1,19 +1,29 @@
 package com.theralieve.ui.viewmodel
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback
+//import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback
+import com.denovo.app.invokeiposgo.interfaces.TransactionListener
+import com.denovo.app.invokeiposgo.launcher.IntentApplication
 import com.theralieve.data.storage.PreferenceManager
 import com.theralieve.domain.model.Equipment
-import com.theralieve.domain.model.EquipmentList
+import com.theralieve.domain.model.EquipmentStartItem
 import com.theralieve.domain.usecase.AddPaymentUseCase
 import com.theralieve.domain.usecase.CreatePaymentUseCase
 import com.theralieve.domain.usecase.GetDeviceFilesByMacAddressUseCase
 import com.theralieve.domain.usecase.GetPlanUseCase
 import com.theralieve.domain.usecase.StartMachineUseCase
 import com.theralieve.domain.usecase.VerifyPaymentUseCase
+import com.theralieve.ui.screens.SelectedEquipment
+import com.theralieve.ui.screens.singleSession.viewModel.CheckoutSingleSessionViewModel
 import com.theralieve.utils.IoTManager
+import com.theralieve.utils.PaymentSdk
 import com.theralieve.utils.calculateDiscount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -22,6 +32,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,8 +44,7 @@ class CheckoutViewModel @Inject constructor(
     private val preferenceManager: PreferenceManager,
     private val ioTManager: IoTManager,
     private val getPlanUseCase: GetPlanUseCase,
-    private val createPaymentUseCase: CreatePaymentUseCase,
-) : ViewModel() {
+) : ViewModel(), PaymentSdk {
 
     companion object {
         private const val TAG = "CheckoutViewModel"
@@ -77,21 +87,39 @@ class CheckoutViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CheckoutUiState())
     val uiState: StateFlow<CheckoutUiState> = _uiState.asStateFlow()
 
-    fun setCheckoutData(
-        equipment: EquipmentList, unit: Equipment, durationMinutes: Int, isMember: Boolean
+    fun setCheckoutData( unit: Equipment, durationMinutes: Int, isMember: Boolean
     ) {
         Log.d(
             TAG,
-            "setCheckoutData() equipment=${equipment.name}, unit=${unit}, duration=$durationMinutes, isMember=$isMember"
+            "setCheckoutData() equipment=${unit.equipment_name}, unit=${unit}, duration=$durationMinutes, isMember=$isMember"
         )
 
         _uiState.update {
             it.copy(
-                equipment = equipment,
+                equipment = unit,
                 unit = unit,
                 durationMinutes = durationMinutes,
                 isMember = isMember,
-                plan = null
+                plan = null,
+                selectedEquipments = null
+            )
+        }
+    }
+
+    fun setCheckoutDataForList(
+        selectedEquipments: List<SelectedEquipment>,
+        isMember: Boolean
+    ) {
+        Log.d(TAG, "setCheckoutDataForList() count=${selectedEquipments.size}, isMember=$isMember")
+        val first = selectedEquipments.firstOrNull()
+        _uiState.update {
+            it.copy(
+                equipment = null,
+                unit = first?.equipment,
+                durationMinutes = first?.duration ?: 0,
+                isMember = isMember,
+                plan = null,
+                selectedEquipments = selectedEquipments
             )
         }
     }
@@ -211,7 +239,7 @@ class CheckoutViewModel @Inject constructor(
                 }
                 return
             }
-            val cents = (planPrice * 100).toLong()
+            val cents = (planPrice)
             Log.i(
                 TAG,
                 "Plan payment calculation: originalPrice=${discountResult.originalPrice}, discountedPrice=$planPrice, hasDiscount=${discountResult.hasDiscount}, amountCents=$cents, isForEmployee=$isForEmployee"
@@ -286,7 +314,7 @@ class CheckoutViewModel @Inject constructor(
                 return
             }
 
-            val cents = (total * 100).toLong()
+            val cents = (total)
             Log.d(
                 TAG,
                 "Payment calculation (single session): isOneMinuteAccording=$isOneMinuteAccording, duration=$durationMinutes, total=$total, amountCents=$cents"
@@ -324,17 +352,21 @@ class CheckoutViewModel @Inject constructor(
         }
     }
 
+    private var amountCents:Double  = 0.0
+
     /**
      * STEP 2: Start Square payment activity
      */
-    private suspend fun processCheckout(amountCents: Long) {
+    private suspend fun processCheckout(amountCents: Double) {
         Log.i(TAG, "processCheckout() started amountCents=$amountCents")
 
         val customerId = preferenceManager.getMemberSquareId()
         Log.d(TAG, "CustomerId=${customerId ?: "N/A"}")
 
         try {
-            processPaymentWithBackend(System.currentTimeMillis().toString(), amountCents)
+            this.amountCents = amountCents
+            startSale(amountCents.toString())
+//            processPaymentWithBackend(System.currentTimeMillis().toString(), amountCents)
         } catch (e: Exception) {
             Log.e(TAG, "Exception during processCheckout()", e)
             _uiState.update {
@@ -353,7 +385,7 @@ class CheckoutViewModel @Inject constructor(
      * Note: paymentId is the Square payment ID from the successful payment
      */
     private suspend fun processPaymentWithBackend(
-        paymentId: String, amountCents: Long
+        paymentId: String, amountCents: String
     ) {
         Log.i(TAG, "processPaymentWithBackend() paymentId=$paymentId, amountCents=$amountCents")
 
@@ -431,7 +463,7 @@ class CheckoutViewModel @Inject constructor(
                             isWaitingForCard = false,
                             paymentStatus = PaymentStatus.PaymentFailed,
                             error = addPaymentResult.exceptionOrNull()?.message
-                                ?: "Payment processing failed"
+                                ?: "Payment processing failed API"
                         )
                     }
                 }
@@ -455,7 +487,8 @@ class CheckoutViewModel @Inject constructor(
                 isMember = isMember,
                 equipmentId = equipmentId,
                 customerId = customerId,
-                duration = duration
+                duration = duration,
+                price = null
             )
 
             if (result.isSuccess) {
@@ -463,34 +496,43 @@ class CheckoutViewModel @Inject constructor(
 
                 val guestData = result.getOrNull()
 
-                // For single session (non-member), start the machine after payment
-                if (!isMember && guestData != null && state.unit != null) {
-                    // Get location_id from saved location data
+                // For single session (non-member), start the machine(s) after payment
+                if (!isMember && guestData != null) {
                     val locations = preferenceManager.getLocationData()
                     val locationId = locations?.firstOrNull()?.id ?: 0
 
                     if (locationId > 0) {
-                        val startMachineResult = startMachineUseCase(
-                            equipmentId = state.unit.equipment_id,
-                            locationId = locationId,
-                            duration = state.durationMinutes,
-                            deviceName = state.unit.device_name ?: "",
-                            isMember = false,
-                            guestUserId = guestData.guestuserid,
-                            userId = null,
-                            planId = null,
-                            planType = null,
-                            creditPoints = null
-                        )
+                        val equipmentsList = state.selectedEquipments?.map {
+                            EquipmentStartItem(it.equipment.equipment_id, it.duration, credit_points = null)
+                        }
+                        val firstUnit = state.selectedEquipments?.firstOrNull()?.equipment ?: state.unit
+                        val firstDuration = state.selectedEquipments?.firstOrNull()?.duration ?: state.durationMinutes
 
-                        if (startMachineResult.isSuccess) {
-                            Log.i(TAG, "Machine started successfully for single session")
-                            startMachineViaIoT(state.unit, duration)
-                        } else {
-                            Log.e(
-                                TAG,
-                                "Failed to start machine: ${startMachineResult.exceptionOrNull()?.message}"
+                        if (firstUnit != null) {
+                            val startMachineResult = startMachineUseCase(
+                                equipmentId = firstUnit.equipment_id,
+                                locationId = locationId,
+                                duration = firstDuration,
+                                deviceName = firstUnit.device_name ?: "",
+                                isMember = false,
+                                guestUserId = guestData.guestuserid,
+                                userId = null,
+                                planId = null,
+                                planType = null,
+                                creditPoints = null,
+                                equipments = equipmentsList
                             )
+
+                            if (startMachineResult.isSuccess) {
+                                Log.i(TAG, "Machine(s) started successfully for single session")
+//                                state.selectedEquipments?.forEach { startMachineViaIoT(it.equipment, it.duration) }
+//                                    ?: startMachineViaIoT(firstUnit, firstDuration)
+                            } else {
+                                Log.e(
+                                    TAG,
+                                    "Failed to start machine: ${startMachineResult.exceptionOrNull()?.message}"
+                                )
+                            }
                         }
                     } else {
                         Log.e(TAG, "Location ID not available, cannot start machine")
@@ -516,7 +558,7 @@ class CheckoutViewModel @Inject constructor(
                         isProcessing = false,
                         isWaitingForCard = false,
                         paymentStatus = PaymentStatus.PaymentFailed,
-                        error = result.exceptionOrNull()?.message ?: "Payment processing failed"
+                        error = result.exceptionOrNull()?.message ?: "Payment processing failed API2"
                     )
                 }
             }
@@ -567,32 +609,32 @@ class CheckoutViewModel @Inject constructor(
                     }
 
                     ioTManager.connect(files) { status ->
-                        if (status == AWSIotMqttClientStatusCallback.AWSIotMqttClientStatus.Connected) {
-                            viewModelScope.launch {
-                                val userId = if (_uiState.value.isMember) {
-                                    preferenceManager.getMemberId()
-                                } else {
-                                    null
-                                }
-//                                "session": $duration,
-                                val payload = """
-                                    {
-                                        "state": {
-                                            "desired": {
-                                                "led": "on",
-                                                "session": 1,
-                                                "user_id": ${userId ?: "0"}
-                                            }
-                                        }
-                                    }
-                                """.trimIndent()
-
-                                val shadowTopic = "\$aws/things/$deviceId/shadow/update"
-                                ioTManager.publish(shadowTopic, payload)
-                            }
-                        } else {
-                            Log.e("EquipmentListViewModel", "IoT connection status: $status")
-                        }
+//                        if (status == AWSIotMqttClientStatusCallback.AWSIotMqttClientStatus.Connected) {
+//                            viewModelScope.launch {
+//                                val userId = if (_uiState.value.isMember) {
+//                                    preferenceManager.getMemberId()
+//                                } else {
+//                                    null
+//                                }
+////                                "session": $duration,
+//                                val payload = """
+//                                    {
+//                                        "state": {
+//                                            "desired": {
+//                                                "led": "on",
+//                                                "session": 1,
+//                                                "user_id": ${userId ?: "0"}
+//                                            }
+//                                        }
+//                                    }
+//                                """.trimIndent()
+//
+//                                val shadowTopic = "\$aws/things/$deviceId/shadow/update"
+//                                ioTManager.publish(shadowTopic, payload)
+//                            }
+//                        } else {
+//                            Log.e("EquipmentListViewModel", "IoT connection status: $status")
+//                        }
                     }
                 }.onFailure { e ->
                     Log.e("EquipmentListViewModel", "Failed to get IoT device files: ${e.message}")
@@ -603,4 +645,97 @@ class CheckoutViewModel @Inject constructor(
         }
     }
 
+    private lateinit var launcher: ActivityResultLauncher<Intent>
+    private lateinit var intentApplication: IntentApplication
+
+    override fun setLauncher(
+        launcher: ActivityResultLauncher<Intent>,
+        context: ComponentActivity
+    ) {
+        this.launcher = launcher
+        this.intentApplication = IntentApplication(context)
+    }
+
+    override fun startSale(amount: String) {
+        val json = JSONObject().apply {
+            put("type", "SALE")
+            put("paymentType", "CREDIT")
+            put("amount", amount)
+            put("tip", "0.00")
+            put("applicationType", "DVPAYLITE")
+            put("refId", System.currentTimeMillis().toString())
+            put("receiptType", "Both")
+            put("isTxnStatusScreenRequired", "No")
+            put("IsvId", "YOUR_ISV_ID")
+            put("showBreakupScreen", "No")
+            put("showTipScreen", "No")
+        }
+
+        _uiState.update {
+            it.copy(
+                isWaitingForCard = false,
+                isProcessing = false,
+                paymentStatus = PaymentStatus.WaitingForCard,
+                error = "launching dev lite pay app with these params ${json}"
+            )
+        }
+
+        intentApplication.setTransactionListener(object : TransactionListener {
+            override fun onApplicationLaunched(result: JSONObject?) {
+
+            }
+            override fun onApplicationLaunchFailed(errorResult: JSONObject) {
+                Log.d(TAG, "onApplicationLaunchFailed: $errorResult")
+                _uiState.update {
+                    it.copy(
+                        isWaitingForCard = false,
+                        isProcessing = false,
+                        paymentStatus = PaymentStatus.PaymentFailed,
+                        error = "Failed to launch onApplicationLaunchFailed  ${errorResult}"
+                    )
+                }
+//                statusMessage.value = "Payment app not found"
+            }
+            override fun onTransactionSuccess(transactionResult: JSONObject?) {
+                Log.d(TAG, "Payment Success: $transactionResult")
+                val tnxId =try {
+                    val tnId = transactionResult?.optString("transId")
+                    if(tnId.isNullOrEmpty()) System.currentTimeMillis().toString() else tnId
+                } catch (e: Exception) {
+                    System.currentTimeMillis().toString()
+                }
+                _uiState.update {
+                    it.copy(
+                        isWaitingForCard = false,
+                        isProcessing = false,
+                        paymentStatus = PaymentStatus.ProcessingPayment,
+                        error = "Payment Success onTransactionSuccess  ${transactionResult} "
+                    )
+                }
+                viewModelScope.launch {
+//                    delay(5000)
+                    processPaymentWithBackend(tnxId, amount)
+                }
+
+            }
+            override fun onTransactionFailed(errorResult: JSONObject) {
+                Log.d(TAG, "Payment Failed: $errorResult")
+                _uiState.update {
+                    it.copy(
+                        isWaitingForCard = false,
+                        isProcessing = false,
+                        paymentStatus = PaymentStatus.PaymentFailed,
+                        error = "Failed at.. onTransactionFailed  ${errorResult}"
+                    )
+                }
+//                statusMessage.value = "Payment Failed: $errorResult"
+            }
+        })
+
+        intentApplication.performTransaction(json, launcher)
+    }
+
+    override fun handleResult(result: ActivityResult) {
+        intentApplication.handleResultCallBack(result)
+    }
 }

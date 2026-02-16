@@ -26,6 +26,6 @@
       applicationId="com.theralieve.data"
       generatedSourceFolders="build/generated/ksp/release/java:build/generated/ksp/release/kotlin:build/generated/ap_generated_sources/release/out"
       generatedResourceFolders="build/generated/res/resValues/release"
-      desugaredMethodsFiles="/Users/saligram/.gradle/caches/8.13/transforms/135ba66f6a883b3652643e13452bc80b/transformed/D8BackportedDesugaredMethods.txt">
+      desugaredMethodsFiles="/Users/saligram/.gradle/caches/8.13/transforms/10f1f7abe7375674458c933fe10c91e2/transformed/D8BackportedDesugaredMethods.txt">
   </artifact>
 </variant>

@@ -6,7 +6,8 @@ data class UserPlan(
     val planExpire: String,
     val totalCreditPoints: String,
     val vipDiscount: String,
-
+    val hasVipPlan:Boolean,
+    val hasSessionPlan:Boolean,
 )
 
 

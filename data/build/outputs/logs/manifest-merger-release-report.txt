@@ -1,16 +1,16 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml:2:13-83
-INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml:2:13-83
+ADDED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml:2:13-83
+INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml:2:13-83
 	package
-		INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml
+		INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml
 	xmlns:android
-		ADDED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml:2:23-81
+		ADDED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml:2:23-81
 uses-sdk
-INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml reason: use-sdk injection requested
-INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml
-INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml
+INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml reason: use-sdk injection requested
+INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml
+INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml
 	android:targetSdkVersion
-		INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml
+		INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml
 	android:minSdkVersion
-		INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest9527502708441284669.xml
+		INJECTED from /Users/saligram/AndroidStudioProjects/TheraJetTab/data/build/intermediates/tmp/ProcessLibraryManifest/release/tempAndroidManifest16123418627444863769.xml

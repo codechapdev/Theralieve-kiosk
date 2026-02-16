@@ -1,5 +1,6 @@
 package com.theralieve.domain.repository
 
+import com.theralieve.domain.model.EquipmentStartItem
 import com.theralieve.domain.model.Payment
 import com.theralieve.domain.model.StartMachineResponse
 
@@ -11,7 +12,8 @@ interface PaymentRepository {
         isMember: Boolean,
         equipmentId: Int?,
         customerId: String?,
-        duration: Int?
+        duration: Int?,
+        price: Double?,
     ): Result<com.theralieve.domain.model.GuestData?>
 
     suspend fun addPaymentToRecord(
@@ -23,16 +25,17 @@ interface PaymentRepository {
     ): Result<String?>
     
     suspend fun startMachine(
-        equipmentId: Int,
-        locationId: Int,
-        duration: Int,
-        deviceName: String,
-        isMember: Boolean,
+        equipmentId: Int?,
+        locationId: Int?,
+        duration: Int?,
+        deviceName: String?,
+        isMember: Boolean?,
         guestUserId: Int?,
         userId: Int?,
         planId: Int?,
         planType: String? = "Session Pack",
-        creditPoints:String?
+        creditPoints: String?,
+        equipments: List<EquipmentStartItem>? = null
     ): Result<StartMachineResponse?>
 
     suspend fun getCardReaderToken(

@@ -1,5 +1,7 @@
 package com.theralieve.ui.viewmodel
 
+import com.theralieve.domain.model.Location
+import com.theralieve.domain.model.LocationEquipment
 import com.theralieve.domain.model.Plan
 
 data class MembershipListUiState(
@@ -17,6 +19,7 @@ data class MembershipListUiState(
     val memberNo: String? = null,
     val employeeNo: String? = null,
     val membershipType: String? = "outside_member",
-    val locationName: String? = "XYZ",
+    val location: Location? = null,
+    val locationEquipments: List<LocationEquipment> = emptyList(),
 )
 

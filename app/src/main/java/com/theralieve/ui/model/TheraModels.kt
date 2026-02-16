@@ -3,9 +3,6 @@ package com.theralieve.ui.model
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Immutable
 import com.theralieve.R
-import com.theralieve.ui.screens.EquipmentStatus
-import com.theralieve.ui.screens.EquipmentType
-import com.theralieve.ui.screens.EquipmentUnit
 
 
 

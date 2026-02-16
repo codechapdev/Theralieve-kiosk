@@ -1,7 +1,4 @@
-package com.theralieve.ui.screens
-
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,22 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -45,7 +39,6 @@ import androidx.compose.ui.unit.sp
 import com.theralieve.R
 import com.theralieve.ui.components.TheraPrimaryButton
 import com.theralieve.ui.components.TheraSecondaryButton
-import com.theralieve.ui.model.LoginFormState
 import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.theme.TheraJetTabTheme
 import com.theralieve.ui.viewmodel.WelcomeUiState
@@ -60,25 +53,10 @@ fun WelcomeScreen(
     onExistingMemberClick: () -> Unit
 ) {
 
-//    var showLogin by remember { mutableStateOf(false) }
-//    var loginState by remember { mutableStateOf<LoginFormState>(LoginFormState("","")) }
-
-//    if (showLogin) {
-//        MemberLoginDialog(
-//            state = loginState,
-//            onStateChanged = { loginState = it },
-//            onLogin = {
-//                onExistingMemberClick()
-//            },
-//            onClose = { showLogin = false }
-//        )
-//    }
-
-
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
-    
+
     // Slider images
     val sliderImages = listOf(
 //        R.drawable.slider1,
@@ -87,44 +65,44 @@ fun WelcomeScreen(
         R.drawable.slider4
     )
 
-    
+
     // Responsive sizing based on screen dimensions
     val padding = when {
         screenWidth > 1200 -> 64.dp
         screenWidth > 800 -> 48.dp
         else -> 32.dp
     }
-    
+
     val buttonHeight = when {
         screenHeight > 1000 -> 180.dp
         screenHeight > 800 -> 160.dp
         else -> 140.dp
     }
-    
+
     val buttonSpacing = when {
         screenWidth > 1200 -> 32.dp
         screenWidth > 800 -> 24.dp
         else -> 16.dp
     }
-    
+
     val logoHeight = when {
         screenHeight > 1000 -> 250.dp
         screenHeight > 800 -> 220.dp
         else -> 180.dp
     }
-    
+
     val headlineSize = when {
         screenHeight > 1000 -> 42.sp
         screenHeight > 800 -> 36.sp
         else -> 32.sp
     }
-    
+
     val taglineSize = when {
         screenHeight > 1000 -> 22.sp
         screenHeight > 800 -> 20.sp
         else -> 18.sp
     }
-    
+
     Box(modifier = modifier.fillMaxSize()) {
         // Animated background images with crossfade
         // Current image
@@ -139,7 +117,7 @@ fun WelcomeScreen(
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.4f))
         )
-        
+
         // Content overlay
         Column(
             modifier = Modifier
@@ -168,6 +146,10 @@ fun WelcomeScreen(
 
                     // Promotional text
                     Column(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(Color.White.copy(alpha = 0.25f)) // translucent overlay
+                            .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -181,7 +163,7 @@ fun WelcomeScreen(
                                         fontWeight = FontWeight.Bold
                                     )
                                 ) {
-                                    append(uiState.locationName)
+                                    append(uiState.locationName.uppercase())
                                 }
                                 append(" – We’re Glad You’re Here!")
                             },
@@ -219,7 +201,8 @@ fun WelcomeScreen(
                         Text(
                             text = stringResource(id = R.string.welcome_tagline),
                             style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = taglineSize
+                                fontSize = taglineSize,
+                                fontWeight = FontWeight.SemiBold
                             ),
                             color = TheraColorTokens.TextPrimary,
                             textAlign = TextAlign.Center
@@ -308,4 +291,3 @@ private fun WelcomeScreenPreview() {
         )
     }
 }
-

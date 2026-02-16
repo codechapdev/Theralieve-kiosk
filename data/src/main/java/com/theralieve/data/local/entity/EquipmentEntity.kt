@@ -5,8 +5,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "equipment")
 data class EquipmentEntity(
-    val equipmentId: Int,
     @PrimaryKey
+    val primaryKeyWithEquipmentId:String,
+    val equipmentId: Int,
     val deviceName: String,
     val equipmentCount: Int,
     val equipmentName: String,
@@ -21,5 +22,6 @@ data class EquipmentEntity(
     val status: String? = null, // Equipment status: "online", "offline", "unknown", etc.
     val statusUpdatedAt: String? = null, // When status was last updated
     val remainingBalance: String? = null, // When status was last updated,
-    val sessionTime: String? = null //
+    val sessionTime: String? = null, //
+    val planId: String? = null, //
 )

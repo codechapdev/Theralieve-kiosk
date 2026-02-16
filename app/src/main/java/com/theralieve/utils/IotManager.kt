@@ -2,10 +2,8 @@ package com.theralieve.utils
 
 import android.content.Context
 import android.util.Log
-import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos
+//import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper
+//import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback
 import com.theralieve.domain.model.DeviceFiles
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +17,7 @@ class IoTManager(private val context: Context) {
 
 
     private val TAG = "IoTManager"
-    private lateinit var mqttManager: AWSIotMqttManager
+//    private lateinit var mqttManager: AWSIotMqttManager
 
     private val keystoreName = "iot_keystore"
     private val keystorePassword = "keystore_password"
@@ -30,75 +28,76 @@ class IoTManager(private val context: Context) {
 
     fun connect(
         deviceFiles: DeviceFiles,
-        handle: (AWSIotMqttClientStatusCallback.AWSIotMqttClientStatus) -> Unit
+        handle: (String) -> Unit
     ) {
-        mqttManager = AWSIotMqttManager(clientId, iotEndpoint).apply {
-            keepAlive = 60
-        }
-
-        val keystorePath = context.filesDir.absolutePath
-
-        try {
-            // Save certificate + key into keystore using dynamic data from API
-            if (!AWSIotKeystoreHelper.isKeystorePresent(keystorePath, keystoreName)) {
-                AWSIotKeystoreHelper.saveCertificateAndPrivateKey(
-                    certificateId,
-                    deviceFiles.certificate,
-                    deviceFiles.private_key,
-                    keystorePath,
-                    keystoreName,
-                    keystorePassword
-                )
-            }
-
-            // Load KeyStore
-            val keyStore = AWSIotKeystoreHelper.getIotKeystore(
-                certificateId,
-                keystorePath,
-                keystoreName,
-                keystorePassword
-            )
-
-            if (keyStore == null) {
-                Log.e(TAG, "Failed to load keystore")
-                return
-            }
-
-            // Connect MQTT
-            mqttManager.connect(keyStore) { status, throwable ->
-                Log.d(TAG, "Connection Status: $status")
-                throwable?.let { Log.e(TAG, "Connect error", it) }
-                handle(status)
-            }
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error setting up keystore or connection", e)
-        }
+//        AWSIotMqttClientStatusCallback.AWSIotMqttClientStatus
+//        mqttManager = AWSIotMqttManager(clientId, iotEndpoint).apply {
+//            keepAlive = 60
+//        }
+//
+//        val keystorePath = context.filesDir.absolutePath
+//
+//        try {
+//            // Save certificate + key into keystore using dynamic data from API
+//            if (!AWSIotKeystoreHelper.isKeystorePresent(keystorePath, keystoreName)) {
+//                AWSIotKeystoreHelper.saveCertificateAndPrivateKey(
+//                    certificateId,
+//                    deviceFiles.certificate,
+//                    deviceFiles.private_key,
+//                    keystorePath,
+//                    keystoreName,
+//                    keystorePassword
+//                )
+//            }
+//
+//            // Load KeyStore
+//            val keyStore = AWSIotKeystoreHelper.getIotKeystore(
+//                certificateId,
+//                keystorePath,
+//                keystoreName,
+//                keystorePassword
+//            )
+//
+//            if (keyStore == null) {
+//                Log.e(TAG, "Failed to load keystore")
+//                return
+//            }
+//
+//            // Connect MQTT
+//            mqttManager.connect(keyStore) { status, throwable ->
+//                Log.d(TAG, "Connection Status: $status")
+//                throwable?.let { Log.e(TAG, "Connect error", it) }
+//                handle(status)
+//            }
+//
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Error setting up keystore or connection", e)
+//        }
     }
 
     fun subscribe(topic: String, callback: (String) -> Unit) {
-        mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS0) { _, data ->
-            val msg = String(data, Charsets.UTF_8)
-            callback(msg)
-        }
+//        mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS0) { _, data ->
+//            val msg = String(data, Charsets.UTF_8)
+//            callback(msg)
+//        }
     }
 
     fun publish(topic: String, payload: String) {
-        try {
-            mqttManager.publishString(payload, topic, AWSIotMqttQos.QOS0)
-            Log.d(TAG, "Published to $topic: $payload")
-        } catch (e: Exception) {
-            Log.e(TAG, "Publish error", e)
-        }
+//        try {
+//            mqttManager.publishString(payload, topic, AWSIotMqttQos.QOS0)
+//            Log.d(TAG, "Published to $topic: $payload")
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Publish error", e)
+//        }
     }
 
     fun disconnect() {
-        try {
-            mqttManager.disconnect()
-            Log.d(TAG, "Disconnected from IoT")
-        } catch (e: Exception) {
-            Log.e(TAG, "Disconnect error", e)
-        }
+//        try {
+//            mqttManager.disconnect()
+//            Log.d(TAG, "Disconnected from IoT")
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Disconnect error", e)
+//        }
     }
 
     sealed interface IotConnectionState {

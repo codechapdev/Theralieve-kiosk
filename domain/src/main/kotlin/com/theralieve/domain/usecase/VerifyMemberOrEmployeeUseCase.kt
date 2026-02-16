@@ -12,3 +12,9 @@ class VerifyMemberOrEmployeeUseCase @Inject constructor(
         employeeId: String?,
     ) = equipmentRepository.verifyMemberOrEmployee(customerId, memberId, employeeId)
 }
+
+class GetGeneratedUsernameUseCase @Inject constructor(
+    private val equipmentRepository: EquipmentRepository
+) {
+    suspend operator fun invoke() = equipmentRepository.getGeneratedUsername()
+}

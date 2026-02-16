@@ -6,7 +6,7 @@
     <string name="action_bill_detail">Bill Detail</string>
     <string name="action_start_session">Start Session</string>
     <string name="action_view_details">View Details</string>
-    <string name="action_enroll_now">Buy Now</string>
+    <string name="action_enroll_now">Select</string>
     <string name="action_pay_now">Pay Now</string>
     <string name="action_login">Log In</string>
     <string name="action_logout">Log Out</string>
@@ -64,4 +64,5 @@
     <string name="button_non_member">Single Session</string>
     <string name="button_membership">Pricing Plans</string>
     <string name="button_existing_member">Existing Client</string>
+    <string name="action_purchase">Purchase</string>
 </resources>

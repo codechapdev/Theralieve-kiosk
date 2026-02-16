@@ -3,7 +3,6 @@ package com.theralieve.data.local.mapper
 import com.theralieve.data.local.entity.EquipmentEntity
 import com.theralieve.domain.model.Equipment
 import com.theralieve.domain.model.EquipmentDataItem
-import com.theralieve.domain.model.EquipmentList
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -36,7 +35,8 @@ fun EquipmentEntity.toDomain(): Equipment {
         status = status,
         statusUpdatedAt = statusUpdatedAt,
         remainingBalance = remainingBalance,
-        sessionTime = sessionTime
+        sessionTime = sessionTime,
+        planId  = planId
     )
 }
 
@@ -51,6 +51,7 @@ fun Equipment.toEntity(): EquipmentEntity {
     }
     
     return EquipmentEntity(
+        primaryKeyWithEquipmentId = "$equipment_id${if(device_name != null) device_name else ""}",
         equipmentId = equipment_id,
         deviceName = device_name?:"",
         equipmentCount = equipment_count,
@@ -66,19 +67,12 @@ fun Equipment.toEntity(): EquipmentEntity {
         status = status,
         statusUpdatedAt = statusUpdatedAt,
         remainingBalance = remainingBalance,
-        sessionTime = sessionTime
+        sessionTime = sessionTime,
+        planId = planId
     )
 }
 
 // Apply groupBy logic when fetching from DB
-fun List<EquipmentEntity>.toEquipmentList(): List<EquipmentList> {
+fun List<EquipmentEntity>.toEquipmentList(): List<Equipment> {
     return this.map { it.toDomain() }
-        .groupBy { it.equipment_name }
-        .map { (equipmentName, equipmentItems) ->
-            EquipmentList(
-                name = equipmentName,
-                image = equipmentItems.firstOrNull()?.image.orEmpty(),
-                units = equipmentItems
-            )
-        }
 }

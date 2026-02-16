@@ -1,14 +1,13 @@
 package com.theralieve.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,36 +16,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,20 +52,21 @@ import androidx.compose.ui.window.Popup
 import com.theralieve.domain.model.CreditPlan
 import com.theralieve.domain.model.Equipment
 import com.theralieve.domain.model.EquipmentDataItem
-import com.theralieve.domain.model.EquipmentList
 import com.theralieve.domain.model.SessionData
 import com.theralieve.domain.model.UserPlan
-import com.theralieve.ui.TheraJetApp
 import com.theralieve.ui.components.Header
 import com.theralieve.ui.components.NetworkImage
 import com.theralieve.ui.components.SuccessDialog
 import com.theralieve.ui.components.TheraAlertState
 import com.theralieve.ui.components.TheraGradientBackground
-import com.theralieve.ui.components.TheraPrimaryButton
+import com.theralieve.ui.components.TheraGradientBackgroundInActivity
+import com.theralieve.ui.components.TheraPrimaryButton2
+import com.theralieve.ui.components.TheraSecondaryButton2
+import com.theralieve.ui.screens.creditSession.DurationPopupSelector
+import com.theralieve.ui.screens.creditSession.EquipmentItemCard
+import com.theralieve.ui.screens.creditSession.HorizontalSelectionPanel
 import com.theralieve.ui.theme.TheraColorTokens
-import com.theralieve.ui.utils.EquipmentStatusHelper
 import com.theralieve.ui.utils.throttledClickable
-import kotlinx.coroutines.launch
 
 /* -------------------------------------------------------------------------
  * DATA MODELS
@@ -81,6 +80,11 @@ data class EquipmentType(
     val price: Int = 20,
     val onDurationChange: (Int) -> Unit = {}
 )
+
+data class SelectedEquipment(
+    val equipment: Equipment, val duration: Int, val price: Double = 0.0, val points: Int = 0
+)
+
 
 data class EquipmentUnit(
     val name: String, val status: EquipmentStatus
@@ -116,20 +120,25 @@ fun EquipmentListScreen(
     error: String?,
     showDialog: String?,
     planExpired: Boolean,
-    equipmentData: List<EquipmentList>,
+    equipmentList: List<Equipment>,
     isMember: Boolean,
+    isLoading: Boolean,
     userPlan: UserPlan? = null,
     memberName: String? = null,
     onBack: () -> Unit = {},
     sessionPlan: List<SessionData>? = null,
     creditPlan: List<CreditPlan>? = null,
-    onSelect: (EquipmentList, Equipment, Int?) -> Unit = { _, _, _ -> },
-    onViewDetail: (EquipmentList) -> Unit = {},
-    onStartMachine: (EquipmentList, Equipment, Int,String?) -> Unit = { _, _, _,_ -> },
+    onSelect: (Equipment, Int?) -> Unit = { _, _ -> },
+    onViewDetail: (Equipment) -> Unit = {},
+    onStartMachine: (Equipment, Equipment, Int, String?) -> Unit = { _, _, _, _ -> },
     onProfileClicked: () -> Unit = {},
-    onPlanData:()->Unit = {},
-            onErrorConsumed:()->Unit = {}
-    ) {
+    onPlanData: () -> Unit = {},
+    onErrorConsumed: () -> Unit = {},
+    onYes: (List<SelectedEquipment>) -> Unit = { _ -> },
+    onCreditData: () -> Unit = { },
+    isCreditScreen: Boolean = false,
+    onDialogConsumed: ()->Unit =  {}
+) {
 
     LocalContext.current
 
@@ -137,25 +146,56 @@ fun EquipmentListScreen(
 //        PlanExpiredDialog(onBack)
 //    }
 
-    TheraGradientBackground { alert ->
+    var showSessionConflictDialog by remember { mutableStateOf(false) }
 
-        if(!error.isNullOrEmpty()){
+    if (showSessionConflictDialog) {
+        AlertDialog(
+            onDismissRequest = { showSessionConflictDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showSessionConflictDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = {
+                Text("Already Selected")
+            },
+            text = {
+                Text(
+                    "You have already selected this device with a different session time. " +
+                            "You cannot add the same device multiple times.\n\n" +
+                            "Please de-select the previous one to select this."
+                )
+            }
+        )
+    }
+
+
+    val selectedEquipments = remember { mutableStateListOf<SelectedEquipment>() }
+
+    TheraGradientBackgroundInActivity(onAutoLogout = onBack,enableInactivity=isMember) { alert ->
+
+        if (!error.isNullOrEmpty()) {
             LaunchedEffect(error) {
                 alert.show(error)
                 onErrorConsumed() // clear error after showing
             }
         }
 
-        if(showDialog != null){
+        if (showDialog != null) {
             SuccessDialog(
                 title = "Enjoy Your Session!",
-                message = "Your session has been confirmed. Please proceed directly to your selected device ${showDialog}.",
+                message = "Your session has been confirmed. Please proceed directly to your selected device.",
                 onDismiss = {
-                    onBack()
+                    selectedEquipments.clear()
+                    onDialogConsumed()
                 })
         }
 
-        if(equipmentData.isNullOrEmpty()){
+        if (isLoading == true) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }else if (equipmentList.isNullOrEmpty()) {
             Text(
                 text = "No Equipment Found",
                 fontSize = 24.sp,
@@ -172,410 +212,481 @@ fun EquipmentListScreen(
         ) {
             // Header with back button and logo
             Header(
-                title = "Equipment",
+                title = if(isMember) "Session Equipments" else "Equipment",
                 isMember = isMember,
                 memberName = memberName,
                 userPlan = userPlan,
                 onBack = onBack,
                 onHome = onBack,
+                showHome = true,
                 onProfileClicked = onProfileClicked,
-                onPlanData = onPlanData
+                onPlanData = onPlanData,
+                onCreditData = onCreditData
             )
 
             Spacer(Modifier.height(20.dp))
 
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                equipmentData.forEachIndexed { index, type ->
-                    var selectedUnit by remember { mutableStateOf<Equipment?>(null) }
 
-                    // Auto-select first available (online) unit when equipment data loads
-                    LaunchedEffect(type.units) {
-                        if (selectedUnit == null) {
-                            val firstAvailableUnit = type.units.firstOrNull {
-                                it.status?.lowercase() == "idle"
-                            }
-                            selectedUnit = firstAvailableUnit
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.65f)
+                        .verticalScroll(rememberScrollState())
+                ) {
+//                    val list = if(isCreditScreen) equipmentList.filter { it.units.firstOrNull()?.sessionTime.isNullOrEmpty() } else if (isMember) equipmentList.filter { !it.units.firstOrNull()?.sessionTime.isNullOrEmpty() } else equipmentList
+                    equipmentList.forEachIndexed { index, type ->
+
+                        var selectedUnit by remember { mutableStateOf<Equipment?>(null) }
+
+
+                        // Get equipment properties from first unit (all units in a type have same properties)
+                        val firstUnit = type
+                        val isOneMinuteAccording = firstUnit?.is_one_minute_according?.lowercase() == "yes"
+                        val equipmentData = firstUnit?.equipment_data
+                        val equipmentPrice = firstUnit?.equipment_price?.takeIf { it.isNotBlank() }?.toDoubleOrNull() ?: 0.0
+                        firstUnit?.equipment_time?.toIntOrNull() ?: 0
+                        val isEquipmentInSession = firstUnit?.sessionTime?.toIntOrNull() ?: 0
+
+                        // Determine initial duration and if selector should be shown
+                        val shouldShowDurationSelector = when {
+                            // For members, always show fixed equipment_time (no selector)
+                            isMember -> isEquipmentInSession <= 0
+                            // Single session + is_one_minute_according == "Yes" -> show selector
+                            !isMember && isOneMinuteAccording -> true
+                            // Single session + is_one_minute_according == "No" -> show selector with equipment_data
+                            !isMember && !isOneMinuteAccording && !equipmentData.isNullOrEmpty() -> true
+                            else -> false
                         }
-                    }
-
-                    // Get equipment properties from first unit (all units in a type have same properties)
-                    val firstUnit = type.units.firstOrNull()
-                    val isOneMinuteAccording =
-                        firstUnit?.is_one_minute_according?.lowercase() == "yes"
-                    val equipmentData = firstUnit?.equipment_data
-                    val equipmentPrice =
-                        firstUnit?.equipment_price?.takeIf { it.isNotBlank() }?.toDoubleOrNull()
-                            ?: 0.0
-                    val equipmentTime = firstUnit?.equipment_time?.toIntOrNull() ?: 0
-                    val isEquipmentInSession = firstUnit?.sessionTime?.toIntOrNull() ?: 0
-
-                    // Determine initial duration and if selector should be shown
-                    val shouldShowDurationSelector = when {
-                        // For members, always show fixed equipment_time (no selector)
-                        isMember -> if(isEquipmentInSession > 0) false else true
-                        // Single session + is_one_minute_according == "Yes" -> show selector
-                        !isMember && isOneMinuteAccording -> true
-                        // Single session + is_one_minute_according == "No" -> show selector with equipment_data
-                        !isMember && !isOneMinuteAccording && !equipmentData.isNullOrEmpty() -> true
-                        else -> false
-                    }
-
-                    // Set initial duration
-//                    val initialDuration = when {
-//                        // For members, always use fixed equipment_time
-//                        isMember -> if(isEquipmentInSession > 0) isEquipmentInSession else equipmentTime
-//                        // If equipment_data exists, use first item's time
-//                        !equipmentData.isNullOrEmpty() -> equipmentData.first().equipment_time
-//                        // Default to 10 for single session with is_one_minute_according == "Yes"
-//                        !isMember && isOneMinuteAccording -> 10
-//                        else -> 10
-//                    }
-
-                    val initialDuration = when {
-                        !equipmentData.isNullOrEmpty() ->
-                            equipmentData.first().equipment_time   // ALWAYS from plans
-
-                        isMember && isEquipmentInSession > 0 ->
-                            isEquipmentInSession
-
-                        !isMember && isOneMinuteAccording ->
-                            10
-
-                        else -> 10
-                    }
 
 
+                        val initialDuration = when {
+                            !equipmentData.isNullOrEmpty() -> equipmentData.first().equipment_time   // ALWAYS from plans
 
-                    var selectedDuration by remember { mutableStateOf(initialDuration) }
+                            isMember && isEquipmentInSession > 0 -> isEquipmentInSession
 
-                    // Calculate price based on selected duration
-                    val calculatePrice: (Int) -> Double = { duration ->
-                        when {
-                            // Single session + is_one_minute_according == "Yes" -> equipment_price * duration
-                            !isMember && isOneMinuteAccording -> {
-                                val price = if (equipmentPrice > 0.0) equipmentPrice * duration else 0.0
-                                price
-                            }
-                            // Single session + is_one_minute_according == "No" -> use price from equipment_data
-                            !isMember && !isOneMinuteAccording -> {
-                                (equipmentData?.find { it.equipment_time == duration }
-                                    ?.let { item ->
-                                        item.equipment_price.takeIf { it.isNotBlank() }
-                                            ?.toDoubleOrNull()
-                                            ?: item.equipment_points.takeIf { it.isNotBlank() }
-                                                ?.toDoubleOrNull() ?: 0.0
-                                    } ?: 0.0) * duration
-                            }
-                            // Membership -> no price
-                            else -> 0.0
+                            !isMember && isOneMinuteAccording -> 10
+
+                            else -> 10
                         }
-                    }
 
-                    // Calculate points based on selected duration (for members with no active session)
-                    val calculatePoints: (Int) -> Int = { duration ->
-                        when {
-                            // For members with no active session, get points from equipment_data
-                            isMember && isEquipmentInSession == 0 -> {
-                                if(equipmentData.isNullOrEmpty())
-                                   (firstUnit?.equipment_points?:1) * duration
-                                else
-                                equipmentData.find { it.equipment_time == duration }
-                                    ?.let { item ->
-                                        item.equipment_points.takeIf { it.isNotBlank() }
-                                            ?.toIntOrNull() ?: 0
-                                    } ?: 0
+
+                        var selectedDuration by remember { mutableStateOf(initialDuration) }
+
+                        // Calculate price based on selected duration
+                        val calculatePrice: (Int) -> Double = { duration ->
+                            when {
+                                // Single session + is_one_minute_according == "Yes" -> equipment_price * duration
+                                !isMember && isOneMinuteAccording -> {
+                                    val price =
+                                        if (equipmentPrice > 0.0) equipmentPrice * duration else 0.0
+                                    price
+                                }
+                                // Single session + is_one_minute_according == "No" -> use price from equipment_data
+                                !isMember && !isOneMinuteAccording -> {
+                                    (equipmentData?.find { it.equipment_time == duration }
+                                        ?.let { item ->
+                                            item.equipment_price.takeIf { it.isNotBlank() }
+                                                ?.toDoubleOrNull()
+                                                ?: item.equipment_points.takeIf { it.isNotBlank() }
+                                                    ?.toDoubleOrNull() ?: 0.0
+                                        } ?: 0.0) * duration
+                                }
+                                // Membership -> no price
+                                else -> 0.0
                             }
-                            else -> 0
                         }
-                    }
 
-                    // Calculate price function that updates when dependencies change
-                    val currentPrice = remember(
-                        selectedDuration,
-                        isMember,
-                        isOneMinuteAccording,
-                        equipmentPrice,
-                        equipmentData
-                    ) {
-                        calculatePrice(selectedDuration)
-                    }
-                    var selectedPoints by remember { mutableStateOf(0) }
-                    var selectedPrice by remember { mutableStateOf(currentPrice) }
+                        // Calculate points based on selected duration (for members with no active session)
+                        val calculatePoints: (Int) -> Int = { duration ->
+                            when {
+                                // For members with no active session, get points from equipment_data
+                                isMember && isEquipmentInSession == 0 -> {
+                                    if (equipmentData.isNullOrEmpty()) (firstUnit?.equipment_points
+                                        ?: 1) * duration
+                                    else equipmentData.find { it.equipment_time == duration }
+                                        ?.let { item ->
+                                            item.equipment_points.takeIf { it.isNotBlank() }
+                                                ?.toIntOrNull() ?: 0
+                                        } ?: 0
+                                }
 
-                    // Update price when duration or equipment data changes
-                    LaunchedEffect(
-                        selectedDuration,
-                        isMember,
-                        isOneMinuteAccording,
-                        equipmentPrice,
-                        equipmentData
-                    ) {
-                        selectedPrice = calculatePrice(selectedDuration)
-                        selectedPoints = calculatePoints(selectedDuration)
-                    }
+                                else -> 0
+                            }
+                        }
 
-                    val hasNoActiveSession = isMember && isEquipmentInSession == 0
-                    val showPoints = hasNoActiveSession
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Color.White, RoundedCornerShape(24.dp)
-                            )
-                            .padding(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        // Calculate price function that updates when dependencies change
+                        val currentPrice = remember(
+                            selectedDuration,
+                            isMember,
+                            isOneMinuteAccording,
+                            equipmentPrice,
+                            equipmentData
                         ) {
-
-                            Text(
-                                text = type.name,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            if (isMember) {
-                                val item = type.units.firstOrNull()
-//                                if (!item?.sessionTime.isNullOrEmpty()) {
-//                                    val label =
-//                                        if (item.remainingBalance.isNullOrEmpty()) "Unlimited"
-//                                        else item.remainingBalance
-//
-//                                    Spacer(modifier = Modifier.width(16.dp))
-//
-//                                    CounterBox(
-//                                        label = "Remaining",
-//                                        value = label.toString()
-//                                    )
-//                                }
-                            }
+                            calculatePrice(selectedDuration)
                         }
 
+                        var selectedPoints by remember { mutableStateOf(0) }
+                        var selectedPrice by remember { mutableStateOf(currentPrice) }
 
-//                        Spacer(Modifier.height(12.dp))
-
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 18.dp),
-                            verticalAlignment = Alignment.Top,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        // Update price when duration or equipment data changes
+                        LaunchedEffect(
+                            selectedDuration,
+                            isMember,
+                            isOneMinuteAccording,
+                            equipmentPrice,
+                            equipmentData
                         ) {
+                            selectedPrice = calculatePrice(selectedDuration)
+                            selectedPoints = calculatePoints(selectedDuration)
+                        }
 
-
-                            // LEFT: Scrollable List
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 20.dp)
-                            ) {
-
-                                val rowState = rememberLazyListState()
-                                val scope = rememberCoroutineScope()
-
-
-                                val showLeftArrow by remember {
-                                    derivedStateOf { rowState.canScrollBackward }
-                                }
-
-                                val showRightArrow by remember {
-                                    derivedStateOf { rowState.canScrollForward }
-                                }
-
-
-                                LazyRow(
-                                    state = rowState,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(14.dp)
-                                ) {
-
-                                    items(type.units) { unit ->
-
-                                        val borderColor =
-                                            if (selectedUnit == unit) TheraColorTokens.Primary
-                                            else Color.Transparent
-
-                                        val statusLabel = EquipmentStatusHelper.getStatusLabel(
-                                            unit.status
-                                        )
-                                        val statusColor = EquipmentStatusHelper.getStatusColor(
-                                            unit.status
-                                        )
-
-                                        EquipmentItemCard(
-                                            name = unit.device_name ?: "",
-                                            image = type.image,
-                                            status = statusLabel,
-                                            statusColor = statusColor,
-                                            borderColor = borderColor,
-                                            onClick = {
-                                                // Allow selection of online/available equipment
-                                                if (unit.status?.lowercase() == "idle") {
-                                                    selectedUnit = unit
-                                                }
-                                            })
-                                    }
-
-                                    item {
-                                        ViewDetailCard { onViewDetail(type) }
-
-                                    }
-                                }
-
-
-                                if (showLeftArrow) {
-                                    Surface(
-                                        modifier = Modifier
-                                            .size(56.dp)
-                                            .align(Alignment.CenterStart)
-                                            .throttledClickable {
-                                                scope.launch {
-                                                    val prevIndex =
-                                                        (rowState.firstVisibleItemIndex - 1).coerceAtLeast(
-                                                            0
-                                                        )
-                                                    rowState.animateScrollToItem(prevIndex)
-                                                }
-                                            },
-                                        shape = RoundedCornerShape(28.dp),
-                                        shadowElevation = 12.dp,
-                                        tonalElevation = 0.dp,
-                                        border = BorderStroke(1.dp, TheraColorTokens.StrokeColor),
-                                        color = Color.White
-                                    ) {
-                                        Box(
-                                            modifier = Modifier.size(56.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                                contentDescription = "Scroll Left",
-                                                tint = Color(0xFF1A73E8),
-                                                modifier = Modifier.size(32.dp)
-                                            )
-                                        }
-                                    }
-                                }
-
-//
-// RIGHT ARROW (show only if can scroll forward)
-//
-                                if (showRightArrow) {
-                                    Surface(
-                                        modifier = Modifier
-                                            .size(56.dp)
-                                            .align(Alignment.CenterEnd)
-                                            .throttledClickable {
-                                                scope.launch {
-                                                    val nextIndex =
-                                                        (rowState.firstVisibleItemIndex + 1).coerceAtMost(
-                                                            rowState.layoutInfo.totalItemsCount - 1
-                                                        )
-                                                    rowState.animateScrollToItem(nextIndex)
-                                                }
-                                            },
-                                        shape = RoundedCornerShape(28.dp),
-                                        shadowElevation = 12.dp,
-                                        tonalElevation = 0.dp,
-                                        border = BorderStroke(1.dp, TheraColorTokens.StrokeColor),
-                                        color = Color.White
-                                    ) {
-                                        Box(
-                                            modifier = Modifier.size(56.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                                contentDescription = "Scroll Right",
-                                                tint = Color(0xFF1A73E8),
-                                                modifier = Modifier.size(32.dp)
-                                            )
-                                        }
-                                    }
-                                }
+                        LaunchedEffect(selectedDuration, selectedPrice, selectedPoints) {
+                            val index = selectedEquipments.indexOfFirst {
+                                it.equipment.equipment_id == firstUnit?.equipment_id
                             }
 
-
-                            // RIGHT: Selection Panel
-                            Box(
-                                modifier = Modifier
-                                    .weight(0.55f)
-                                    .height(214.dp)
-                            ) {
-                                HorizontalSelectionPanel(
+                            if (index != -1) {
+                                selectedEquipments[index] = selectedEquipments[index].copy(
                                     duration = selectedDuration,
-                                    onDurationChanged = {
-                                        selectedDuration = it
-                                        selectedPrice = calculatePrice(it)
-                                        selectedPoints = calculatePoints(it)
-                                    },
-                                    onBack = { onBack() },
                                     price = selectedPrice,
-                                    points = selectedPoints,
-                                    showPoints = showPoints,
-                                    onSelect = {
-                                        if (selectedUnit == null) {
-                                            alert.show("Please Select Equipment")
-                                        }
-                                        selectedUnit?.let { unit ->
-                                            onSelect(type, unit, selectedDuration)
-                                        }
-                                    },
-                                    unit = selectedUnit,
-                                    isMember = isMember,
-                                    shouldShowDurationSelector = shouldShowDurationSelector,
-                                    isOneMinuteAccording = isOneMinuteAccording,
-                                    equipmentData = equipmentData,
-                                    onStartMachine = {points->
-                                        if (selectedUnit == null) {
-                                            alert.show("Please Select Equipment")
-                                        } else {
-                                            selectedUnit?.let { unit ->
-                                                onStartMachine(type, unit, selectedDuration,points)
-                                            }
-                                        }
-                                    },
-                                    hasNoActiveSession = hasNoActiveSession,
-                                    userPlan = userPlan,
-                                    alert = alert
+                                    points = selectedPoints
                                 )
                             }
                         }
 
 
+                        val hasNoActiveSession = isMember && isEquipmentInSession == 0
+                        val showPoints = hasNoActiveSession
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(Color.White)
+                                .padding(horizontal = 20.dp, vertical = 12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    firstUnit?.equipment_name ?: "",
+                                    color = Color.Black,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+
+                                    EquipmentItemCard(
+                                        name = firstUnit?.equipment_name ?: "",
+                                        image = type.image,
+                                        onClick = {
+                                            // Allow selection of online/available equipment
+                                            if (firstUnit?.status?.lowercase() == "idle") {
+                                                selectedUnit = firstUnit
+                                            }
+                                            onViewDetail(firstUnit)
+                                        })
+
+                                    Spacer(Modifier.width(20.dp))
+
+                                    HorizontalSelectionPanel(
+                                        duration = selectedDuration,
+                                        onDurationChanged = {
+                                            selectedDuration = it
+                                            selectedPrice = calculatePrice(it)
+                                            selectedPoints = calculatePoints(it)
+                                        },
+                                        onBack = { onBack() },
+                                        price = selectedPrice,
+                                        points = selectedPoints,
+                                        showPoints = showPoints,
+                                        onSelect = {
+                                            if (selectedUnit == null) {
+                                                alert.show("Please Select Equipment")
+                                            }
+                                            selectedUnit?.let { unit ->
+                                                onSelect(type, selectedDuration)
+                                            }
+                                        },
+                                        unit = selectedUnit,
+                                        isMember = isMember,
+                                        shouldShowDurationSelector = shouldShowDurationSelector,
+                                        isOneMinuteAccording = isOneMinuteAccording,
+                                        equipmentData = equipmentData,
+                                        onStartMachine = { points ->
+                                            if (selectedUnit == null) {
+                                                alert.show("Please Select Equipment")
+                                            } else {
+                                                selectedUnit?.let { unit ->
+                                                    onStartMachine(
+                                                        type, unit, selectedDuration, points
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        hasNoActiveSession = hasNoActiveSession,
+                                        userPlan = userPlan,
+                                        alert = alert
+                                    )
+                                    Spacer(Modifier.width(20.dp))
+
+                                    val isSelected = selectedEquipments.any {
+                                        it.equipment.equipment_id == firstUnit?.equipment_id && it.equipment.sessionTime == firstUnit.sessionTime
+                                    }
+                                    if (!isSelected) {
+                                        TheraSecondaryButton2(
+                                            modifier = Modifier
+                                                .height(60.dp)
+                                                .width(140.dp),
+                                            label = "Select"
+                                        ) {
+                                            val isSameDeviceDifferentSession = selectedEquipments.any {
+                                                it.equipment.equipment_id == firstUnit?.equipment_id &&
+                                                        it.equipment.sessionTime != firstUnit?.sessionTime
+                                            }
+
+                                            if(isSameDeviceDifferentSession){
+                                                showSessionConflictDialog  = true
+                                            }else {
+                                                firstUnit?.let {
+                                                    selectedEquipments.add(
+                                                        SelectedEquipment(
+                                                            equipment = it,
+                                                            duration = selectedDuration,
+                                                            price = selectedPrice,
+                                                            points = selectedPoints
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        TheraPrimaryButton2(
+                                            modifier = Modifier
+                                                .height(60.dp)
+                                                .width(140.dp),
+                                            label = "Selected"
+                                        ) {
+                                            firstUnit?.let {
+                                                selectedEquipments.removeAll { sel ->
+                                                    sel.equipment.equipment_id == it.equipment_id && sel.equipment.sessionTime == it.sessionTime
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
                     }
-
-                    Spacer(
-                        Modifier
-                            .height(20.dp)
-                            .fillMaxWidth()
-                    )
-
                 }
 
+                Spacer(Modifier.height(20.dp))
 
+                if(isLoading == false){
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = Color.White,
+                        shadowElevation = 8.dp
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            verticalArrangement = Arrangement.SpaceBetween
+                        ) {
+
+                            // ======================
+                            // HEADER
+                            // ======================
+                            Column(horizontalAlignment = Alignment.Start) {
+
+                                val noEquipmentsSelected = selectedEquipments.isNullOrEmpty()
+                                Text(
+                                    text = if (noEquipmentsSelected) "PLEASE SELECT YOUR THERAPY(S) FOR USE TODAY" else "Selected Equipment",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Spacer(Modifier.height(6.dp))
+
+                                Text(
+                                    text = if (noEquipmentsSelected) "(Be sure to confirm device availability prior to selection)" else "Review before proceeding",
+                                    fontSize = 14.sp,
+                                    color = Color.Black.copy(0.6f)
+                                )
+
+                                /*Text(
+                                    text = "Selected Equipment",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Spacer(Modifier.height(6.dp))
+
+                                Text(
+                                    text = "Review before proceeding",
+                                    fontSize = 14.sp,
+                                    color = Color.Black.copy(0.6f)
+                                )*/
+
+                            }
+
+                            // ======================
+                            // CONTENT
+                            // ======================
+                            if (selectedEquipments.isEmpty()) {
+
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Spacer(Modifier.height(20.dp))
+                                    Text(
+                                        "No equipment selected",
+                                        fontSize = 16.sp,
+                                        color = Color.Black.copy(0.6f)
+                                    )
+                                }
+
+
+                            } else {
+
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+
+                                    // Selected list
+                                    selectedEquipments.forEach {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(1.dp)
+                                                .background(Color.Black.copy(0.1f))
+                                        )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                it.equipment.equipment_name,
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+
+                                    Spacer(Modifier.height(12.dp))
+
+                                    if (isCreditScreen) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(1.dp)
+                                                .background(Color.Black.copy(0.1f))
+                                        )
+                                    } else if (!isMember) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(1.dp)
+                                                .background(Color.Black.copy(0.1f))
+                                        )
+                                    }
+
+
+                                    Spacer(Modifier.height(12.dp))
+
+                                    // TOTAL (Price OR Points)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+
+                                        if (isCreditScreen) {
+                                            Text(
+                                                text = "Total",
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        } else if (!isMember) {
+                                            Text(
+                                                text = "Total",
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+
+
+                                        val totalPoints = selectedEquipments.sumOf { it.points }
+                                        val totalPrice = selectedEquipments.sumOf { it.price }
+
+                                        if (isCreditScreen) {
+                                            Text(
+                                                text = "${totalPoints} Points",
+                                                fontSize = 22.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = TheraColorTokens.PrimaryDark
+                                            )
+                                        } else if (!isMember) {
+                                            Text(
+                                                text = if (isMember) "${totalPoints} Points"
+                                                else "$ ${totalPrice}",
+                                                fontSize = 22.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = TheraColorTokens.PrimaryDark
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // ======================
+                            // ACTIONS
+                            // ======================
+
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
+                                TheraSecondaryButton2(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp),
+                                    label = "Cancel"
+                                ) {
+                                    selectedEquipments.clear()
+                                }
+
+                                TheraPrimaryButton2(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp),
+                                    label = "Book Session"
+                                ) {
+                                    onYes(selectedEquipments)
+                                }
+                            }
+                        }
+                    }
+                    }
+                }
             }
-
-            Spacer(Modifier.height(36.dp))
         }
-
     }
 }
 
@@ -586,38 +697,20 @@ fun EquipmentListScreen(
 
 @Composable
 fun EquipmentItemCard(
-    name: String,
-    image: String,
-    status: String,
-    statusColor: Color,
-    borderColor: Color,
-    onClick: () -> Unit
+    name: String, image: String, onClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .width(170.dp)
-            .background(TheraColorTokens.Background, RoundedCornerShape(18.dp))
-            .border(3.dp, borderColor, RoundedCornerShape(18.dp))
-            .throttledClickable { onClick() }
-            .padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-
-        Text(
-            text = status, color = statusColor, fontSize = 18.sp, fontWeight = FontWeight.SemiBold
-        )
-
-
+        modifier = Modifier.throttledClickable { onClick() },
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         NetworkImage(
             imageUrl = image,
             contentDescription = null,
             modifier = Modifier
-                .size(140.dp)
-                .padding(vertical = 2.dp)
+                .size(240.dp)
+                .padding(2.dp)
         )
 
-
-        Text(
-            name, color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.Bold
-        )
     }
 }
 
@@ -698,14 +791,13 @@ fun HorizontalSelectionPanel(
     unit: Equipment? = null,
     onStartMachine: (String?) -> Unit = {},
     hasNoActiveSession: Boolean = false,
-    userPlan:UserPlan? = null, // NEW
+    userPlan: UserPlan? = null, // NEW
     alert: TheraAlertState? = null
 ) {
 
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
             .background(TheraColorTokens.Background, RoundedCornerShape(20.dp))
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.SpaceBetween
@@ -715,8 +807,8 @@ fun HorizontalSelectionPanel(
         // TOP ROW (Duration – Dropdown – Price)
         // ===========================
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
@@ -726,7 +818,7 @@ fun HorizontalSelectionPanel(
                 Text(
                     if (duration > 5) "$duration min" else " - - - ",
                     color = Color.Black,
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -751,28 +843,10 @@ fun HorizontalSelectionPanel(
                         .padding(horizontal = 14.dp), contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "$duration min", fontSize = 18.sp, fontWeight = FontWeight.Bold
+                        text = "$duration min", fontSize = 16.sp, fontWeight = FontWeight.Bold
                     )
                 }
             }
-
-            // Show price only for single session (non-member)
-//            if (!isMember) {
-//                // Price
-//                Column(horizontalAlignment = Alignment.End) {
-//                    Text("Price", color = Color.Black.copy(0.7f), fontSize = 18.sp)
-//                    Text(
-//                        if (price > 0.0 && duration > 0) "$${
-//                            String.format(
-//                                "%.2f", price
-//                            )
-//                        }" else "- - -",
-//                        color = Color.Black,
-//                        fontSize = 28.sp,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                }
-//            }
 
             // Show price for non-members, show points for members with no active session
             if (!isMember) {
@@ -797,20 +871,15 @@ fun HorizontalSelectionPanel(
                     Text(
                         if (points > 0 && duration > 0) "$points" else "- - -",
                         color = Color.Black,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
             }
+
         }
 
-        // Spacer pushes button to bottom (for kiosk layout)
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // ===========================
-        // BIG SELECT BUTTON (Bottom)
-        // ===========================
-        TheraPrimaryButton(
+        /*TheraPrimaryButton(
             label = if (isMember) "Start Machine" else "Proceed", onClick = {
                 if (isMember) {
                     if (unit != null) {
@@ -833,7 +902,8 @@ fun HorizontalSelectionPanel(
             }, modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
-        )
+        )*/
+
     }
 }
 
@@ -847,7 +917,7 @@ fun DurationPopupSelector(
     modifier: Modifier = Modifier,
     isOneMinuteAccording: Boolean = false,
     equipmentData: List<EquipmentDataItem>? = null,
-    userPlan:UserPlan? = null
+    userPlan: UserPlan? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -872,7 +942,7 @@ fun DurationPopupSelector(
                 .padding(horizontal = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = if (value > 0) "$value min" else "Select duration",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.width(6.dp))
@@ -947,7 +1017,7 @@ private fun DurationOption(
             modifier = Modifier.align(Alignment.CenterVertically),
             textAlign = TextAlign.Center,
             text = label,
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             color = when {
                 selected -> MaterialTheme.colorScheme.primary
@@ -965,14 +1035,15 @@ private fun DurationOption(
 
 @Preview(device = "spec:width=1280dp,height=800dp,dpi=240")
 @Composable
-fun PreviewEquipmentList(){
+fun PreviewEquipmentList() {
     TheraGradientBackground {
         EquipmentListScreen(
             showDialog = null,
             error = null,
             planExpired = false,
-            equipmentData = emptyList(),
-            isMember = false,
+            equipmentList = listOf(),
+            isMember = true,
+            isLoading = true
         )
     }
 }

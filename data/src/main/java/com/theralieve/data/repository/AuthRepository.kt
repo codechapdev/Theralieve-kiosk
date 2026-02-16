@@ -21,6 +21,7 @@ import com.theralieve.domain.model.PlanDetail
 import com.theralieve.domain.model.PlanEquipment
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
+import com.theralieve.domain.model.LocationEquipment
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
@@ -218,6 +219,9 @@ class AuthRepositoryImpl @Inject constructor(
         employeeNo: String?,
     ): Result<AddMemberResult> {
         return try {
+
+            val member = if(memberNo == "null") null else if(!memberNo.isNullOrEmpty()) memberNo.toRequestBody(MultipartBody.FORM) else null
+            val employee = if(employeeNo == "null") null else if(!employeeNo.isNullOrEmpty()) employeeNo.toRequestBody(MultipartBody.FORM) else null
             val response = apiService.addMember(
                 username = username.toRequestBody(MultipartBody.FORM),
                 name = name.toRequestBody(MultipartBody.FORM),
@@ -226,8 +230,8 @@ class AuthRepositoryImpl @Inject constructor(
                 password = password.toRequestBody(MultipartBody.FORM),
                 customerId = customerId.toRequestBody(MultipartBody.FORM),
                 membershipType = membershipType.toRequestBody(MultipartBody.FORM),
-                memberNumber = memberNo?.toRequestBody(MultipartBody.FORM),
-                employeeNumber = employeeNo?.toRequestBody(MultipartBody.FORM)
+                memberNumber = member,
+                employeeNumber = employee
             )
 
             if (response.isSuccessful && response.body()?.Success == true) {
@@ -396,7 +400,15 @@ class AuthRepositoryImpl @Inject constructor(
                     dayFromTime = timeDto.dayfromtime ?: "",
                     dayToTime = timeDto.daytotime ?: ""
                 )
-            } ?: emptyList())
+            } ?: emptyList(),
+            equipments = equipments?.map {
+                LocationEquipment(
+                    equipmentId = it.equipment_id,
+                    equipmentName = it.equipment_name,
+                    image = it.image
+                )
+            }?: emptyList()
+        )
     }
 
 }

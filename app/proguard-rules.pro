@@ -129,9 +129,42 @@
     public static *** v(...);
 }
 
+# Keep Dejavoo SDK
+-keep class com.denovo.** { *; }
+-dontwarn com.denovo.**
+
+# Keep all Serializable (intent extras)
+-keep class * implements java.io.Serializable { *; }
+
+# Keep Parcelable
+-keep class * implements android.os.Parcelable { *; }
+
+# Keep constructors
+-keepclassmembers class * {
+    public <init>(...);
+}
+
+# Keep intent action strings
+-keepclassmembers class * {
+    public static final java.lang.String *;
+}
+
+# Gson / JSON (very important)
+-keep class com.google.gson.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# Kotlin metadata
+-keep class kotlin.Metadata { *; }
+
+-keep class com.theralieve.utils.** { *; }
+
 -dontwarn java.sql.JDBCType
 -dontwarn org.slf4j.Logger
 -dontwarn org.slf4j.LoggerFactory
+
+
+
 
 
 

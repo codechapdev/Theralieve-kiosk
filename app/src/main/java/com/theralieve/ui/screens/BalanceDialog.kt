@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.theralieve.domain.model.EquipmentInSession
+import com.theralieve.domain.model.EquipmentInTransaction
 import com.theralieve.domain.model.PlanEquipment
 import com.theralieve.ui.components.NetworkImage
 import com.theralieve.ui.components.TheraBackgroundDialog
@@ -174,6 +175,140 @@ private fun BalanceItemCard(
         if(session.equipment_balance != null) {
             Text(
                 text = "Balance: ${session.equipment_balance}",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 18.sp
+                ),
+                color = TheraColorTokens.TextSecondary
+            )
+        }
+
+    }
+}
+
+
+
+@Composable
+fun BalanceDialogProfile(
+    list: List<EquipmentInTransaction>,
+    onClose: () -> Unit
+) {
+    val clickGuard = rememberClickGuard()
+    val alertState = rememberTheraAlertState()
+
+    Dialog(
+        onDismissRequest = onClose, properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false,
+//        usePlatformDefaultWidth = false
+        )
+    ) {
+        TheraBackgroundDialog(alertState = alertState, modifier = Modifier) {
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = Color.White,
+                tonalElevation = 8.dp,
+                modifier = Modifier.width(620.dp) // kiosk-friendly width
+            ) {
+                Column(
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    // ─────────────────── Top Bar ───────────────────────
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Spacer(modifier = Modifier.width(40.dp)) // keeps title centered
+
+                        Text(
+                            text = "Session Balance",
+                            fontSize = 30.sp,
+                            color = TheraColorTokens.Primary
+                        )
+
+                        IconButton(onClick = {
+                            if (clickGuard.canClick()) onClose()
+                        }) {
+                            Icon(
+                                painter = painterResource(id = android.R.drawable.ic_menu_close_clear_cancel),
+                                contentDescription = "Close",
+                                tint = Color.Black
+                            )
+                        }
+                    }
+
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if(!list.isNullOrEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+
+                            // Equipment List
+                            list.forEach { equipment ->
+                                BalanceItemCard(
+                                    session = equipment,
+                                )
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BalanceItemCard(
+    session: EquipmentInTransaction) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Color.White,
+                RoundedCornerShape(16.dp)
+            )
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Equipment Image
+        NetworkImage(
+            imageUrl = session.equipment_image,
+            contentDescription = session.equipment_image,
+            modifier = Modifier.size(100.dp),
+            contentScale = ContentScale.Fit
+        )
+
+        // Equipment Details
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = session.equipment_name?:"",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = TheraColorTokens.TextPrimary
+            )
+
+            Text(
+                text = "Time: ${session.equipment_time} mins",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 18.sp
+                ),
+                color = TheraColorTokens.TextSecondary
+            )
+        }
+
+        if(session.remaining_session != null) {
+            Text(
+                text = "Balance: ${session.remaining_session}",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 18.sp
                 ),

@@ -1,10 +1,15 @@
 package com.theralieve.data.repository
 
+import com.google.gson.Gson
 import com.theralieve.data.api.ApiService
+import com.theralieve.data.api.EquipmentStartItemDto
+import com.theralieve.domain.model.EquipmentStartItem
 import com.theralieve.domain.model.StartMachineResponse
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
+import retrofit2.http.Part
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,12 +20,28 @@ class PaymentRepositoryImpl @Inject constructor(
     private val apiService: ApiService
 ) : DomainPaymentRepository {
 
+    private val gson = Gson()
+
+    private fun equipmentsToRequestBody(equipments: List<EquipmentStartItem>?): okhttp3.RequestBody? {
+        if (equipments.isNullOrEmpty()) return null
+        val dtos = equipments.map {
+            EquipmentStartItemDto(
+                equipment_id = it.equipment_id.toString(),
+                duration = it.duration.toString(),
+                credit_points = it.credit_points
+            )
+        }
+        val json = gson.toJson(dtos)
+        return json.toRequestBody("text/plain".toMediaType())
+    }
+
     override suspend fun verifyPayment(
         paymentId: String,
         isMember: Boolean,
         equipmentId: Int?,
         customerId: String?,
-        duration: Int?
+        duration: Int?,
+        price: Double?,
     ): Result<com.theralieve.domain.model.GuestData?> {
         return try {
             // If isMember is true, only send paymentId and isMember
@@ -31,7 +52,8 @@ class PaymentRepositoryImpl @Inject constructor(
 //                    isMember = isMember.toString().toRequestBody(MultipartBody.FORM),
                     equipmentId = null,
                     customerId = null,
-                    duration = null
+                    duration = null,
+                    price = null
                 )
             } else {
                 apiService.verifyPayment(
@@ -39,7 +61,8 @@ class PaymentRepositoryImpl @Inject constructor(
 //                    isMember = isMember.toString().toRequestBody(MultipartBody.FORM),
                     equipmentId = equipmentId?.toString()?.toRequestBody(MultipartBody.FORM),
                     customerId = customerId?.toRequestBody(MultipartBody.FORM),
-                    duration = duration?.toString()?.toRequestBody(MultipartBody.FORM)
+                    duration = duration?.toString()?.toRequestBody(MultipartBody.FORM),
+                    price = price?.toString()?.toRequestBody(MultipartBody.FORM)
                 )
             }
 
@@ -101,46 +124,46 @@ class PaymentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun startMachine(
-        equipmentId: Int,
-        locationId: Int,
-        duration: Int,
-        deviceName: String,
-        isMember: Boolean,
+        equipmentId: Int?,
+        locationId: Int?,
+        duration: Int?,
+        deviceName: String?,
+        isMember: Boolean?,
         guestUserId: Int?,
         userId: Int?,
         planId: Int?,
         planType: String?,
-        creditPoints: String?
+        creditPoints: String?,
+        equipments: List<EquipmentStartItem>?
     ): Result<StartMachineResponse?> {
         return try {
-            val response = if (isMember) {
-                // For members: send equipmentId, locationId, duration, deviceName, isMember, userId, planId, planType
-                apiService.startMachine(
-                    equipmentId = equipmentId.toString().toRequestBody(MultipartBody.FORM),
-                    locationId = locationId.toString().toRequestBody(MultipartBody.FORM),
-                    duration = duration.toString().toRequestBody(MultipartBody.FORM),
-                    deviceName = deviceName.toRequestBody(MultipartBody.FORM),
-                    isMember = isMember.toString().toRequestBody(MultipartBody.FORM),
-                    guestUserId = null,
-                    userId = userId?.toString()?.toRequestBody(MultipartBody.FORM),
-                    planId = planId?.toString()?.toRequestBody(MultipartBody.FORM),
-                    planType = planType?.toRequestBody(MultipartBody.FORM),
-                    creditPoints = creditPoints?.toRequestBody(MultipartBody.FORM)
-                )
+            val hashMap = hashMapOf<String,Any?>()
+            val response = if (isMember == true) {
+                hashMap["equipmentId"] = equipmentId
+                hashMap["location_id"] = locationId
+                hashMap["duration"] = duration
+                hashMap["device_name"] = deviceName
+                hashMap["isMember"] = isMember
+                hashMap["guestuserid"] = guestUserId
+                hashMap["user_id"] = userId
+                hashMap["plan_id"] = planId
+                hashMap["plan_type"] = planType
+                hashMap["total_points"] = creditPoints
+                hashMap["equipments"] = equipments
+                apiService.startMachine(hashMap)
             } else {
-                // For single session: send equipmentId, locationId, duration, deviceName, isMember, guestUserId
-                apiService.startMachine(
-                    equipmentId = equipmentId.toString().toRequestBody(MultipartBody.FORM),
-                    locationId = locationId.toString().toRequestBody(MultipartBody.FORM),
-                    duration = duration.toString().toRequestBody(MultipartBody.FORM),
-                    deviceName = deviceName.toRequestBody(MultipartBody.FORM),
-                    isMember = isMember.toString().toRequestBody(MultipartBody.FORM),
-                    guestUserId = guestUserId?.toString()?.toRequestBody(MultipartBody.FORM),
-                    userId = null,
-                    planId = null,
-                    planType = null,
-                    creditPoints = null
-                )
+                hashMap["equipmentId"] = equipmentId
+                hashMap["location_id"] = locationId
+                hashMap["duration"] = duration
+                hashMap["device_name"] = deviceName
+                hashMap["isMember"] = isMember
+                hashMap["guestuserid"] = guestUserId
+                hashMap["user_id"] = userId
+                hashMap["plan_id"] = planId
+                hashMap["plan_type"] = planType
+                hashMap["total_points"] = creditPoints
+                hashMap["equipments"] = equipments
+                apiService.startMachine(hashMap)
             }
 
             if (response.isSuccessful) {

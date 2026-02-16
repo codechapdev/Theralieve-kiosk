@@ -9,6 +9,16 @@ import okhttp3.ResponseBody
  */
 
 /**
+ * One item in the equipments array for kiosk/start-machine.
+ * credit_points is only sent when from EquipmentCreditListScreen (Gson omits null).
+ */
+data class EquipmentStartItemDto(
+    @SerializedName("equipment_id") val equipment_id: String,
+    @SerializedName("duration") val duration: String,
+    @SerializedName("credit_points") val credit_points: Int? = null
+)
+
+/**
  * Generic error response structure from PHP backend
  * Used when validation fails: {"Success":false,"msg":"Validation failed","errors":{"email":["The email has already been taken."]}}
  */
@@ -179,6 +189,7 @@ data class EquipmentDTO(
     val equipment_data: List<EquipmentDataItemDTO>?,
     val remaining_balance: String?,
     val session_time: String? = null,
+    val plan_id: String? = null,
 )
 
 data class EquipmentDataItemDTO(
@@ -272,6 +283,12 @@ data class GetLocationResponse(
     val success: Boolean?, val data: List<LocationDTO>?
 )
 
+data class LocationEquipmentDTO(
+    val equipment_id: Int,
+    val equipment_name: String,
+    val image: String
+)
+
 data class LocationDTO(
     val id: Int?,
     val location_name: String?,
@@ -280,7 +297,8 @@ data class LocationDTO(
     val image: String?,
     val latitude: Double?,
     val longitude: Double?,
-    val time: List<LocationTimeDTO>?
+    val time: List<LocationTimeDTO>?,
+    val equipments: List<LocationEquipmentDTO>?,
 )
 
 data class LocationTimeDTO(
@@ -298,6 +316,8 @@ data class GetUserPlanResponse(
     val plan_expire: String?,
     val total_credit_points:String?,
     val vip_discount:String?,
+    val is_credit_plan:String?,
+    val is_session_plan:String?,
 )
 
 fun parseError(errorBody: ResponseBody?): ApiErrorResponse? {

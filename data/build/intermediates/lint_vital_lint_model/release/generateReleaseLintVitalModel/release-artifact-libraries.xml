@@ -21,9 +21,9 @@
       resolved="com.squareup.okhttp3:okhttp:4.11.0"/>
   <library
       name="com.google.dagger:hilt-android:2.58@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/7f5f1d144e2936c709ad8d57a06732ac/transformed/hilt-android-2.58/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/a9bf5b24faf0e4cfeb549fe43931df7b/transformed/hilt-android-2.58/jars/classes.jar"
       resolved="com.google.dagger:hilt-android:2.58"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/7f5f1d144e2936c709ad8d57a06732ac/transformed/hilt-android-2.58"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/a9bf5b24faf0e4cfeb549fe43931df7b/transformed/hilt-android-2.58"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -38,9 +38,9 @@
       resolved="androidx.room:room-common-jvm:2.8.4"/>
   <library
       name="androidx.room:room-runtime-android:2.8.4@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/f6361e5407d59ce305cbdd2ecdb611d5/transformed/room-runtime/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/976986d96e870abf1109e438a0803e1e/transformed/room-runtime/jars/classes.jar"
       resolved="androidx.room:room-runtime-android:2.8.4"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/f6361e5407d59ce305cbdd2ecdb611d5/transformed/room-runtime"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/976986d96e870abf1109e438a0803e1e/transformed/room-runtime"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -51,9 +51,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.room:room-ktx:2.8.4@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/7a4059d453f254eb94424b7645afdb55/transformed/room-ktx-2.8.4/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/03bcf01e295bbe6c5e53f7da6387648e/transformed/room-ktx-2.8.4/jars/classes.jar"
       resolved="androidx.room:room-ktx:2.8.4"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/7a4059d453f254eb94424b7645afdb55/transformed/room-ktx-2.8.4"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/03bcf01e295bbe6c5e53f7da6387648e/transformed/room-ktx-2.8.4"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -72,9 +72,9 @@
       resolved="androidx.datastore:datastore-core-okio-jvm:1.2.0"/>
   <library
       name="androidx.datastore:datastore-core-android:1.2.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/c32c9eee7248645da60da0f4be1fb6d1/transformed/datastore-core/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/9aeec2b9b905f76bd01a833a10dd568d/transformed/datastore-core/jars/classes.jar"
       resolved="androidx.datastore:datastore-core-android:1.2.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/c32c9eee7248645da60da0f4be1fb6d1/transformed/datastore-core"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/9aeec2b9b905f76bd01a833a10dd568d/transformed/datastore-core"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -85,9 +85,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.datastore:datastore-preferences-core-android:1.2.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/9f4962b6d96fa39f326fabbee4ee4acc/transformed/datastore-preferences-core/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/e1d6f6f425ac0b679327a620bdc384d9/transformed/datastore-preferences-core/jars/classes.jar"
       resolved="androidx.datastore:datastore-preferences-core-android:1.2.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/9f4962b6d96fa39f326fabbee4ee4acc/transformed/datastore-preferences-core"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/e1d6f6f425ac0b679327a620bdc384d9/transformed/datastore-preferences-core"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -98,9 +98,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.datastore:datastore-android:1.2.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/abe7310ac2f612078bc93b1c3c004a71/transformed/datastore/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/884ce5bf4202e28c1ce48782f8038717/transformed/datastore/jars/classes.jar"
       resolved="androidx.datastore:datastore-android:1.2.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/abe7310ac2f612078bc93b1c3c004a71/transformed/datastore"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/884ce5bf4202e28c1ce48782f8038717/transformed/datastore"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -111,9 +111,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.datastore:datastore-preferences-android:1.2.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/b631407c83e2652987f9104f5701c098/transformed/datastore-preferences/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/8ae72ee434d38a96279e85afce133ec8/transformed/datastore-preferences/jars/classes.jar"
       resolved="androidx.datastore:datastore-preferences-android:1.2.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/b631407c83e2652987f9104f5701c098/transformed/datastore-preferences"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/8ae72ee434d38a96279e85afce133ec8/transformed/datastore-preferences"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -124,9 +124,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.fragment:fragment:1.5.1@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/0c511b6a6bc360bafdf7ab915b658b19/transformed/fragment-1.5.1/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/696131567b6b10ad25a98150a5cc69c7/transformed/fragment-1.5.1/jars/classes.jar"
       resolved="androidx.fragment:fragment:1.5.1"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/0c511b6a6bc360bafdf7ab915b658b19/transformed/fragment-1.5.1"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/696131567b6b10ad25a98150a5cc69c7/transformed/fragment-1.5.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -137,9 +137,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.activity:activity:1.5.1@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/58fb7b84871a7e63fadd4a0881988dc4/transformed/activity-1.5.1/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/e6513f46ac2712a1dd8a4e164c026c4d/transformed/activity-1.5.1/jars/classes.jar"
       resolved="androidx.activity:activity:1.5.1"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/58fb7b84871a7e63fadd4a0881988dc4/transformed/activity-1.5.1"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/e6513f46ac2712a1dd8a4e164c026c4d/transformed/activity-1.5.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -150,9 +150,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/18d0d1249a864a1ac8c2f1c8d70f5f1f/transformed/lifecycle-viewmodel-savedstate-2.5.1/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/591fe2e6d2abac9b6b6707329648152d/transformed/lifecycle-viewmodel-savedstate-2.5.1/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-viewmodel-savedstate:2.5.1"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/18d0d1249a864a1ac8c2f1c8d70f5f1f/transformed/lifecycle-viewmodel-savedstate-2.5.1"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/591fe2e6d2abac9b6b6707329648152d/transformed/lifecycle-viewmodel-savedstate-2.5.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -163,9 +163,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.core:core-ktx:1.2.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/582fa31326f200cd1cbdcb59c707679e/transformed/core-ktx-1.2.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/9064a200b04dd0bc0756ac6b1a90b118/transformed/core-ktx-1.2.0/jars/classes.jar"
       resolved="androidx.core:core-ktx:1.2.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/582fa31326f200cd1cbdcb59c707679e/transformed/core-ktx-1.2.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/9064a200b04dd0bc0756ac6b1a90b118/transformed/core-ktx-1.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -176,9 +176,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.loader:loader:1.0.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/4cfda4bf9cad8dddc044ca4b9b77110c/transformed/loader-1.0.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/98af63a8c19314360998357d0fbebec2/transformed/loader-1.0.0/jars/classes.jar"
       resolved="androidx.loader:loader:1.0.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/4cfda4bf9cad8dddc044ca4b9b77110c/transformed/loader-1.0.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/98af63a8c19314360998357d0fbebec2/transformed/loader-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -189,9 +189,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.viewpager:viewpager:1.0.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/50741b989b7a952b730679124ef5f208/transformed/viewpager-1.0.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/24a8bc3f84165caadf0d4eb1d2aebdfc/transformed/viewpager-1.0.0/jars/classes.jar"
       resolved="androidx.viewpager:viewpager:1.0.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/50741b989b7a952b730679124ef5f208/transformed/viewpager-1.0.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/24a8bc3f84165caadf0d4eb1d2aebdfc/transformed/viewpager-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -202,9 +202,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.customview:customview:1.0.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/dfffbfb118fb3b8bc69a6883d60de486/transformed/customview-1.0.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/505488d25fcfe50b8682f19f2052631a/transformed/customview-1.0.0/jars/classes.jar"
       resolved="androidx.customview:customview:1.0.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/dfffbfb118fb3b8bc69a6883d60de486/transformed/customview-1.0.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/505488d25fcfe50b8682f19f2052631a/transformed/customview-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -215,9 +215,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.core:core:1.8.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/1561889945dcaeb39817100800fd6e0d/transformed/core-1.8.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/f9e22f90c1757ace32a04ee962c962a6/transformed/core-1.8.0/jars/classes.jar"
       resolved="androidx.core:core:1.8.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/1561889945dcaeb39817100800fd6e0d/transformed/core-1.8.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/f9e22f90c1757ace32a04ee962c962a6/transformed/core-1.8.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -228,9 +228,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.annotation:annotation-experimental:1.5.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/8f958e64df3c7f29d1745f7d158e1507/transformed/annotation-experimental-1.5.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/b99e149d5f9e69c0fcc655d930dbd5e4/transformed/annotation-experimental-1.5.0/jars/classes.jar"
       resolved="androidx.annotation:annotation-experimental:1.5.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/8f958e64df3c7f29d1745f7d158e1507/transformed/annotation-experimental-1.5.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/b99e149d5f9e69c0fcc655d930dbd5e4/transformed/annotation-experimental-1.5.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -241,9 +241,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-viewmodel:2.5.1@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/444610efbe48db69a610e2bab36c3389/transformed/lifecycle-viewmodel-2.5.1/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/f5d5f490a44db9c0657f7c88ff870fd6/transformed/lifecycle-viewmodel-2.5.1/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-viewmodel:2.5.1"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/444610efbe48db69a610e2bab36c3389/transformed/lifecycle-viewmodel-2.5.1"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/f5d5f490a44db9c0657f7c88ff870fd6/transformed/lifecycle-viewmodel-2.5.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -254,9 +254,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.savedstate:savedstate:1.2.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/99b66d458426df91d4bd89c368db7b5d/transformed/savedstate-1.2.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/17a9eff5120f36010b3603589ab7acd8/transformed/savedstate-1.2.0/jars/classes.jar"
       resolved="androidx.savedstate:savedstate:1.2.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/99b66d458426df91d4bd89c368db7b5d/transformed/savedstate-1.2.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/17a9eff5120f36010b3603589ab7acd8/transformed/savedstate-1.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -283,9 +283,9 @@
       resolved="org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0"/>
   <library
       name="androidx.lifecycle:lifecycle-runtime:2.5.1@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/eadd64537fe54da681ee4405fc1f5dd8/transformed/lifecycle-runtime-2.5.1/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/a0fc69cefebe42ee72d447f1faf7b831/transformed/lifecycle-runtime-2.5.1/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-runtime:2.5.1"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/eadd64537fe54da681ee4405fc1f5dd8/transformed/lifecycle-runtime-2.5.1"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/a0fc69cefebe42ee72d447f1faf7b831/transformed/lifecycle-runtime-2.5.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -296,9 +296,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-livedata:2.0.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/6b09cc818ba5e649d71ddfec3a687be3/transformed/lifecycle-livedata-2.0.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/040977c15d86ef9c4200f9c4c2b3a88f/transformed/lifecycle-livedata-2.0.0/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-livedata:2.0.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/6b09cc818ba5e649d71ddfec3a687be3/transformed/lifecycle-livedata-2.0.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/040977c15d86ef9c4200f9c4c2b3a88f/transformed/lifecycle-livedata-2.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -309,9 +309,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.lifecycle:lifecycle-livedata-core:2.5.1@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/b9d41b60011c7016e851d6cfeb736da4/transformed/lifecycle-livedata-core-2.5.1/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/f30962337fed6ec7150cbcf78928cb17/transformed/lifecycle-livedata-core-2.5.1/jars/classes.jar"
       resolved="androidx.lifecycle:lifecycle-livedata-core:2.5.1"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/b9d41b60011c7016e851d6cfeb736da4/transformed/lifecycle-livedata-core-2.5.1"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/f30962337fed6ec7150cbcf78928cb17/transformed/lifecycle-livedata-core-2.5.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -326,9 +326,9 @@
       resolved="androidx.lifecycle:lifecycle-common:2.5.1"/>
   <library
       name="androidx.versionedparcelable:versionedparcelable:1.1.1@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/2f1308d34f2ad09813e80aa64e98a0a6/transformed/versionedparcelable-1.1.1/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/59a29a52010e35982064e259e9a7dcb0/transformed/versionedparcelable-1.1.1/jars/classes.jar"
       resolved="androidx.versionedparcelable:versionedparcelable:1.1.1"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/2f1308d34f2ad09813e80aa64e98a0a6/transformed/versionedparcelable-1.1.1"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/59a29a52010e35982064e259e9a7dcb0/transformed/versionedparcelable-1.1.1"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -339,9 +339,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.arch.core:core-runtime:2.2.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/35df80ded9df11ea62a6601c60fabc4b/transformed/core-runtime-2.2.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/fcd85b151d046f155af6a351a3f305d2/transformed/core-runtime-2.2.0/jars/classes.jar"
       resolved="androidx.arch.core:core-runtime:2.2.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/35df80ded9df11ea62a6601c60fabc4b/transformed/core-runtime-2.2.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/fcd85b151d046f155af6a351a3f305d2/transformed/core-runtime-2.2.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -360,9 +360,9 @@
       resolved="androidx.collection:collection-jvm:1.5.0"/>
   <library
       name="androidx.sqlite:sqlite-framework-android:2.6.2@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/4a9b5c6fa9dba7bd0bb356a918e42750/transformed/sqlite-framework/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/efe6174e1b8978f12373870bfcc7a3c7/transformed/sqlite-framework/jars/classes.jar"
       resolved="androidx.sqlite:sqlite-framework-android:2.6.2"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/4a9b5c6fa9dba7bd0bb356a918e42750/transformed/sqlite-framework"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/efe6174e1b8978f12373870bfcc7a3c7/transformed/sqlite-framework"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -373,9 +373,9 @@
       proguardRules="proguard.txt"/>
   <library
       name="androidx.sqlite:sqlite-android:2.6.2@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/056bf5fddc183117b2cd922e5fdf044a/transformed/sqlite/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/81ccfd74daf6bad51e7d04ed21f2e895/transformed/sqlite/jars/classes.jar"
       resolved="androidx.sqlite:sqlite-android:2.6.2"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/056bf5fddc183117b2cd922e5fdf044a/transformed/sqlite"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/81ccfd74daf6bad51e7d04ed21f2e895/transformed/sqlite"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -422,9 +422,9 @@
       resolved="org.jspecify:jspecify:1.0.0"/>
   <library
       name="com.google.dagger:dagger-lint-aar:2.58@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/c30ac63a73e24bf55b187f850ca91c7b/transformed/dagger-lint-aar-2.58/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/f3fb235a8e6f4d6c81fa346c59dab26c/transformed/dagger-lint-aar-2.58/jars/classes.jar"
       resolved="com.google.dagger:dagger-lint-aar:2.58"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/c30ac63a73e24bf55b187f850ca91c7b/transformed/dagger-lint-aar-2.58"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/f3fb235a8e6f4d6c81fa346c59dab26c/transformed/dagger-lint-aar-2.58"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"
@@ -447,9 +447,9 @@
       resolved="androidx.datastore:datastore-preferences-proto:1.2.0"/>
   <library
       name="androidx.tracing:tracing:1.0.0@aar"
-      jars="/Users/saligram/.gradle/caches/8.13/transforms/4c04da5e2993b6999ccc3fb28d4e3393/transformed/tracing-1.0.0/jars/classes.jar"
+      jars="/Users/saligram/.gradle/caches/8.13/transforms/0307b57a8e310d5c955147a8577d6545/transformed/tracing-1.0.0/jars/classes.jar"
       resolved="androidx.tracing:tracing:1.0.0"
-      folder="/Users/saligram/.gradle/caches/8.13/transforms/4c04da5e2993b6999ccc3fb28d4e3393/transformed/tracing-1.0.0"
+      folder="/Users/saligram/.gradle/caches/8.13/transforms/0307b57a8e310d5c955147a8577d6545/transformed/tracing-1.0.0"
       manifest="AndroidManifest.xml"
       resFolder="res"
       assetsFolder="assets"

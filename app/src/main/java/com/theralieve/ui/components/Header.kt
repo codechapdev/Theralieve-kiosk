@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Divider
@@ -28,12 +29,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.theralieve.R
 import com.theralieve.domain.model.UserPlan
 import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.utils.throttledClickable
@@ -48,12 +53,15 @@ fun Header(
     onBack: () -> Unit,
     onHome: () -> Unit = {},
     onProfileClicked: () -> Unit = {},
-    onPlanData:()->Unit = {}
+    onPlanData: () -> Unit = {},
+    onCreditData: () -> Unit = {},
+    showSwitchToCredit : Boolean  = false,
+    modifier: Modifier = Modifier
 ) {
 
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
 //            .background(Color(0xFFE8F5FE)) // Light wellness blue
             .padding(vertical = 16.dp),
@@ -115,7 +123,7 @@ fun Header(
                                 fontStyle = FontStyle.Italic
                             )
                         }
-                        if(!plan.planExpire.isNullOrEmpty()) {
+                        if (!plan.planExpire.isNullOrEmpty()) {
                             Row {
                                 Text(
                                     text = "Expiry : ",
@@ -133,6 +141,43 @@ fun Header(
                         }
                     }
                 }
+                if((userPlan?.vipDiscount?:"0").toInt()>0) {
+                    if((userPlan?.vipDiscount?:"0").toInt()>0) {
+                        Box(
+                            modifier = Modifier
+                                .padding(12.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(
+                                    Brush.horizontalGradient(
+                                        colors = listOf(
+                                            Color(0xFFFFD700), // Gold
+                                            Color(0xFFFFA000)  // Orange-gold
+                                        )
+                                    )
+                                )
+                                .padding(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Text(
+                                    text = "VIP",
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+                    }
+                }
+
 
             }
         } else {
@@ -156,7 +201,6 @@ fun Header(
                         modifier = Modifier.size(32.dp)
                     )
                 }
-
             }
         }
 
@@ -194,14 +238,14 @@ fun Header(
             }
         }
 
-        if (isMember){
+        if (isMember) {
             Row(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd),
+                modifier = Modifier.align(Alignment.CenterEnd),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                CreditPoints(userPlan = userPlan)
-                PlanDataButton{ onPlanData() }
+
+                CreditPoints(userPlan = userPlan, onClick = onCreditData)
+                PlanDataButton { onPlanData() }
 //                LogoutButton { onBack() }
             }
         }
@@ -329,7 +373,7 @@ fun PlanDataButton(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .background(TheraColorTokens.Primary) // Red logout color
-            .throttledClickable { onPlanData() }
+        .throttledClickable { onPlanData() }
             .padding(horizontal = 24.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically) {
 
@@ -351,21 +395,29 @@ fun PlanDataButton(
 
 @Composable
 fun CreditPoints(
-    modifier: Modifier = Modifier, userPlan: UserPlan?
+    modifier: Modifier = Modifier, userPlan: UserPlan?, onClick: () -> Unit
 ) {
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(50))
             .background(TheraColorTokens.Surface) // Red logout color
-        .throttledClickable { }
+        .throttledClickable {
+            onClick()
+        }
             .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically) {
 
         Text(
-            text = "Credit Points : ${userPlan?.totalCreditPoints?:"0"}",
+            text = "Pay Using Credit",
             style = MaterialTheme.typography.bodyLarge,
             color = Color.Black
         )
+
+        /*Text(
+            text = "Credit Points : ${userPlan?.totalCreditPoints?:"0"}",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.Black
+        )*/
     }
 }
 

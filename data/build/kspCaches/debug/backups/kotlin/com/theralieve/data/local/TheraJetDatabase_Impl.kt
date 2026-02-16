@@ -40,12 +40,12 @@ public class TheraJetDatabase_Impl : TheraJetDatabase() {
   }
 
   protected override fun createOpenDelegate(): RoomOpenDelegate {
-    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(6, "44a0076462427d38966fb575f737ff78", "ed5729eb7508d6c0e00c0557bc5d7202") {
+    val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(7, "73ad545e15e16117b08c043e2f1674c5", "c0bfabc3cd574cd5f2e8f37443ccc231") {
       public override fun createAllTables(connection: SQLiteConnection) {
         connection.execSQL("CREATE TABLE IF NOT EXISTS `plans` (`id` INTEGER NOT NULL, `planName` TEXT NOT NULL, `planPrice` TEXT NOT NULL, `validity` TEXT NOT NULL, `bulletPoints` TEXT NOT NULL, `planDesc` TEXT NOT NULL, `image` TEXT NOT NULL, `customerId` TEXT NOT NULL, `planType` TEXT NOT NULL, `membershipType` TEXT NOT NULL, `currency` TEXT NOT NULL, `points` INTEGER NOT NULL, `status` INTEGER NOT NULL, `createdDate` TEXT NOT NULL, `updatedDate` TEXT NOT NULL, `equipmentJson` TEXT NOT NULL, `frequency` TEXT NOT NULL, `frequencyLimit` TEXT NOT NULL, `discount` TEXT, `discountType` TEXT, `discountValidity` TEXT, `employeeDiscount` TEXT, `isForEmployee` INTEGER NOT NULL, `isVipPlan` INTEGER NOT NULL, `billingPrice` TEXT, PRIMARY KEY(`id`))")
-        connection.execSQL("CREATE TABLE IF NOT EXISTS `equipment` (`equipmentId` INTEGER NOT NULL, `deviceName` TEXT NOT NULL, `equipmentCount` INTEGER NOT NULL, `equipmentName` TEXT NOT NULL, `equipmentPoint` TEXT NOT NULL, `equipmentPoints` INTEGER NOT NULL, `equipmentPrice` TEXT NOT NULL, `equipmentTime` TEXT NOT NULL, `image` TEXT NOT NULL, `isOneMinuteAccording` TEXT NOT NULL, `macAddress` TEXT NOT NULL, `equipmentDataJson` TEXT, `status` TEXT, `statusUpdatedAt` TEXT, `remainingBalance` TEXT, `sessionTime` TEXT, PRIMARY KEY(`deviceName`))")
+        connection.execSQL("CREATE TABLE IF NOT EXISTS `equipment` (`primaryKeyWithEquipmentId` TEXT NOT NULL, `equipmentId` INTEGER NOT NULL, `deviceName` TEXT NOT NULL, `equipmentCount` INTEGER NOT NULL, `equipmentName` TEXT NOT NULL, `equipmentPoint` TEXT NOT NULL, `equipmentPoints` INTEGER NOT NULL, `equipmentPrice` TEXT NOT NULL, `equipmentTime` TEXT NOT NULL, `image` TEXT NOT NULL, `isOneMinuteAccording` TEXT NOT NULL, `macAddress` TEXT NOT NULL, `equipmentDataJson` TEXT, `status` TEXT, `statusUpdatedAt` TEXT, `remainingBalance` TEXT, `sessionTime` TEXT, `planId` TEXT, PRIMARY KEY(`primaryKeyWithEquipmentId`))")
         connection.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
-        connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '44a0076462427d38966fb575f737ff78')")
+        connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '73ad545e15e16117b08c043e2f1674c5')")
       }
 
       public override fun dropAllTables(connection: SQLiteConnection) {
@@ -108,8 +108,9 @@ public class TheraJetDatabase_Impl : TheraJetDatabase() {
               |""".trimMargin() + _existingPlans)
         }
         val _columnsEquipment: MutableMap<String, TableInfo.Column> = mutableMapOf()
+        _columnsEquipment.put("primaryKeyWithEquipmentId", TableInfo.Column("primaryKeyWithEquipmentId", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsEquipment.put("equipmentId", TableInfo.Column("equipmentId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
-        _columnsEquipment.put("deviceName", TableInfo.Column("deviceName", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsEquipment.put("deviceName", TableInfo.Column("deviceName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsEquipment.put("equipmentCount", TableInfo.Column("equipmentCount", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsEquipment.put("equipmentName", TableInfo.Column("equipmentName", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsEquipment.put("equipmentPoint", TableInfo.Column("equipmentPoint", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY))
@@ -124,6 +125,7 @@ public class TheraJetDatabase_Impl : TheraJetDatabase() {
         _columnsEquipment.put("statusUpdatedAt", TableInfo.Column("statusUpdatedAt", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsEquipment.put("remainingBalance", TableInfo.Column("remainingBalance", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY))
         _columnsEquipment.put("sessionTime", TableInfo.Column("sessionTime", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY))
+        _columnsEquipment.put("planId", TableInfo.Column("planId", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY))
         val _foreignKeysEquipment: MutableSet<TableInfo.ForeignKey> = mutableSetOf()
         val _indicesEquipment: MutableSet<TableInfo.Index> = mutableSetOf()
         val _infoEquipment: TableInfo = TableInfo("equipment", _columnsEquipment, _foreignKeysEquipment, _indicesEquipment)

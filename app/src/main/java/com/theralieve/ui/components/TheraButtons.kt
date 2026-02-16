@@ -87,6 +87,60 @@ fun TheraPrimaryButton(
 }
 
 @Composable
+fun TheraPrimaryButton2(
+    label: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit
+) {
+
+    val clickGuard = rememberClickGuard()
+
+
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp
+    configuration.screenWidthDp
+
+    // Responsive text size based on screen size
+    val textSize = when {
+        screenHeight > 1000 -> 20.sp
+        screenHeight > 800 -> 18.sp
+        else -> 16.sp
+    }
+
+    val gradient = Brush.horizontalGradient(
+        listOf(
+            TheraColorTokens.Primary, TheraColorTokens.PrimaryDark
+        )
+    )
+    Button(
+        onClick = {
+            if (clickGuard.canClick()) {
+                onClick()
+            }
+        },
+        enabled = enabled,
+        modifier = modifier
+            .clip(DefaultButtonShape)
+            .background(gradient, DefaultButtonShape),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent,
+            contentColor = TheraColorTokens.ButtonText,
+            disabledContainerColor = Color.Transparent,
+            disabledContentColor = TheraColorTokens.TextWhite
+        ),
+        contentPadding = PaddingValues(4.dp)
+    ) {
+        androidx.compose.material3.Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontSize = textSize, fontWeight = FontWeight.Bold
+            ),
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
+    }
+}
+
+@Composable
 fun TheraSecondaryButton(
     label: String, modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit
 ) {

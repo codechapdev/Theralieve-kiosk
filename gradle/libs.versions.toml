@@ -44,14 +44,15 @@ espressoCore = "3.7.0"
 # Coroutines
 coroutines = "1.10.2"
 splash-screen-version = "1.2.0"
-awsAndroidSdkCore = "2.81.1"
-awsAndroidSdkIot = "2.81.1"
+foundationLayout = "1.10.2"
+#awsAndroidSdkCore = "2.81.1"
+#awsAndroidSdkIot = "2.81.1"
 #stripe-terminal = "5.1.1"
 
 [libraries]
 
-aws-android-sdk-iot = { module = "com.amazonaws:aws-android-sdk-iot", version.ref = "awsAndroidSdkIot" }
-aws-android-sdk-core = { module = "com.amazonaws:aws-android-sdk-core", version.ref = "awsAndroidSdkCore" }
+#aws-android-sdk-iot = { module = "com.amazonaws:aws-android-sdk-iot", version.ref = "awsAndroidSdkIot" }
+#aws-android-sdk-core = { module = "com.amazonaws:aws-android-sdk-core", version.ref = "awsAndroidSdkCore" }
 
 # Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -113,6 +114,7 @@ splash-screen = { group = "androidx.core", name = "core-splashscreen", version.r
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -90,6 +90,8 @@ fun calculateValidity(frequency: String?, frequencyLimit: String?): String {
     }
 
     // For other frequencies, show as "limit Frequency" (e.g., "9 Weekly", "10 Monthly")
+    if(frequency.lowercase() == "unlimited")
+        return "Unlimited"
     return "$limit $frequency"
 }
 

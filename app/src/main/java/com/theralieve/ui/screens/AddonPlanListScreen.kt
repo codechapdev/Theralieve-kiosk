@@ -1,6 +1,8 @@
 package com.theralieve.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,22 +12,41 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
@@ -36,26 +57,29 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theralieve.R
+import com.theralieve.domain.model.LocationEquipment
 import com.theralieve.domain.model.Plan
 import com.theralieve.navigation.Routes
+import com.theralieve.ui.components.EquipmentCarousel
 import com.theralieve.ui.components.Header
 import com.theralieve.ui.components.NetworkImage
 import com.theralieve.ui.components.TheraGradientBackground
 import com.theralieve.ui.components.TheraPrimaryButton
 import com.theralieve.ui.components.TheraSecondaryButton
 import com.theralieve.ui.theme.TheraColorTokens
-import com.theralieve.ui.utils.IosLikeSwitch
 import com.theralieve.ui.utils.throttledClickable
 import com.theralieve.utils.DiscountResult
 import com.theralieve.utils.calculateDiscount
 import com.theralieve.utils.getCurrencySymbol
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 
 @Composable
 fun AddonPlanListScreen(
     type: String,
     plans: List<Plan>,
-    vipDiscount:String,
+    locationEquipments: List<LocationEquipment>,
+    vipDiscount: String,
     isForEmployee: Boolean,
     isLoading: Boolean,
     error: String?,
@@ -63,6 +87,50 @@ fun AddonPlanListScreen(
     onSelectPlan: (Plan, Boolean) -> Unit,
     onViewDetail: (Plan) -> Unit
 ) {
+
+    var titleChanged by remember { mutableStateOf("Pricing Plans") }
+    var selectedFilter by remember { mutableStateOf("All") }
+
+    val filteredList = remember(selectedFilter, plans) {
+        if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
+            if (selectedFilter == "All") {
+                if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) titleChanged = "Pricing Plans"
+                plans
+            } else {
+                plans.filter { plan ->
+                    when (selectedFilter) {
+                        "Session Plan" -> {
+                            if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
+                                titleChanged = "Session Plans"
+                            }
+                            plan.detail?.plan_type?.contains("session", true) == true
+                        }
+
+                        "Credit Plan" -> {
+                            if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
+                                titleChanged = "Credit Plans"
+                            }
+                            plan.detail?.plan_type?.contains(
+                                "credit",
+                                true
+                            ) == true && plan.detail?.is_vip_plan != 1
+                        }
+
+                        else -> {
+                            if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
+                                titleChanged = "Membership Plans"
+                            }
+                            plan.detail?.is_vip_plan == 1
+                        }
+                    }
+                }
+            }
+        } else {
+            plans
+        }
+    }
+
+
     val title = when (type.lowercase()) {
         Routes.ADDON_TYPE_SESSION -> "Session Plans"
         Routes.ADDON_TYPE_CREDIT -> "Credit Plans"
@@ -74,17 +142,26 @@ fun AddonPlanListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Header(title, onBack = onBack, onHome = onBack)
+            if (title == "Credit Plans") CreditMembershipGridHeader(
+                title = titleChanged, selectedFilter = selectedFilter, onFilterSelected = {
+                    selectedFilter = it
+                }, onBack = onBack, onHome = onBack
+            )
+            else Header(title, onBack = onBack, onHome = onBack)
 
             if (isLoading) {
-                Text(
-                    text = "Loading...",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Loading...",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                    )
+                }
                 return@TheraGradientBackground
             }
 
@@ -97,30 +174,79 @@ fun AddonPlanListScreen(
                 )
             }
 
-            if (plans.isEmpty()) {
-                Text(
-                    text = "No Plans Found",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+            if (filteredList.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
-                    items(plans) { plan ->
-                        AddonPlanCard(
-                            plan = plan,
-                            isForEmployee = isForEmployee,
-                            vipDiscount = vipDiscount,
-                            onClick = { onSelectPlan(plan,it) },
-                            onViewDetail = {
-                                onViewDetail(plan)
-                            }
-                        )
+                    Text(
+                        text = "No Plans Found",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                    )
+                }
+            } else {
+
+                val gridState = rememberLazyGridState()
+
+                val scope = rememberCoroutineScope()
+
+                // detect if we can scroll further down
+                val canScrollDown by remember {
+                    derivedStateOf {
+                        val layoutInfo = gridState.layoutInfo
+                        val totalItems = layoutInfo.totalItemsCount
+                        val lastVisibleItemIndex =
+                            layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+
+                        lastVisibleItemIndex < totalItems - 1
+                    }
+                }
+
+                Box(modifier = Modifier.fillMaxSize()) {
+
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(vertical = 8.dp)
+                    ) {
+                        item(span = { GridItemSpan(maxLineSpan) }) {
+                            EquipmentCarousel(locationEquipments)
+                        }
+                        items(filteredList) { plan ->
+                            AddonPlanCard(
+                                plan = plan,
+                                isForEmployee = isForEmployee,
+                                vipDiscount = vipDiscount,
+                                onClick = { onSelectPlan(plan, it) },
+                                onViewDetail = {
+                                    onViewDetail(plan)
+                                })
+                        }
+                    }
+
+                    if (canScrollDown) {
+                        FloatingActionButton(
+                            onClick = {
+                                scope.launch {
+                                    gridState.animateScrollBy(400f)
+                                }
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 16.dp),
+                            containerColor = Color.White,
+                            elevation = FloatingActionButtonDefaults.elevation(
+                                defaultElevation = 8.dp
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = "Scroll Down",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }
@@ -147,8 +273,7 @@ private fun AddonPlanCard(
             .throttledClickable {
                 onClick(checked)
             }
-            .fillMaxWidth()
-    ) {
+            .fillMaxWidth()) {
         Box {
             Column(
                 modifier = Modifier
@@ -162,7 +287,7 @@ private fun AddonPlanCard(
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(220.dp)
+                        .height(140.dp)
                 )
 
                 Row(
@@ -174,16 +299,16 @@ private fun AddonPlanCard(
                         modifier = Modifier.fillMaxWidth(0.6f),
                         text = plan.detail?.plan_name ?: "",
                         style = MaterialTheme.typography.titleLarge,
+                        fontSize = 22.sp,
                         color = Color.Black,
                         maxLines = 2,
                         minLines = 2
                     )
 
                     Column(
-                        modifier = Modifier.fillMaxWidth(0.5f),
-                        horizontalAlignment = Alignment.End
+                        modifier = Modifier.fillMaxWidth(0.5f), horizontalAlignment = Alignment.End
                     ) {
-                        val discountResult = if(plan.detail?.is_vip_plan == 1){
+                        val discountResult = if (plan.detail?.is_vip_plan == 1) {
                             DiscountResult(
                                 originalPrice = plan.detail?.plan_price?.toDouble() ?: 0.0,
                                 discountedPrice = plan.detail?.plan_price?.toDouble() ?: 0.0,
@@ -233,36 +358,36 @@ private fun AddonPlanCard(
                     }
                 }
 
-                if(plan.detail?.plan_type == "Session Pack") {
+                if (plan.detail?.plan_type == "Session Pack") {
                     val text = com.theralieve.utils.calculateValidity(
-                        plan.detail?.frequency,
-                        plan.detail?.frequency_limit
+                        plan.detail?.frequency, plan.detail?.frequency_limit
                     ).takeIf { it.isNotEmpty() } ?: "N/A"
                     Text(
                         text = "Session Pack : $text",
                         style = MaterialTheme.typography.titleMedium,
-                        fontSize = 20.sp,
-                        color = Color.Black)
-                }else{
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    )
+                } else {
                     Text(
                         text = "Credit Pack : ${plan.detail?.points}",
                         style = MaterialTheme.typography.titleMedium,
-                        fontSize = 20.sp,
-                        color = Color.Black)
+                        fontSize = 18.sp,
+                        color = Color.Black
+                    )
                 }
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    plan.detail?.bullet_points?.split(",")?.take(4)
-                        ?.forEach { feature ->
-                            Text(
-                                text = "• ${feature.trim()}",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontSize = 22.sp,
-                                color = Color.Black
-                            )
-                        }
+                    plan.detail?.bullet_points?.split(",")?.take(4)?.forEach { feature ->
+                        Text(
+                            text = "• ${feature.trim()}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontSize = 16.sp,
+                            color = Color.Black
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -275,7 +400,7 @@ private fun AddonPlanCard(
                     maxLines = 1
                 )
 
-                Row(
+                /*Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
@@ -295,7 +420,7 @@ private fun AddonPlanCard(
                         }
                     )
 
-                }
+                }*/
 
 
                 Row(
@@ -327,20 +452,174 @@ private fun AddonPlanCard(
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 14.dp, y = (12).dp) // adjust these
-                        .rotate(45f)
-                        .background(Color(0xFFFFEB3B))
-                        .padding(horizontal = 18.dp, vertical = 2.dp)
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color(0xFFFFD700), // Gold
+                                    Color(0xFFFFA000)  // Orange-gold
+                                )
+                            )
+                        )
+                        .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
-                    Text(
-                        text = "VIP",
-                        color = Color(0xFFFF9800),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "VIP",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
 
+        }
+    }
+}
+
+
+@Composable
+fun CreditMembershipGridHeader(
+    title: String,
+    selectedFilter: String,
+    onFilterSelected: (String) -> Unit,
+    onBack: () -> Unit,
+    onHome: () -> Unit = {},
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+//            .background(Color(0xFFE8F5FE)) // Light wellness blue
+            .padding(vertical = 16.dp),
+    ) {
+
+        Row(
+            modifier = Modifier, verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp) // large for kiosk touch
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .throttledClickable { onBack() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color(0xFF1A73E8), // Theralieve Blue
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineLarge,
+            )
+
+            Text(
+                text = "Best Values... Cancel Anytime",
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }
+        // Title
+
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(end = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CreditFilterDropdown(
+                selectedFilter = selectedFilter, onFilterSelected = onFilterSelected
+            )
+            Box(
+                modifier = Modifier
+                    .size(56.dp) // large for kiosk touch
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .throttledClickable { onHome() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Home,
+                    contentDescription = "Back",
+                    tint = Color(0xFF1A73E8), // Theralieve Blue
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
+
+    }
+
+
+}
+
+@Composable
+fun CreditFilterDropdown(
+    selectedFilter: String, onFilterSelected: (String) -> Unit
+) {
+    val filters = listOf("All", "Credit Plan", "Membership Plan")
+    var expanded by remember { mutableStateOf(false) }
+
+    Box {
+        // Filter button
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.White)
+                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
+                .throttledClickable { expanded = true }
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            contentAlignment = Alignment.Center) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = selectedFilter, color = Color.Black, fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    tint = Color.Black
+                )
+            }
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(Color.White)
+        ) {
+            filters.forEach { filter ->
+                DropdownMenuItem(text = {
+                    Text(
+                        text = filter, color = Color.Black
+                    )
+                }, onClick = {
+                    onFilterSelected(filter)
+                    expanded = false
+                })
+            }
         }
     }
 }

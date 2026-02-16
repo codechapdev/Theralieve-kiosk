@@ -31,49 +31,56 @@ public class EquipmentDao_Impl(
   init {
     this.__db = __db
     this.__insertAdapterOfEquipmentEntity = object : EntityInsertAdapter<EquipmentEntity>() {
-      protected override fun createQuery(): String = "INSERT OR REPLACE INTO `equipment` (`equipmentId`,`deviceName`,`equipmentCount`,`equipmentName`,`equipmentPoint`,`equipmentPoints`,`equipmentPrice`,`equipmentTime`,`image`,`isOneMinuteAccording`,`macAddress`,`equipmentDataJson`,`status`,`statusUpdatedAt`,`remainingBalance`,`sessionTime`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+      protected override fun createQuery(): String = "INSERT OR REPLACE INTO `equipment` (`primaryKeyWithEquipmentId`,`equipmentId`,`deviceName`,`equipmentCount`,`equipmentName`,`equipmentPoint`,`equipmentPoints`,`equipmentPrice`,`equipmentTime`,`image`,`isOneMinuteAccording`,`macAddress`,`equipmentDataJson`,`status`,`statusUpdatedAt`,`remainingBalance`,`sessionTime`,`planId`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 
       protected override fun bind(statement: SQLiteStatement, entity: EquipmentEntity) {
-        statement.bindLong(1, entity.equipmentId.toLong())
-        statement.bindText(2, entity.deviceName)
-        statement.bindLong(3, entity.equipmentCount.toLong())
-        statement.bindText(4, entity.equipmentName)
-        statement.bindText(5, entity.equipmentPoint)
-        statement.bindLong(6, entity.equipmentPoints.toLong())
-        statement.bindText(7, entity.equipmentPrice)
-        statement.bindText(8, entity.equipmentTime)
-        statement.bindText(9, entity.image)
-        statement.bindText(10, entity.isOneMinuteAccording)
-        statement.bindText(11, entity.macAddress)
+        statement.bindText(1, entity.primaryKeyWithEquipmentId)
+        statement.bindLong(2, entity.equipmentId.toLong())
+        statement.bindText(3, entity.deviceName)
+        statement.bindLong(4, entity.equipmentCount.toLong())
+        statement.bindText(5, entity.equipmentName)
+        statement.bindText(6, entity.equipmentPoint)
+        statement.bindLong(7, entity.equipmentPoints.toLong())
+        statement.bindText(8, entity.equipmentPrice)
+        statement.bindText(9, entity.equipmentTime)
+        statement.bindText(10, entity.image)
+        statement.bindText(11, entity.isOneMinuteAccording)
+        statement.bindText(12, entity.macAddress)
         val _tmpEquipmentDataJson: String? = entity.equipmentDataJson
         if (_tmpEquipmentDataJson == null) {
-          statement.bindNull(12)
+          statement.bindNull(13)
         } else {
-          statement.bindText(12, _tmpEquipmentDataJson)
+          statement.bindText(13, _tmpEquipmentDataJson)
         }
         val _tmpStatus: String? = entity.status
         if (_tmpStatus == null) {
-          statement.bindNull(13)
+          statement.bindNull(14)
         } else {
-          statement.bindText(13, _tmpStatus)
+          statement.bindText(14, _tmpStatus)
         }
         val _tmpStatusUpdatedAt: String? = entity.statusUpdatedAt
         if (_tmpStatusUpdatedAt == null) {
-          statement.bindNull(14)
+          statement.bindNull(15)
         } else {
-          statement.bindText(14, _tmpStatusUpdatedAt)
+          statement.bindText(15, _tmpStatusUpdatedAt)
         }
         val _tmpRemainingBalance: String? = entity.remainingBalance
         if (_tmpRemainingBalance == null) {
-          statement.bindNull(15)
+          statement.bindNull(16)
         } else {
-          statement.bindText(15, _tmpRemainingBalance)
+          statement.bindText(16, _tmpRemainingBalance)
         }
         val _tmpSessionTime: String? = entity.sessionTime
         if (_tmpSessionTime == null) {
-          statement.bindNull(16)
+          statement.bindNull(17)
         } else {
-          statement.bindText(16, _tmpSessionTime)
+          statement.bindText(17, _tmpSessionTime)
+        }
+        val _tmpPlanId: String? = entity.planId
+        if (_tmpPlanId == null) {
+          statement.bindNull(18)
+        } else {
+          statement.bindText(18, _tmpPlanId)
         }
       }
     }
@@ -88,6 +95,7 @@ public class EquipmentDao_Impl(
     return performSuspending(__db, true, false) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
+        val _columnIndexOfPrimaryKeyWithEquipmentId: Int = getColumnIndexOrThrow(_stmt, "primaryKeyWithEquipmentId")
         val _columnIndexOfEquipmentId: Int = getColumnIndexOrThrow(_stmt, "equipmentId")
         val _columnIndexOfDeviceName: Int = getColumnIndexOrThrow(_stmt, "deviceName")
         val _columnIndexOfEquipmentCount: Int = getColumnIndexOrThrow(_stmt, "equipmentCount")
@@ -104,9 +112,12 @@ public class EquipmentDao_Impl(
         val _columnIndexOfStatusUpdatedAt: Int = getColumnIndexOrThrow(_stmt, "statusUpdatedAt")
         val _columnIndexOfRemainingBalance: Int = getColumnIndexOrThrow(_stmt, "remainingBalance")
         val _columnIndexOfSessionTime: Int = getColumnIndexOrThrow(_stmt, "sessionTime")
+        val _columnIndexOfPlanId: Int = getColumnIndexOrThrow(_stmt, "planId")
         val _result: MutableList<EquipmentEntity> = mutableListOf()
         while (_stmt.step()) {
           val _item: EquipmentEntity
+          val _tmpPrimaryKeyWithEquipmentId: String
+          _tmpPrimaryKeyWithEquipmentId = _stmt.getText(_columnIndexOfPrimaryKeyWithEquipmentId)
           val _tmpEquipmentId: Int
           _tmpEquipmentId = _stmt.getLong(_columnIndexOfEquipmentId).toInt()
           val _tmpDeviceName: String
@@ -159,7 +170,13 @@ public class EquipmentDao_Impl(
           } else {
             _tmpSessionTime = _stmt.getText(_columnIndexOfSessionTime)
           }
-          _item = EquipmentEntity(_tmpEquipmentId,_tmpDeviceName,_tmpEquipmentCount,_tmpEquipmentName,_tmpEquipmentPoint,_tmpEquipmentPoints,_tmpEquipmentPrice,_tmpEquipmentTime,_tmpImage,_tmpIsOneMinuteAccording,_tmpMacAddress,_tmpEquipmentDataJson,_tmpStatus,_tmpStatusUpdatedAt,_tmpRemainingBalance,_tmpSessionTime)
+          val _tmpPlanId: String?
+          if (_stmt.isNull(_columnIndexOfPlanId)) {
+            _tmpPlanId = null
+          } else {
+            _tmpPlanId = _stmt.getText(_columnIndexOfPlanId)
+          }
+          _item = EquipmentEntity(_tmpPrimaryKeyWithEquipmentId,_tmpEquipmentId,_tmpDeviceName,_tmpEquipmentCount,_tmpEquipmentName,_tmpEquipmentPoint,_tmpEquipmentPoints,_tmpEquipmentPrice,_tmpEquipmentTime,_tmpImage,_tmpIsOneMinuteAccording,_tmpMacAddress,_tmpEquipmentDataJson,_tmpStatus,_tmpStatusUpdatedAt,_tmpRemainingBalance,_tmpSessionTime,_tmpPlanId)
           _result.add(_item)
         }
         _result
@@ -174,6 +191,7 @@ public class EquipmentDao_Impl(
     return createFlow(__db, false, arrayOf("equipment")) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
+        val _columnIndexOfPrimaryKeyWithEquipmentId: Int = getColumnIndexOrThrow(_stmt, "primaryKeyWithEquipmentId")
         val _columnIndexOfEquipmentId: Int = getColumnIndexOrThrow(_stmt, "equipmentId")
         val _columnIndexOfDeviceName: Int = getColumnIndexOrThrow(_stmt, "deviceName")
         val _columnIndexOfEquipmentCount: Int = getColumnIndexOrThrow(_stmt, "equipmentCount")
@@ -190,9 +208,12 @@ public class EquipmentDao_Impl(
         val _columnIndexOfStatusUpdatedAt: Int = getColumnIndexOrThrow(_stmt, "statusUpdatedAt")
         val _columnIndexOfRemainingBalance: Int = getColumnIndexOrThrow(_stmt, "remainingBalance")
         val _columnIndexOfSessionTime: Int = getColumnIndexOrThrow(_stmt, "sessionTime")
+        val _columnIndexOfPlanId: Int = getColumnIndexOrThrow(_stmt, "planId")
         val _result: MutableList<EquipmentEntity> = mutableListOf()
         while (_stmt.step()) {
           val _item: EquipmentEntity
+          val _tmpPrimaryKeyWithEquipmentId: String
+          _tmpPrimaryKeyWithEquipmentId = _stmt.getText(_columnIndexOfPrimaryKeyWithEquipmentId)
           val _tmpEquipmentId: Int
           _tmpEquipmentId = _stmt.getLong(_columnIndexOfEquipmentId).toInt()
           val _tmpDeviceName: String
@@ -245,7 +266,13 @@ public class EquipmentDao_Impl(
           } else {
             _tmpSessionTime = _stmt.getText(_columnIndexOfSessionTime)
           }
-          _item = EquipmentEntity(_tmpEquipmentId,_tmpDeviceName,_tmpEquipmentCount,_tmpEquipmentName,_tmpEquipmentPoint,_tmpEquipmentPoints,_tmpEquipmentPrice,_tmpEquipmentTime,_tmpImage,_tmpIsOneMinuteAccording,_tmpMacAddress,_tmpEquipmentDataJson,_tmpStatus,_tmpStatusUpdatedAt,_tmpRemainingBalance,_tmpSessionTime)
+          val _tmpPlanId: String?
+          if (_stmt.isNull(_columnIndexOfPlanId)) {
+            _tmpPlanId = null
+          } else {
+            _tmpPlanId = _stmt.getText(_columnIndexOfPlanId)
+          }
+          _item = EquipmentEntity(_tmpPrimaryKeyWithEquipmentId,_tmpEquipmentId,_tmpDeviceName,_tmpEquipmentCount,_tmpEquipmentName,_tmpEquipmentPoint,_tmpEquipmentPoints,_tmpEquipmentPrice,_tmpEquipmentTime,_tmpImage,_tmpIsOneMinuteAccording,_tmpMacAddress,_tmpEquipmentDataJson,_tmpStatus,_tmpStatusUpdatedAt,_tmpRemainingBalance,_tmpSessionTime,_tmpPlanId)
           _result.add(_item)
         }
         _result

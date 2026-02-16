@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddonPlansViewModel @Inject constructor(
+class AddonSessionPlansViewModel @Inject constructor(
     private val getPlansUseCase: GetPlansUseCase,
     private val preferenceManager: PreferenceManager,
 ) : ViewModel() {
@@ -29,9 +29,10 @@ class AddonPlansViewModel @Inject constructor(
         }
     }
 
-    fun load(type: String) {
+    private fun load() {
         viewModelScope.launch {
-            _uiState.update { it.copy(type = type, isLoading = true, error = null) }
+            val location = preferenceManager.getLocationData()?.firstOrNull()
+            _uiState.update { it.copy(type = "session", isLoading = true, error = null, locationEquipments = location?.equipments?:emptyList()) }
 
             // Member context (Profile flow implies member is logged in)
             val membershipType = preferenceManager.getMemberMembershipType()
@@ -51,13 +52,7 @@ class AddonPlansViewModel @Inject constructor(
             ).fold(onSuccess = { plans ->
                 val filtered = plans.filter { plan ->
                     val planType = plan.detail?.plan_type?.lowercase().orEmpty()
-                    when (type.lowercase()) {
-                        com.theralieve.navigation.Routes.ADDON_TYPE_SESSION ->
-                            planType.contains("session")
-                        com.theralieve.navigation.Routes.ADDON_TYPE_CREDIT ->
-                            planType.contains("credit")
-                        else -> false
-                    }
+                    planType.contains("session")
                 }
 
                 _uiState.update {
@@ -73,7 +68,75 @@ class AddonPlansViewModel @Inject constructor(
             })
         }
     }
+
+    init {
+        load()
+    }
 }
+
+
+@HiltViewModel
+class AddonCreditPlansViewModel @Inject constructor(
+    private val getPlansUseCase: GetPlansUseCase,
+    private val preferenceManager: PreferenceManager,
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(AddonPlansUiState())
+    val uiState: StateFlow<AddonPlansUiState> = _uiState.asStateFlow()
+
+    private fun loadUserProfile() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                userProfile = preferenceManager.getLoggedInUser()
+            )
+        }
+    }
+
+    private fun load(type: String) {
+        viewModelScope.launch {
+            val location = preferenceManager.getLocationData()?.firstOrNull()
+            _uiState.update { it.copy(type = type, isLoading = true, error = null, locationEquipments = location?.equipments?:emptyList()) }
+
+            // Member context (Profile flow implies member is logged in)
+            val membershipType = preferenceManager.getMemberMembershipType()
+            val customerId = preferenceManager.getCustomerId()
+                ?: preferenceManager.getMemberCustomerId()
+                ?: ""
+
+            val employeeNo = preferenceManager.getEmployeeNumber()
+            val isForEmployeeInt = if (!employeeNo.isNullOrBlank()) 1 else null
+            val isForEmployeeBool = isForEmployeeInt == 1
+            loadUserProfile()
+            getPlansUseCase(
+                customerId = customerId,
+                membershipType = membershipType,
+                isForEmployee = isForEmployeeInt,
+                forceRefresh = true,
+            ).fold(onSuccess = { plans ->
+                val filtered = plans.filter { plan ->
+                    val planType = plan.detail?.plan_type?.lowercase().orEmpty()
+                    planType.contains("credit")
+                }
+
+                _uiState.update {
+                    it.copy(
+                        plans = filtered,
+                        isLoading = false,
+                        isForEmployee = isForEmployeeBool,
+                        error = null
+                    )
+                }
+            }, onFailure = { e ->
+                _uiState.update { it.copy(plans = emptyList(), isLoading = false, error = e.message) }
+            })
+        }
+    }
+
+    init {
+        load("credit")
+    }
+}
+
 
 
 @HiltViewModel

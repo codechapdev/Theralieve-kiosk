@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theralieve.ui.components.Header
+import com.theralieve.ui.components.PaymentInfoDialog
 import com.theralieve.ui.components.SuccessDialog
 import com.theralieve.ui.components.TheraGradientBackground
 import com.theralieve.ui.theme.TheraColorTokens
@@ -58,6 +61,14 @@ fun AddonPlanCheckoutScreen(
             }
         }
 
+    var showPaymentInfo by remember { mutableStateOf(true) }
+    if (showPaymentInfo) {
+        PaymentInfoDialog {
+            showPaymentInfo = false
+            // then trigger actual payment flow
+            viewModel.showReaderConnection()
+        }
+    }
 
 
     val uiState by viewModel.uiState.collectAsState()
@@ -82,10 +93,10 @@ fun AddonPlanCheckoutScreen(
         }*/
     }
 
-    ReaderConnectionOverlay(
-        readerUiState = readerUiState,
-        error = readerError,
-    )
+//    ReaderConnectionOverlay(
+//        readerUiState = readerUiState,
+//        error = readerError,
+//    )
 
     val plan = uiState.plan
     val currency = getCurrencySymbol(plan?.detail?.currency ?: "USD")

@@ -14,6 +14,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
+fun formatDateTime(input: String): String {
+    return try {
+        val inputFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+        val outputFormat = java.text.SimpleDateFormat("dd MMM yyyy, hh:mm a", java.util.Locale.getDefault())
+        val date = inputFormat.parse(input)
+        outputFormat.format(date!!)
+    } catch (e: Exception) {
+        input
+    }
+}
+
+
 @Composable
 fun IosLikeSwitch(
     checked: Boolean,

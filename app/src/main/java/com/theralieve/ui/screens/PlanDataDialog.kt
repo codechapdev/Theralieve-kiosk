@@ -18,10 +18,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -35,8 +38,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,6 +65,9 @@ import com.theralieve.ui.utils.throttledClickable
 import com.theralieve.ui.viewmodel.PlanDataUiState
 import com.theralieve.utils.calculateValidity
 import com.theralieve.utils.getCurrencySymbol
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
 
 @Composable
 fun PlanDataScreen(
@@ -216,6 +225,7 @@ fun SessionPackDialogCard(
     if(showCancelDialog){
         CancelReasonDialog(
             show = showCancelDialog,
+            lastDateOfMonth = getLastDateOfCurrentMonth(),
             onDismiss = { showCancelDialog = false },
             onConfirm = { reason ->
                 showCancelDialog = false
@@ -302,7 +312,7 @@ fun SessionPackDialogCard(
                     }
                 }
                 0->{
-
+                    Spacer(modifier=Modifier.height(40.dp))
                 }
             }
             TheraSecondaryButton2(
@@ -314,6 +324,13 @@ fun SessionPackDialogCard(
 }
 
 
+fun getLastDateOfCurrentMonth(): String {
+    val lastDate = LocalDate.now()
+        .with(TemporalAdjusters.lastDayOfMonth())
+
+    val formatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy")
+    return lastDate.format(formatter)
+}
 @Composable
 fun CreditPackDialogCard(
     plan: CreditPlan,
@@ -329,6 +346,7 @@ fun CreditPackDialogCard(
     if(showCancelDialog){
         CancelReasonDialog(
             show = showCancelDialog,
+            lastDateOfMonth = getLastDateOfCurrentMonth(),
             onDismiss = { showCancelDialog = false },
             onConfirm = { reason ->
                 showCancelDialog = false
@@ -415,7 +433,7 @@ fun CreditPackDialogCard(
                         }
                     }
                     0->{
-
+                        Spacer(modifier=Modifier.height(40.dp))
                     }
                 }
 
@@ -435,30 +453,49 @@ fun CreditPackDialogCard(
                             modifier = Modifier.height(40.dp).fillMaxWidth(1f), label = "Cancellation Pending", onClick = {})
                     }
                     "closed","close","Closed","CLOSED","Close","CLOSE"->{
-                        CancelPlanButton(
-                            modifier = Modifier.height(40.dp).fillMaxWidth(1f), label = "Cancel Plan", onClick = {
-                                showCancelDialog = true
-                            })
+                        Spacer(modifier=Modifier.height(40.dp))
+//                        CancelPlanButton(
+//                            modifier = Modifier.height(40.dp).fillMaxWidth(1f), label = "Cancel Plan", onClick = {
+//                                showCancelDialog = true
+//                            })
                     }
                 }
 
             }
 
-            if ((plan?.is_vip_plan ?: 0) == 1) {
+            if ((plan.is_vip_plan ?: 0) == 1) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 14.dp, y = (12).dp) // adjust these
-                        .rotate(45f)
-                        .background(Color(0xFFFFEB3B))
-                        .padding(horizontal = 24.dp, vertical = 4.dp)
+                        .padding(12.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color(0xFFFFD700), // Gold
+                                    Color(0xFFFFA000)  // Orange-gold
+                                )
+                            )
+                        )
+                        .padding(horizontal = 14.dp, vertical = 6.dp)
                 ) {
-                    Text(
-                        text = "VIP",
-                        color = Color(0xFFFF9800),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "VIP",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
             }
         }
@@ -496,6 +533,7 @@ fun EmptyPlanView(
 @Composable
 fun CancelReasonDialog(
     show: Boolean,
+    lastDateOfMonth: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
@@ -506,15 +544,38 @@ fun CancelReasonDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = "Cancel Vip Plan")
+            Text(text = "Cancel Membership Plan")
         },
         text = {
             Column {
+                // 🔴 Highlighted info text
                 Text(
-                    text = "Please enter the reason for cancellation",
+                    text = buildAnnotatedString {
+                        append("If you cancel now, your plan will remain active until ")
+
+                        pushStyle(
+                            SpanStyle(
+                                color = TheraColorTokens.Primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                        append(lastDateOfMonth)
+                        pop()
+
+                        append(" and will not renew after that.")
+                    },
                     fontSize = 14.sp
                 )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Please enter the reason for cancellation:",
+                    fontSize = 14.sp
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
+
                 OutlinedTextField(
                     value = reason,
                     onValueChange = { reason = it },
@@ -528,9 +589,7 @@ fun CancelReasonDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = {
-                    onConfirm(reason)
-                },
+                onClick = { onConfirm(reason) },
                 enabled = reason.isNotBlank()
             ) {
                 Text("Submit")
@@ -538,11 +597,12 @@ fun CancelReasonDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Keep Plan")
             }
         }
     )
 }
+
 
 
 

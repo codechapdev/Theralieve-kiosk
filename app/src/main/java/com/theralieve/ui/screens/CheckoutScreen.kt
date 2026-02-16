@@ -43,7 +43,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.theralieve.R
 import com.theralieve.domain.model.Equipment
-import com.theralieve.domain.model.EquipmentList
 import com.theralieve.ui.components.Header
 import com.theralieve.ui.components.SuccessDialog
 import com.theralieve.ui.components.TheraGradientBackground
@@ -57,6 +56,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.draw.shadow
+import com.theralieve.ui.components.PaymentInfoDialog
 import com.theralieve.ui.viewmodel.ReaderUiState
 //import com.theralieve.utils.StripeCheckoutCoordinator
 import com.theralieve.utils.getCurrencySymbol
@@ -65,7 +65,7 @@ import com.theralieve.utils.calculateDiscount
 
 @Composable
 fun CheckoutScreen(
-    equipment: EquipmentList?,
+    equipment: Equipment?,
     unit: Equipment?,
     durationMinutes: Int,
     modifier: Modifier = Modifier,
@@ -98,10 +98,19 @@ fun CheckoutScreen(
 //        activity?.let { StripeCheckoutCoordinator(it) }
 //    }
 
+    var showPaymentInfo by remember { mutableStateOf(true) }
+    if (showPaymentInfo) {
+        PaymentInfoDialog {
+            showPaymentInfo = false
+            // then trigger actual payment flow
+            viewModel.showReaderConnection()
+        }
+    }
+
     LaunchedEffect(Unit) {
         if (activity == null) return@LaunchedEffect
 
-        viewModel.showReaderConnection()
+//        viewModel.showReaderConnection()
 //        if (coordinator.isReady()) {
 //            // Check authorization state first before checking readers
 //            // If authorized and no ready reader, show settings
@@ -150,11 +159,13 @@ fun CheckoutScreen(
         null
     }
 
-    // Match price calculation with EquipmentListScreen / CheckoutViewModel
+    // Match price calculation with EquipmentListScreen / CheckoutViewModel; multi-selection uses sum of prices
     val total = if (currentPlan != null && discountResult != null) {
         discountResult.discountedPrice
     } else {
-        if (equipment != null && unit != null) {
+        if (uiState.selectedEquipments != null && !uiState.selectedEquipments.isNullOrEmpty()) {
+            uiState.selectedEquipments!!.sumOf { it.price }
+        } else if (equipment != null && unit != null) {
             val isOneMinuteAccording = unit.is_one_minute_according?.equals("yes", ignoreCase = true) == true
             val equipmentData = unit.equipment_data
             when {

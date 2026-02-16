@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.theralieve.data.storage.PreferenceManager
 import com.theralieve.domain.model.Plan
+import com.theralieve.domain.usecase.GetLocationUseCase
 import com.theralieve.domain.usecase.GetPlansUseCase
 import com.theralieve.domain.usecase.VerifyMemberOrEmployeeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,19 +33,19 @@ class MembershipListViewModel @Inject constructor(
 
     private fun checkAndLoadPlans() {
         viewModelScope.launch {
-            val locationName =
-                preferenceManager.getLocationData()?.firstOrNull()?.locationName ?: "XYZ"
+            val location = preferenceManager.getLocationData()?.firstOrNull()
+            _uiState.update { it.copy(locationEquipments = location?.equipments?:emptyList()) }
             val isFitness = preferenceManager.getIsFitness()
             if (isFitness) {
                 // Show questionnaire dialog
-                _uiState.update { it.copy(showQuestionnaire = true, locationName = locationName) }
+                _uiState.update { it.copy(showQuestionnaire = true, location = location) }
             } else {
                 // Load plans with outside_member
                 _uiState.update {
                     it.copy(
                         isForEmployee = false,
                         membershipType = "outside_member",
-                        locationName = locationName
+                        location = location
                     )
                 }
                 loadPlans(membershipType = "outside_member", isForEmployee = null)

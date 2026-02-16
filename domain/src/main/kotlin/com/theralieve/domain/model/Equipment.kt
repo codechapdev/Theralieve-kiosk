@@ -1,14 +1,14 @@
 package com.theralieve.domain.model
 
 
-data class EquipmentList(
-    val name: String,
-    val image:String,
-    val units: List<Equipment>,
-    val defaultDuration: Int = 5,
-    val price: Int = 20,
-    val onDurationChange: (Int) -> Unit = {}
-)
+//data class EquipmentList(
+//    val name: String,
+//    val image:String,
+//    val units: List<Equipment>,
+//    val defaultDuration: Int = 5,
+//    val price: Int = 20,
+//    val onDurationChange: (Int) -> Unit = {}
+//)
 
 data class Equipment(
     val device_name: String?,
@@ -27,6 +27,7 @@ data class Equipment(
     val statusUpdatedAt: String? = null, // When status was last updated,
     val remainingBalance: String? = null, // When status was last updated,
     val sessionTime: String? = null, // When status was last updated,
+    val planId: String? = null, // When status was last updated,
 )
 
 data class EquipmentDataItem(

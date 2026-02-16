@@ -16,5 +16,20 @@ data class RegistrationUiState(
     val membershipType: String? = null,
     val isForEmployee: Boolean = false,
     val isRenew: Boolean = false,
+    val generatedUsername: String? = null,
 )
+
+
+data class SelectedMembershipUiState(
+    val plan: Plan? = null,
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val memberNo: String? = null,
+    val employeeNo: String? = null,
+    val isFreePlan: Boolean = false,
+    val membershipType: String? = null,
+    val isForEmployee: Boolean = false,
+    val isRenew: Boolean = false,
+)
+
 

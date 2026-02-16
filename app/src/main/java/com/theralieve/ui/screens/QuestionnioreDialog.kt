@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.theralieve.domain.model.Location
 import com.theralieve.ui.components.TheraBackgroundDialog
 import com.theralieve.ui.components.TheraPrimaryButton
 import com.theralieve.ui.components.TheraSecondaryButton2
@@ -54,7 +55,7 @@ fun QuestionnaireDialog(
     onEmployeeIdChange: (String) -> Unit = {},
     onMemberIdFocus: () -> Unit = {},
     onEmployeeIdFocus: () -> Unit = {},
-    locationName: String = "XYZ"
+    location: Location? = null
 ) {
     var selectedOption by remember { mutableStateOf<Boolean?>(null) }
     var memberNumber by remember { mutableStateOf("") }
@@ -103,6 +104,7 @@ fun QuestionnaireDialog(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.throttledClickable {
+                                onSubmit(false,null,null)
                                 selectedOption = false
                             }) {
                             RadioButton(

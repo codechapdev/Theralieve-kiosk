@@ -1,7 +1,6 @@
 package com.theralieve.ui.viewmodel
 
 import com.theralieve.domain.model.CreditPlan
-import com.theralieve.domain.model.EquipmentList
 import com.theralieve.domain.model.SessionData
 import com.theralieve.domain.model.UserPlan
 

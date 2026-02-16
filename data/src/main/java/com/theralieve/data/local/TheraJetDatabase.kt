@@ -9,7 +9,7 @@ import com.theralieve.data.local.entity.PlanEntity
 
 @Database(
     entities = [PlanEntity::class, EquipmentEntity::class],
-    version = 6,
+    version = 7,
     exportSchema = false
 )
 abstract class TheraJetDatabase : RoomDatabase() {

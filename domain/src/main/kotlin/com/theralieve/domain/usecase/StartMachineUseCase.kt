@@ -1,5 +1,6 @@
 package com.theralieve.domain.usecase
 
+import com.theralieve.domain.model.EquipmentStartItem
 import com.theralieve.domain.repository.PaymentRepository
 import javax.inject.Inject
 
@@ -7,16 +8,17 @@ class StartMachineUseCase @Inject constructor(
     private val paymentRepository: PaymentRepository
 ) {
     suspend operator fun invoke(
-        equipmentId: Int,
-        locationId: Int,
-        duration: Int,
-        deviceName: String,
-        isMember: Boolean,
+        equipmentId: Int?,
+        locationId: Int?,
+        duration: Int?,
+        deviceName: String?,
+        isMember: Boolean?,
         guestUserId: Int?,
         userId: Int?,
         planId: Int?,
         planType: String? = "Session Pack",
-        creditPoints:String?
+        creditPoints: String?,
+        equipments: List<EquipmentStartItem>? = null
     ) = paymentRepository.startMachine(
         equipmentId = equipmentId,
         locationId = locationId,
@@ -27,7 +29,8 @@ class StartMachineUseCase @Inject constructor(
         userId = userId,
         planId = planId,
         planType = planType,
-        creditPoints = creditPoints
+        creditPoints = creditPoints,
+        equipments = equipments
     )
 }
 

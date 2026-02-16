@@ -11,12 +11,14 @@ class VerifyPaymentUseCase @Inject constructor(
         isMember: Boolean,
         equipmentId: Int?,
         customerId: String?,
-        duration: Int?
+        duration: Int?,
+        price: Double?,
     ) = paymentRepository.verifyPayment(
         paymentId = paymentId,
         isMember = isMember,
         equipmentId = equipmentId,
         customerId = customerId,
-        duration = duration
+        duration = duration,
+        price  = price
     )
 }

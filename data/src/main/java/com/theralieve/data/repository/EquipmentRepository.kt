@@ -10,7 +10,6 @@ import com.theralieve.domain.model.CurrentPlanResponse
 import com.theralieve.domain.model.DeviceData
 import com.theralieve.domain.model.Equipment
 import com.theralieve.domain.model.EquipmentDetail
-import com.theralieve.domain.model.EquipmentList
 import com.theralieve.domain.model.TransactionResponse
 import com.theralieve.domain.model.UpdateRenewResponse
 import com.theralieve.domain.model.UserPlan
@@ -38,7 +37,7 @@ class EquipmentRepositoryImpl @Inject constructor(
 
     override suspend fun getEquipments(
         customerId: String, forceRefresh: Boolean
-    ): Result<List<EquipmentList>> {
+    ): Result<List<Equipment>> {
 
 
         if (forceRefresh) {
@@ -57,39 +56,14 @@ class EquipmentRepositoryImpl @Inject constructor(
                     // Store all equipment entities in Room (preserve existing status if any)
                     try {
                         // Get existing status before deleting
-                        val existingEquipment = equipmentDao.getAllEquipment()
-                        val existingStatusMap =
-                            existingEquipment.associateBy { it.deviceName }.mapValues {
-                                Pair<String?, String?>(
-                                    it.value.status, it.value.statusUpdatedAt
-                                )
-                            }
-
-                        val equipmentEntities = equipments.map { equipment ->
-                            val existingStatus = existingStatusMap[equipment.device_name]
-                            // Use mapper to convert Equipment to EquipmentEntity (includes equipment_data)
-                            equipment.toEntity().copy(
-                                status = existingStatus?.first, // Preserve existing status
-                                statusUpdatedAt = existingStatus?.second // Preserve existing status update time
-                            )
-                        }
-//                        equipmentDao.deleteAllEquipment()
-                        equipmentDao.insertEquipment(equipmentEntities)
+                        val equipmentEntity = equipments.map { it.toEntity() }
+                        equipmentDao.deleteAllEquipment()
+                        equipmentDao.insertEquipment(equipmentEntity)
                     } catch (e: Exception) {
                         Log.d("EquipmentRepositoryImpl", "Cache write error: ${e.message}")
                     }
 
-                    // Apply groupBy logic when returning (same as when fetching from DB)
-                    val equipmentList = equipments.groupBy { it.equipment_name }
-                        .map { (equipmentName, equipmentItems) ->
-                            EquipmentList(
-                                name = equipmentName,
-                                image = equipmentItems.firstOrNull()?.image.orEmpty(),
-                                units = equipmentItems
-                            )
-                        }
-
-                    Result.success(equipmentList)
+                    Result.success(equipments)
                 } else {
                     Result.failure(Exception("Failed to fetch equipment: ${response.code()}"))
                 }
@@ -106,29 +80,57 @@ class EquipmentRepositoryImpl @Inject constructor(
 
         } else {
             val equipmentEntity = equipmentDao.getAllEquipment().map { it.toDomain() }
-            val equipmentList = equipmentEntity.groupBy { it.equipment_name }
-                .map { (equipmentName, equipmentItems) ->
-                    EquipmentList(
-                        name = equipmentName,
-                        image = equipmentItems.firstOrNull()?.image.orEmpty(),
-                        units = equipmentItems
-                    )
+            return Result.success(equipmentEntity)
+        }
+    }
+
+    override suspend fun getEquipmentsCredit(
+        customerId: String,
+        userId: String?
+    ): Result<List<Equipment>> {
+        return try {
+
+            val response = apiService.getEquipment(
+                customerId = customerId.toRequestBody(MultipartBody.FORM),
+                isMember = true.toString().toRequestBody(MultipartBody.FORM),
+                userId = userId?.toRequestBody(MultipartBody.FORM),
+                creditPoints = true.toString().toRequestBody(MultipartBody.FORM)
+            )
+
+            if (response.isSuccessful) {
+                val equipmentDto = response.body()?.data ?: emptyList()
+                // Map to domain models (entire list)
+                val equipments = equipmentDto.map { it.toDomain() }
+
+                // Store all equipment entities in Room (preserve existing status if any)
+                try {
+                    val equipmentEntity = equipments.map { it.toEntity() }
+                    equipmentDao.deleteAllEquipment()
+                    equipmentDao.insertEquipment(equipmentEntity)
+                } catch (e: Exception) {
+                    Log.d("EquipmentRepositoryImpl", "Cache write error: ${e.message}")
                 }
-            return Result.success(equipmentList)
+
+                Result.success(equipments)
+            } else {
+                Result.failure(Exception("Failed to fetch equipment: ${response.code()}"))
+            }
+        } catch (e: HttpException) {
+            Log.d("EquipmentRepositoryImpl", "Cache write error: ${e.message}")
+            Result.failure(Exception("Server error: ${e.code()} ${e.message()}"))
+        } catch (e: IOException) {
+            Log.d("EquipmentRepositoryImpl", "Cache write error: ${e.message}")
+            Result.failure(Exception("Network error: ${e.message}"))
+        } catch (e: Exception) {
+            Log.d("EquipmentRepositoryImpl", "error: ${e.message}")
+            Result.failure(e)
         }
     }
 
 
-    override suspend fun getEquipmentsFlow(): Flow<List<EquipmentList>> {
+    override suspend fun getEquipmentsFlow(): Flow<List<Equipment>> {
         return equipmentDao.getEquipmentsFlow().map { equipmentEntities ->
-            equipmentEntities.map { it.toDomain() }.groupBy { it.equipment_name }
-                .map { (equipmentName, equipmentItems) ->
-                    EquipmentList(
-                        name = equipmentName,
-                        image = equipmentItems.firstOrNull()?.image.orEmpty(),
-                        units = equipmentItems
-                    )
-                }
+            equipmentEntities.map { it.toDomain() }
         }
     }
 
@@ -136,7 +138,7 @@ class EquipmentRepositoryImpl @Inject constructor(
         customerId: String,
         isMember: Boolean,
         userId: String?,
-    ): Result<List<EquipmentList>> {
+    ): Result<List<Equipment>> {
 
         return try {
 
@@ -150,43 +152,22 @@ class EquipmentRepositoryImpl @Inject constructor(
                 // Map to domain models (entire list)
                 val equipments = equipmentDto.map { it.toDomain() }
 
+                Log.d("EquipmentRepositoryImpl", "equipments: $equipments")
                 // Store all equipment entities in Room (preserve existing status if any)
                 try {
                     // Get existing status before deleting
-                    val existingEquipment = equipmentDao.getAllEquipment()
-                    val existingStatusMap =
-                        existingEquipment.associateBy { it.deviceName }.mapValues {
-                            Pair<String?, String?>(
-                                it.value.status, it.value.statusUpdatedAt
-                            )
-                        }
-
-                    val equipmentEntities = equipments.map { equipment ->
-                        val existingStatus = existingStatusMap[equipment.device_name]
-                        // Use mapper to convert Equipment to EquipmentEntity (includes equipment_data)
-                        equipment.toEntity().copy(
-                            status = existingStatus?.first, // Preserve existing status
-                            statusUpdatedAt = existingStatus?.second // Preserve existing status update time
-                        )
-                    }
-//                    equipmentDao.deleteAllEquipment()
-                    equipmentDao.insertEquipment(equipmentEntities)
+                    val entity = equipments.map { it.toEntity() }
+                    Log.d("EquipmentRepositoryImpl", "equipmentEntities: $entity")
+                    equipmentDao.deleteAllEquipment()
+                    equipmentDao.insertEquipment(equipments.map { it.toEntity() })
                 } catch (e: Exception) {
                     Log.d("EquipmentRepositoryImpl", "Cache write error: ${e.message}")
                 }
 
                 // Apply groupBy logic when returning (same as when fetching from DB)
-                val equipmentList = equipments.groupBy { it.equipment_name }
-                    .map { (equipmentName, equipmentItems) ->
-                        EquipmentList(
-                            name = equipmentName,
-                            image = equipmentItems.firstOrNull()?.image.orEmpty(),
-                            units = equipmentItems
-                        )
-                    }
-
-                Result.success(equipmentList)
+                Result.success(equipments)
             } else {
+                Log.d("EquipmentRepositoryImpl", "Cache write error: ${response.code()}")
                 Result.failure(Exception("Failed to fetch equipment: ${response.code()}"))
             }
         } catch (e: HttpException) {
@@ -242,7 +223,7 @@ class EquipmentRepositoryImpl @Inject constructor(
         } catch (e: IOException) {
             Result.failure(Exception("Network error: ${e.message}"))
         } catch (e: Exception) {
-            Log.d("EquipmentRepositoryImpl", "Status error: ${e.message}")
+//            Log.d("EquipmentRepositoryImpl", "Status error: ${e.message}")
             Result.failure(e)
         }
     }
@@ -272,7 +253,7 @@ class EquipmentRepositoryImpl @Inject constructor(
 
     override suspend fun clearEquipmentCache() {
         try {
-//            equipmentDao.deleteAllEquipment()
+            equipmentDao.deleteAllEquipment()
             Log.d("EquipmentRepositoryImpl", "Equipment cache cleared")
         } catch (e: Exception) {
             Log.d("EquipmentRepositoryImpl", "Error clearing equipment cache: ${e.message}")
@@ -300,7 +281,8 @@ class EquipmentRepositoryImpl @Inject constructor(
                 )
             },
             remainingBalance = remaining_balance,
-            sessionTime = session_time
+            sessionTime = session_time,
+            planId = plan_id?:""
         )
     }
 
@@ -334,7 +316,9 @@ class EquipmentRepositoryImpl @Inject constructor(
                             planName = body.plan_name?:"",
                             planExpire = body.plan_expire?:"",
                             totalCreditPoints = body.total_credit_points?:"0",
-                            vipDiscount = body.vip_discount?:"0"
+                            vipDiscount = body.vip_discount?:"0",
+                            hasVipPlan = body.is_credit_plan == "yes",
+                            hasSessionPlan = body.is_session_plan == "yes"
                         )
                     )
                 } else {
@@ -479,6 +463,23 @@ class EquipmentRepositoryImpl @Inject constructor(
             )
             if (response.isSuccessful) {
                 Result.success(response.body()?.status)
+            } else {
+                Result.failure(Exception("Failed to verifyMemberOrEmployee: ${response.message()}"))
+            }
+        } catch (e: HttpException) {
+            Result.failure(Exception("HTTP error: ${e.message()}"))
+        } catch (e: IOException) {
+            Result.failure(Exception("Network error: ${e.message}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getGeneratedUsername(): Result<String> {
+        return try {
+            val response = apiService.getGeneratedUsername()
+            if (response.isSuccessful) {
+                Result.success(response.body()?:"")
             } else {
                 Result.failure(Exception("Failed to verifyMemberOrEmployee: ${response.message()}"))
             }

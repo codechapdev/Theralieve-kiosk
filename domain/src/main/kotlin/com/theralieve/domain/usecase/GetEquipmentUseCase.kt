@@ -10,3 +10,10 @@ class GetEquipmentUseCase @Inject constructor(
     suspend operator fun invoke(customerId: String, forceRefresh: Boolean = false) =
         equipmentRepository.getEquipments(customerId, forceRefresh)
 }
+
+class GetEquipmentCreditUseCase @Inject constructor(
+    private val equipmentRepository: EquipmentRepository
+) {
+    suspend operator fun invoke(customerId: String, userId: String) =
+        equipmentRepository.getEquipmentsCredit(customerId, userId)
+}

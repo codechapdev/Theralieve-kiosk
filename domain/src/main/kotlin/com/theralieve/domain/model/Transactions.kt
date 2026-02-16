@@ -38,7 +38,8 @@ data class TransactionsData(
     val points: Int,
     val txnid: String,
     val user_id: Int,
-    val validity: String
+    val validity: String,
+    val used: String?,
 )
 
 data class EquipmentInTransaction(
@@ -46,5 +47,7 @@ data class EquipmentInTransaction(
     val equipment_name: String,
     val equipment_points: Any,
     val equipment_time: Int,
+    val total_session: String?,
+    val remaining_session: String?,
     val id: Int
 )
