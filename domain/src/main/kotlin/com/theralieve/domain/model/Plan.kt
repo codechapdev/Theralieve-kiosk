@@ -238,12 +238,12 @@ data class Balance(
 )*/
 
 
-data class PlanInfo(
-    val title: String,
-    val remaining: String,
-    val validTill: String,
-    val imageUrl: String
-)
+//data class PlanInfo(
+//    val title: String,
+//    val remaining: String,
+//    val validTill: String,
+//    val imageUrl: String
+//)
 
 
 

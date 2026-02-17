@@ -18,3 +18,10 @@ class GetGeneratedUsernameUseCase @Inject constructor(
 ) {
     suspend operator fun invoke() = equipmentRepository.getGeneratedUsername()
 }
+
+
+class GetPlanInfoUseCase @Inject constructor(
+    private val equipmentRepository: EquipmentRepository
+) {
+    suspend operator fun invoke() = equipmentRepository.getPlanInfo()
+}

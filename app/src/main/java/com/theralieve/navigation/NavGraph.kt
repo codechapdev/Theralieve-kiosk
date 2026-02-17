@@ -45,10 +45,18 @@ import com.theralieve.ui.screens.MyProfile
 import com.theralieve.ui.screens.PlanDataScreen
 import com.theralieve.ui.screens.PlanDetailScreen
 import com.theralieve.ui.screens.WelcomeScreen
+import com.theralieve.ui.screens.creditPacks.CreditPackListScreen
+import com.theralieve.ui.screens.creditPacks.viewModel.CreditPackViewModel
+import com.theralieve.ui.screens.creditPlans.CreditPlanListScreen
+import com.theralieve.ui.screens.creditPlans.viewModel.CreditPlanViewModel
 import com.theralieve.ui.screens.creditSession.EquipmentCreditListScreen
 import com.theralieve.ui.screens.creditSession.viewModel.EquipmentCreditListViewModel
+import com.theralieve.ui.screens.newSeePlan.NewSeePlansScreen
+import com.theralieve.ui.screens.newSeePlan.viewModel.NewSeePlanViewModel
 import com.theralieve.ui.screens.selectedMembership.SelectedMembershipScreen
 import com.theralieve.ui.screens.selectedMembership.viewModel.SelectedMembershipViewModel
+import com.theralieve.ui.screens.sessionPacks.SessionPackListScreen
+import com.theralieve.ui.screens.sessionPacks.viewModel.SessionPackListViewModel
 import com.theralieve.ui.screens.singleSession.CheckoutSingleSessionScreen
 import com.theralieve.ui.screens.singleSession.SingleSelectedEquipmentScreen
 import com.theralieve.ui.screens.singleSession.viewModel.CheckoutSingleSessionViewModel
@@ -69,6 +77,7 @@ import com.theralieve.ui.viewmodel.RegistrationViewModel
 import com.theralieve.ui.viewmodel.WelcomeViewModel
 import com.theralieve.utils.PaymentLauncherProvider
 import kotlinx.coroutines.launch
+import okhttp3.Route
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -97,7 +106,7 @@ fun NavGraph(
                 }
             }
 
-            WelcomeScreen(uiState = welcomeUiState, onNonMemberClick = {
+            /*WelcomeScreen(uiState = welcomeUiState, onNonMemberClick = {
                 // Use cached data for smooth UX - equipment is preloaded on welcome screen
                 navController.navigate("${Routes.EQUIPMENT_LIST}?isMember=false")
 //                navController.navigate(Routes.SINGLE_SESSION_SCREEN)
@@ -105,8 +114,45 @@ fun NavGraph(
                 navController.navigate(Routes.MEMBERSHIP_LIST)
             }, onExistingMemberClick = {
                 navController.navigate(Routes.MEMBER_LOGIN)
+            })*/
+
+            WelcomeScreen(uiState = welcomeUiState, onNewClick = {
+                navController.navigate(Routes.NEW_SEE_PLAN)
+            }, onExistingClick = {
+                navController.navigate(Routes.MEMBER_LOGIN)
             })
         }
+
+        composable(Routes.NEW_SEE_PLAN){
+
+            val viewModel : NewSeePlanViewModel = hiltViewModel()
+            val locationEquipments by viewModel.locationEquipments.collectAsStateWithLifecycle()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            NewSeePlansScreen(
+                uiState = uiState,
+                locationEquipments = locationEquipments,
+                onSingleClick = {
+                    navController.navigate("${Routes.EQUIPMENT_LIST}?isMember=false")
+                },
+                onSessionPackClick = {
+                    navController.navigate(Routes.SESSION_PACK_LIST)
+                },
+                onPackClick = {
+                    navController.navigate(Routes.CREDIT_PACK_LIST)
+                },
+                onPlanClick = {
+                    navController.navigate(Routes.CREDIT_PLAN_LIST)
+                },
+                onHome = {
+                    navController.popBackStack()
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
 
         composable(
             route = "${Routes.EQUIPMENT_LIST}?isMember={isMember}&forceRefresh={forceRefresh}",
@@ -648,6 +694,210 @@ fun NavGraph(
             }
         }
 
+
+        composable(Routes.CREDIT_PACK_LIST){
+            val viewModel: CreditPackViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(uiState) {
+                Log.d("MEMBERSHIP_LIST", "NavGraph: $uiState")
+            }
+            CreditPackListScreen(
+                plans = uiState.plans,
+                isLoading = uiState.isLoading,
+                locationEquipments = uiState.locationEquipments,
+                onPlanSelected = { plan, checked ->
+                    val route = Routes.selectedMembershipRoute(
+                        plan.detail?.id.toString(),
+                        uiState.isForEmployee,
+                        uiState.memberNo,
+                        uiState.employeeNo,
+                        uiState.membershipType,
+                        checked
+                    )
+                    navController.navigate(route)
+                },
+                onViewDetail = { plan ->
+                    val route = Routes.membershipDetailRoute(
+                        plan.detail?.id.toString(),
+                        uiState.isForEmployee,
+                        uiState.memberNo,
+                        uiState.employeeNo,
+                        uiState.membershipType
+                    )
+                    navController.navigate(route)
+//                    navController.navigate("${Routes.MEMBERSHIP_DETAIL}/${plan.detail?.id}")
+                },
+                onBack= {
+                    navController.popBackStack()
+                },
+                onHome = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(Routes.WELCOME) { inclusive = true }
+                    }
+                },
+                showQuestionnaire = uiState.showQuestionnaire,
+                isVerifying = uiState.isVerifying,
+                verificationError = uiState.verificationError,
+                memberIdError = uiState.memberIdError,
+                employeeIdError = uiState.employeeIdError,
+                isVerifyingMemberId = uiState.isVerifyingMemberId,
+                isVerifyingEmployeeId = uiState.isVerifyingEmployeeId,
+                onQuestionnaireSubmit = { isMember, memberNumber, employeeNumber ->
+                    viewModel.onQuestionnaireSubmit(
+                        isMember, memberNumber, employeeNumber
+                    )
+                },
+                onQuestionnaireCancel = {
+                    viewModel.onQuestionnaireCancel()
+                    navController.popBackStack()
+                },
+                onMemberIdChange = { memberId ->
+                    viewModel.verifyMemberId(memberId)
+                },
+                onEmployeeIdChange = { employeeId ->
+                    viewModel.verifyEmployeeId(employeeId)
+                },
+                isForEmployee = uiState.isForEmployee,
+                location = uiState.location
+            )
+        }
+
+        composable(Routes.CREDIT_PLAN_LIST){
+            val viewModel: CreditPlanViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(uiState) {
+                Log.d("MEMBERSHIP_LIST", "NavGraph: $uiState")
+            }
+            CreditPlanListScreen(
+                plans = uiState.plans,
+                isLoading = uiState.isLoading,
+                locationEquipments = uiState.locationEquipments,
+                onPlanSelected = { plan, checked ->
+                    val route = Routes.selectedMembershipRoute(
+                        plan.detail?.id.toString(),
+                        uiState.isForEmployee,
+                        uiState.memberNo,
+                        uiState.employeeNo,
+                        uiState.membershipType,
+                        checked
+                    )
+                    navController.navigate(route)
+                },
+                onViewDetail = { plan ->
+                    val route = Routes.membershipDetailRoute(
+                        plan.detail?.id.toString(),
+                        uiState.isForEmployee,
+                        uiState.memberNo,
+                        uiState.employeeNo,
+                        uiState.membershipType
+                    )
+                    navController.navigate(route)
+//                    navController.navigate("${Routes.MEMBERSHIP_DETAIL}/${plan.detail?.id}")
+                },
+                onBack ={
+                    navController.popBackStack()
+                },
+                onHome = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(Routes.WELCOME) { inclusive = true }
+                    }
+                },
+                showQuestionnaire = uiState.showQuestionnaire,
+                isVerifying = uiState.isVerifying,
+                verificationError = uiState.verificationError,
+                memberIdError = uiState.memberIdError,
+                employeeIdError = uiState.employeeIdError,
+                isVerifyingMemberId = uiState.isVerifyingMemberId,
+                isVerifyingEmployeeId = uiState.isVerifyingEmployeeId,
+                onQuestionnaireSubmit = { isMember, memberNumber, employeeNumber ->
+                    viewModel.onQuestionnaireSubmit(
+                        isMember, memberNumber, employeeNumber
+                    )
+                },
+                onQuestionnaireCancel = {
+                    viewModel.onQuestionnaireCancel()
+                    navController.popBackStack()
+                },
+                onMemberIdChange = { memberId ->
+                    viewModel.verifyMemberId(memberId)
+                },
+                onEmployeeIdChange = { employeeId ->
+                    viewModel.verifyEmployeeId(employeeId)
+                },
+                isForEmployee = uiState.isForEmployee,
+                location = uiState.location
+            )
+        }
+
+        composable(Routes.SESSION_PACK_LIST){
+            val viewModel: SessionPackListViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(uiState) {
+                Log.d("MEMBERSHIP_LIST", "NavGraph: $uiState")
+            }
+            SessionPackListScreen(
+                plans = uiState.plans,
+                isLoading = uiState.isLoading,
+                locationEquipments = uiState.locationEquipments,
+                onPlanSelected = { plan, checked ->
+                    val route = Routes.selectedMembershipRoute(
+                        plan.detail?.id.toString(),
+                        uiState.isForEmployee,
+                        uiState.memberNo,
+                        uiState.employeeNo,
+                        uiState.membershipType,
+                        checked
+                    )
+                    navController.navigate(route)
+                },
+                onViewDetail = { plan ->
+                    val route = Routes.membershipDetailRoute(
+                        plan.detail?.id.toString(),
+                        uiState.isForEmployee,
+                        uiState.memberNo,
+                        uiState.employeeNo,
+                        uiState.membershipType
+                    )
+                    navController.navigate(route)
+//                    navController.navigate("${Routes.MEMBERSHIP_DETAIL}/${plan.detail?.id}")
+                },
+                onBack ={
+                    navController.popBackStack()
+                },
+                onHome = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(Routes.WELCOME) { inclusive = true }
+                    }
+                },
+                showQuestionnaire = uiState.showQuestionnaire,
+                isVerifying = uiState.isVerifying,
+                verificationError = uiState.verificationError,
+                memberIdError = uiState.memberIdError,
+                employeeIdError = uiState.employeeIdError,
+                isVerifyingMemberId = uiState.isVerifyingMemberId,
+                isVerifyingEmployeeId = uiState.isVerifyingEmployeeId,
+                onQuestionnaireSubmit = { isMember, memberNumber, employeeNumber ->
+                    viewModel.onQuestionnaireSubmit(
+                        isMember, memberNumber, employeeNumber
+                    )
+                },
+                onQuestionnaireCancel = {
+                    viewModel.onQuestionnaireCancel()
+                    navController.popBackStack()
+                },
+                onMemberIdChange = { memberId ->
+                    viewModel.verifyMemberId(memberId)
+                },
+                onEmployeeIdChange = { employeeId ->
+                    viewModel.verifyEmployeeId(employeeId)
+                },
+                isForEmployee = uiState.isForEmployee,
+                location = uiState.location
+            )
+        }
 
         composable(Routes.MEMBERSHIP_LIST) {
 

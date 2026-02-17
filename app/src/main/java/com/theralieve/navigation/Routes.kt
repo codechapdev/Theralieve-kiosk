@@ -37,6 +37,17 @@ object Routes {
 
     const val SINGLE_SESSION_SCREEN = "single_session_screen"
 
+    const val NEW_SEE_PLAN = "new_see_plans"
+
+    // new screens
+    // Credit Packs & Credit Plans
+
+    const val CREDIT_PACK_LIST = "credit_pack_list"
+
+    const val CREDIT_PLAN_LIST = "credit_plan_list"
+
+    const val SESSION_PACK_LIST = "session_plan_list"
+
 
     fun registrationRoute(planId: String, isForEmployee: Boolean,memberNo:String?, employeeNo:String?,membershipType:String?,isRenew: Boolean): String {
         return "${REGISTRATION}/${planId}?isForEmployee=${isForEmployee}?memberNo=${memberNo}?employeeNo=${employeeNo}?membershipType=${membershipType}?isRenew=${isRenew}"

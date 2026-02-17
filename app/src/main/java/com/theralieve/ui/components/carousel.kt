@@ -36,7 +36,9 @@ import kotlinx.coroutines.delay
 @Composable
 fun EquipmentCarousel(
     equipments: List<LocationEquipment>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardWidth:Int = 260,
+    cardHeight:Int = 160,
 ) {
     if (equipments.isEmpty()) return
 
@@ -58,7 +60,7 @@ fun EquipmentCarousel(
             // Wait if user is scrolling
             if (!listState.isScrollInProgress) {
                 listState.animateScrollBy(
-                    value = 320f, // 👈 width of your card (dp → px ideally)
+                    value = 320f,
                     animationSpec = tween(
                         durationMillis = 1200, // slower = smoother
                         easing = LinearEasing
@@ -79,7 +81,7 @@ fun EquipmentCarousel(
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
             items(infiniteItems) { item ->
-                EquipmentImageCard(item)
+                EquipmentImageCard(item,cardWidth,cardHeight)
             }
         }
 
@@ -105,14 +107,18 @@ fun EquipmentCarousel(
 
 
 @Composable
-fun EquipmentImageCard(item: LocationEquipment) {
+fun EquipmentImageCard(
+    item: LocationEquipment,
+    cardWidth:Int = 260,
+    cardHeight:Int = 160,
+) {
     Card(
         modifier = Modifier
 //            .border(
 //                0.5.dp, color = TheraColorTokens.StrokeColor, shape = RoundedCornerShape(16.dp)
 //            )
-            .width(260.dp)
-            .height(160.dp),
+            .width(cardWidth.dp)
+            .height(cardHeight.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent, contentColor = Color.Transparent,Color.Transparent,Color.Transparent),
         elevation = CardDefaults.cardElevation(0.dp,0.dp,0.dp,0.dp,0.dp,0.dp)

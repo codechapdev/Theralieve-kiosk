@@ -51,3 +51,10 @@ data class EquipmentInTransaction(
     val remaining_session: String?,
     val id: Int
 )
+
+data class PlanInfo(
+    val is_credit_plan: Int,
+    val is_session_plan: Int,
+    val is_vip_plan: Int,
+    val status: String
+)

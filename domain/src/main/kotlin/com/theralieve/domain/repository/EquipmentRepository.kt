@@ -9,6 +9,7 @@ import com.theralieve.domain.model.Equipment
 import com.theralieve.domain.model.EquipmentDetail
 import com.theralieve.domain.model.Member
 import com.theralieve.domain.model.Plan
+import com.theralieve.domain.model.PlanInfo
 import com.theralieve.domain.model.TransactionResponse
 import com.theralieve.domain.model.UpdateRenewResponse
 import com.theralieve.domain.model.UserPlan
@@ -47,6 +48,7 @@ interface EquipmentRepository {
     suspend fun cancelVip(userId: Int,planId: String,reason:String): Result<UpdateRenewResponse>
     suspend fun getTransactionHistory(userId: Int): Result<TransactionResponse>
     suspend fun getGeneratedUsername(): Result<String>
+    suspend fun getPlanInfo(): Result<PlanInfo>
 
     suspend fun getSecretsUsingIot(macAddress: String): Result<DeviceData?>
 

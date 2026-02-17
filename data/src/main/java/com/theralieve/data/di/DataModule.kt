@@ -8,6 +8,7 @@ import com.theralieve.data.local.TheraJetDatabase
 import com.theralieve.data.repository.AuthRepositoryImpl
 import com.theralieve.data.repository.EquipmentRepositoryImpl
 import com.theralieve.data.repository.PaymentRepositoryImpl
+import com.theralieve.data.storage.PreferenceManager
 import com.theralieve.domain.repository.AuthRepository
 import com.theralieve.domain.repository.EquipmentRepository
 import com.theralieve.domain.repository.PaymentRepository
@@ -52,9 +53,10 @@ object DataModule {
     @Singleton
     fun provideEquipmentRepository(
         apiService: ApiService,
-        database: TheraJetDatabase
+        database: TheraJetDatabase,
+        preferenceManager: PreferenceManager
     ): EquipmentRepository {
-        return EquipmentRepositoryImpl(apiService, database)
+        return EquipmentRepositoryImpl(apiService, database,preferenceManager)
     }
 
     @Provides

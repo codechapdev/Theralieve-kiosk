@@ -6,10 +6,12 @@ import com.theralieve.data.api.EquipmentDTO
 import com.theralieve.data.api.EquipmentDetailDTO
 import com.theralieve.data.local.mapper.toDomain
 import com.theralieve.data.local.mapper.toEntity
+import com.theralieve.data.storage.PreferenceManager
 import com.theralieve.domain.model.CurrentPlanResponse
 import com.theralieve.domain.model.DeviceData
 import com.theralieve.domain.model.Equipment
 import com.theralieve.domain.model.EquipmentDetail
+import com.theralieve.domain.model.PlanInfo
 import com.theralieve.domain.model.TransactionResponse
 import com.theralieve.domain.model.UpdateRenewResponse
 import com.theralieve.domain.model.UserPlan
@@ -30,7 +32,8 @@ import javax.inject.Singleton
 @Singleton
 class EquipmentRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
-    private val database: com.theralieve.data.local.TheraJetDatabase
+    private val database: com.theralieve.data.local.TheraJetDatabase,
+    private val preferenceManager: PreferenceManager
 ) : EquipmentRepository {
 
     private val equipmentDao = database.equipmentDao()
@@ -482,6 +485,25 @@ class EquipmentRepositoryImpl @Inject constructor(
                 Result.success(response.body()?:"")
             } else {
                 Result.failure(Exception("Failed to verifyMemberOrEmployee: ${response.message()}"))
+            }
+        } catch (e: HttpException) {
+            Result.failure(Exception("HTTP error: ${e.message()}"))
+        } catch (e: IOException) {
+            Result.failure(Exception("Network error: ${e.message}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getPlanInfo(): Result<PlanInfo> {
+        return try {
+            val response = apiService.getPlanInfo(preferenceManager.getCustomerId()?:"")
+            if (response.isSuccessful) {
+                if(response.body() != null) {
+                    Result.success(response.body()!!)
+                }else Result.failure(Exception("Failed to getplansINfo: ${response.message()}"))
+            } else {
+                Result.failure(Exception("Failed to getplansINfo: ${response.message()}"))
             }
         } catch (e: HttpException) {
             Result.failure(Exception("HTTP error: ${e.message()}"))

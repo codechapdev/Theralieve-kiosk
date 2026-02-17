@@ -467,53 +467,6 @@ fun MembershipGridScreen(
     }
 }
 
-
-@Composable
-fun LazyGridScrollbar(
-    state: LazyGridState,
-    modifier: Modifier = Modifier
-) {
-    val layoutInfo = state.layoutInfo
-
-    val totalItems = layoutInfo.totalItemsCount
-    val visibleItems = layoutInfo.visibleItemsInfo
-
-    if (totalItems == 0 || visibleItems.isEmpty()) return
-
-    val firstVisibleItem = visibleItems.first()
-    val lastVisibleItem = visibleItems.last()
-
-    val viewportHeight = layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset
-    val totalScrollItems = totalItems.toFloat()
-
-    val thumbHeightRatio = visibleItems.size / totalScrollItems
-    val thumbOffsetRatio =
-        firstVisibleItem.index / totalScrollItems
-
-    Box(
-        modifier
-            .fillMaxHeight()
-            .width(6.dp)
-    ) {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(thumbHeightRatio)
-                .offset {
-                    IntOffset(
-                        x = 0,
-                        y = (viewportHeight * thumbOffsetRatio).toInt()
-                    )
-                }
-                .background(
-                    Color.Gray.copy(alpha = 0.5f),
-                    RoundedCornerShape(3.dp)
-                )
-        )
-    }
-}
-
-
 @Composable
 fun MembershipGridHeader(
     title: String,
