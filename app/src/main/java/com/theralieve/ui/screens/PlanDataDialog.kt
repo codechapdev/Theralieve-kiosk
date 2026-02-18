@@ -153,7 +153,8 @@ fun PlanDataScreen(
                                     autoRenewalToggle = {
                                         onAutoRenewal(it)
                                     },
-                                    showCancellationDialog = onAutoRenewalCancel
+                                    showCancellationDialog = onAutoRenewalCancel,
+                                    showAutoRenew = false
                                 )
                             }
                         }
@@ -327,6 +328,7 @@ fun SessionPackDialogCard(
                 plan.plan?.frequency_limit,
             )
             Text("Frequency : $frequency")
+
             when(autoRenew){
                 null ->{
                     Row(
@@ -383,6 +385,7 @@ fun SessionPackDialogCard(
                     Spacer(modifier=Modifier.height(40.dp))
                 }
             }
+
             TheraSecondaryButton2(
                 modifier = Modifier.height(40.dp).fillMaxWidth(), label = "Check Balance", onClick = {
                             onCheck(plan)
@@ -403,7 +406,8 @@ fun getLastDateOfCurrentMonth(): String {
 fun CreditPackDialogCard(
     plan: CreditPlan,
     autoRenewalToggle:(String)-> Unit,
-    showCancellationDialog:(String,String)-> Unit
+    showCancellationDialog:(String,String)-> Unit,
+    showAutoRenew:Boolean = true,
 ) {
     var showCancelDialog by remember { mutableStateOf(false) }
 
@@ -446,63 +450,70 @@ fun CreditPackDialogCard(
                 Text("Price: $price${plan.plan_amount ?: "0"}")
                 Text("Total Points : ${plan.points ?: "0"}")
                 Text("Remaining Points : ${plan.used ?: "0"}")
-                when(autoRenew){
-                    null ->{
-                        Row(
-                            modifier = Modifier.width(220.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Text(
-                                text = "Auto Renew :",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontSize = 20.sp,
-                                color = Color.Black
-                            )
 
-                            IosLikeSwitch(
-                                checked = checked,
-                                onCheckedChange = {
-                                    checked = it
-                                    autoRenewalToggle(
-                                        (plan.id?:0).toString()
-                                    )
-                                }
-                            )
+                if(showAutoRenew) {
+                    when (autoRenew) {
+                        null -> {
+                            Row(
+                                modifier = Modifier.width(220.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Auto Renew :",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = 20.sp,
+                                    color = Color.Black
+                                )
 
-                        }
-                    }
-                    1-> {
-                        Row(
-                            modifier = Modifier.width(220.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Text(
-                                text = "Auto Renew :",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontSize = 20.sp,
-                                color = Color.Black
-                            )
-
-                            IosLikeSwitch(
-                                checked = checked,
-                                onCheckedChange = {
-                                    if((plan.is_vip_plan?:0) != 1) {
+                                IosLikeSwitch(
+                                    checked = checked,
+                                    onCheckedChange = {
                                         checked = it
                                         autoRenewalToggle(
                                             (plan.id ?: 0).toString()
                                         )
                                     }
-//                                    showCancelDialog = true
-                                }
-                            )
+                                )
 
+                            }
+                        }
+
+                        1 -> {
+                            Row(
+                                modifier = Modifier.width(220.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Auto Renew :",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = 20.sp,
+                                    color = Color.Black
+                                )
+
+                                IosLikeSwitch(
+                                    checked = checked,
+                                    onCheckedChange = {
+                                        if ((plan.is_vip_plan ?: 0) != 1) {
+                                            checked = it
+                                            autoRenewalToggle(
+                                                (plan.id ?: 0).toString()
+                                            )
+                                        }
+//                                    showCancelDialog = true
+                                    }
+                                )
+
+                            }
+                        }
+
+                        0 -> {
+                            Spacer(modifier = Modifier.height(40.dp))
                         }
                     }
-                    0->{
-                        Spacer(modifier=Modifier.height(40.dp))
-                    }
+                }else{
+                    Spacer(modifier = Modifier.height(40.dp))
                 }
 
                 when(vipCancelDetails){
@@ -531,7 +542,7 @@ fun CreditPackDialogCard(
 
             }
 
-            if ((plan.is_vip_plan ?: 0) == 1) {
+            /*if ((plan.is_vip_plan ?: 0) == 1) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -565,7 +576,7 @@ fun CreditPackDialogCard(
                         )
                     }
                 }
-            }
+            }*/
         }
     }
 }
@@ -619,16 +630,16 @@ fun CancelReasonDialog(
                 // 🔴 Highlighted info text
                 Text(
                     text = buildAnnotatedString {
-                        append("If you cancel now, your plan will remain active until ")
+                        append("If you cancel now, your plan will remain active until points reach 0,")
 
-                        pushStyle(
-                            SpanStyle(
-                                color = TheraColorTokens.Primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                        append(lastDateOfMonth)
-                        pop()
+//                        pushStyle(
+//                            SpanStyle(
+//                                color = TheraColorTokens.Primary,
+//                                fontWeight = FontWeight.Bold
+//                            )
+//                        )
+//                        append(lastDateOfMonth)
+//                        pop()
 
                         append(" and will not renew after that.")
                     },

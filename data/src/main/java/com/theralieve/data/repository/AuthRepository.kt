@@ -406,7 +406,8 @@ class AuthRepositoryImpl @Inject constructor(
                 LocationEquipment(
                     equipmentId = it.equipment_id,
                     equipmentName = it.equipment_name,
-                    image = it.image
+                    image = it.image,
+                    lowestPoint = it.lowest_point
                 )
             }?: emptyList()
         )

@@ -240,7 +240,25 @@ fun SessionPackListScreen(
                                 Column(
                                     verticalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
-                                    plan.detail?.bullet_points
+                                    val bullets = plan.detail?.bullet_points
+                                        ?.split(",")
+                                        ?.map { it.trim() }
+                                        ?: emptyList()
+
+                                    val fixedBullets = List(4) { index ->
+                                        bullets.getOrNull(index) ?: ""
+                                    }
+
+                                    fixedBullets.forEach { feature ->
+                                        Text(
+                                            text = if (feature.isNotEmpty()) "• $feature" else " ",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontSize = 15.sp,
+                                            color = Color.DarkGray
+                                        )
+                                    }
+
+                                    /*plan.detail?.bullet_points
                                         ?.split(",")
                                         ?.take(4)
                                         ?.forEach { feature ->
@@ -250,7 +268,7 @@ fun SessionPackListScreen(
                                                 fontSize = 15.sp,
                                                 color = Color.DarkGray
                                             )
-                                        }
+                                        }*/
                                 }
 
                                 // Discount Section

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -20,13 +21,19 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.theralieve.domain.model.LocationEquipment
@@ -117,18 +124,99 @@ fun EquipmentImageCard(
 //            .border(
 //                0.5.dp, color = TheraColorTokens.StrokeColor, shape = RoundedCornerShape(16.dp)
 //            )
-            .width(cardWidth.dp)
-            .height(cardHeight.dp),
+                ,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent, contentColor = Color.Transparent,Color.Transparent,Color.Transparent),
         elevation = CardDefaults.cardElevation(0.dp,0.dp,0.dp,0.dp,0.dp,0.dp)
     ) {
-        NetworkImage(
-            imageUrl = item.image,
-            contentDescription = item.equipmentName,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize()
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            NetworkImage(
+                imageUrl = item.image,
+                contentDescription = item.equipmentName,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .width(cardWidth.dp)
+                    .height(cardHeight.dp)
+            )
+            Text(
+                modifier = Modifier
+                    .width((cardWidth * 0.95).dp)
+                    .align(Alignment.CenterHorizontally),
+                text = item.equipmentName,
+                textAlign = TextAlign.Center,
+                color = TheraColorTokens.TextPrimary,
+                maxLines = 2,
+                minLines = 2
+            )
+            Text(
+                modifier = Modifier
+                    .width((cardWidth * 0.75).dp)
+                    .align(Alignment.CenterHorizontally),
+                text = "${item.lowestPoint} Points",
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.SemiBold,
+                color = TheraColorTokens.TextPrimary,
+            )
+        }
     }
+}
+
+@Preview(device = "spec:width=1280dp,height=800dp,dpi=240", showSystemUi = false,
+    showBackground = true
+)
+@Composable
+fun PreviewEquipmentcarousle(){
+    val locationEquipments = listOf(
+        LocationEquipment(
+            equipmentId = 5,
+            equipmentName = "Aqualieve® Cryo/Heat Recovery Chair with Massage",
+            image = "uploads/equipment/BRkfSZOCizbm0sY9oc4UOAL0kTvMMUpIIVsBje2I.png",
+            lowestPoint = "10"
+        ),
+        LocationEquipment(
+            equipmentId = 32,
+            equipmentName = "Pelvic Chair",
+            image = "uploads/equipment/up87XUFO8axRYApCgh2ef4DLS3BZTY4SvGIyDs3S.png",
+            lowestPoint = "50"
+        ),
+        LocationEquipment(
+            equipmentId = 35,
+            equipmentName = "TheraJet",
+            image = "uploads/equipment/orTivmxOAIvwqh9LjAZJCBRNCoKeIDA6gpoLrPNO.png",
+            lowestPoint = "10"
+        ),
+        LocationEquipment(
+            equipmentId = 31,
+            equipmentName = "HydroPulse Therapeutic Wave System",
+            image = "uploads/equipment/JFGp0wVmRzNGqNilEQxkpgryV0e6UQYbQxKetO1D.png",
+            lowestPoint = "50"
+        ),
+        LocationEquipment(
+            equipmentId = 33,
+            equipmentName = "PEMF MAT System",
+            image = "uploads/equipment/gNAn9VxY6IJZOkZCRc9SC6m9ZSz9fzs0ruenw713.png",
+            lowestPoint = "5"
+        ),
+        LocationEquipment(
+            equipmentId = 15,
+            equipmentName = "SolaDerm® Redlight photon system",
+            image = "uploads/equipment/DegEadbeSAG1jLOv7z7brJLalVlxZlrg2PbcfX3X.png",
+            lowestPoint = "15"
+        ),
+        LocationEquipment(
+            equipmentId = 17,
+            equipmentName = "TheraVive® PEMF System",
+            image = "uploads/equipment/n2iOSQjs8HIF4FOkAuofSLGXfWuvvNPpK3Ipxpzt.png",
+            lowestPoint = "40"
+        )
+    )
+
+
+    EquipmentCarousel(equipments = locationEquipments)
 }
 

@@ -279,7 +279,7 @@ fun PaymentInfoDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(48.dp),
+                    .padding(horizontal = 48.dp,vertical=32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -290,7 +290,7 @@ fun PaymentInfoDialog(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(28.dp)
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
 
                     // 💳 ICON

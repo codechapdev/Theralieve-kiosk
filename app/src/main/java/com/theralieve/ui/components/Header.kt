@@ -141,7 +141,8 @@ fun Header(
                         }
                     }
                 }
-                if((userPlan?.vipDiscount?:"0").toInt()>0) {
+
+                /*if((userPlan?.vipDiscount?:"0").toInt()>0) {
                     if((userPlan?.vipDiscount?:"0").toInt()>0) {
                         Box(
                             modifier = Modifier
@@ -176,8 +177,7 @@ fun Header(
                             }
                         }
                     }
-                }
-
+                }*/
 
             }
         } else {

@@ -21,6 +21,6 @@ data class LocationTime(
 data class LocationEquipment(
     val equipmentId: Int,
     val equipmentName: String,
-    val image: String
+    val image: String,
+    val lowestPoint: String,
 )
-

@@ -286,7 +286,8 @@ data class GetLocationResponse(
 data class LocationEquipmentDTO(
     val equipment_id: Int,
     val equipment_name: String,
-    val image: String
+    val image: String,
+    val lowest_point: String,
 )
 
 data class LocationDTO(

@@ -704,7 +704,7 @@ private fun SingleSessionHeader(
                 }
             }
 
-            if((userPlan?.vipDiscount?:"0").toInt()>0) {
+            /*if((userPlan?.vipDiscount?:"0").toInt()>0) {
                 Box(
                     modifier = Modifier
                         .padding(12.dp)
@@ -737,7 +737,7 @@ private fun SingleSessionHeader(
                         )
                     }
                 }
-            }
+            }*/
 
         }
 

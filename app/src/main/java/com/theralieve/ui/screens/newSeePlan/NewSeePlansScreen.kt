@@ -192,7 +192,7 @@ private fun PremiumHeader(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(130.dp)
+                .height(120.dp)
                 .background(Color(0xFF2F6497))
                 .padding(horizontal = 24.dp)
             ,
@@ -201,7 +201,7 @@ private fun PremiumHeader(
 
             Box(
                 modifier = Modifier
-                    .size(56.dp) // large for kiosk touch
+                    .size(50.dp) // large for kiosk touch
                     .clip(CircleShape)
                     .background(Color.White)
                     .align(Alignment.CenterStart)
@@ -212,7 +212,7 @@ private fun PremiumHeader(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
                     tint = Color(0xFF1A73E8), // Theralieve Blue
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(30.dp)
                 )
             }
 
@@ -220,13 +220,13 @@ private fun PremiumHeader(
             Text(
                 text = "Wellness ... Made Affordable!",
                 color = Color.White,
-                fontSize = 42.sp,
+                fontSize = 36.sp,
                 fontWeight = FontWeight.SemiBold
             )
 
             Box(
                 modifier = Modifier
-                    .size(56.dp) // large for kiosk touch
+                    .size(50.dp) // large for kiosk touch
                     .clip(CircleShape)
                     .background(Color.White)
                     .align(Alignment.CenterEnd)
@@ -237,7 +237,7 @@ private fun PremiumHeader(
                     imageVector = Icons.Outlined.Home,
                     contentDescription = "Back",
                     tint = Color(0xFF1A73E8), // Theralieve Blue
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(30.dp)
                 )
             }
         }
@@ -259,7 +259,7 @@ fun PricingCard(
 
     Surface(
         modifier = modifier
-            .height(420.dp),
+            .height(400.dp),
         shape = RoundedCornerShape(24.dp),
         tonalElevation  = 0.dp,
         shadowElevation = 0.dp,
@@ -269,7 +269,7 @@ fun PricingCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 24.dp),
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -285,7 +285,7 @@ fun PricingCard(
                     colorFilter = ColorFilter.lighting(TheraColorTokens.TextGreen, TheraColorTokens.PrimaryDark)
                 )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Column(
                     modifier = Modifier
@@ -316,7 +316,7 @@ fun PricingCard(
 
             Column(
                 modifier= Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 bullets.forEach {
                     PricingBullet(it)
@@ -359,9 +359,9 @@ fun PricingBullet(text: String) {
         )
         Text(
             text = text,
-            fontSize = 18.sp,
+            fontSize = 16.sp,
             color = Color(0xFF333333),
-            lineHeight = 20.sp
+            lineHeight = 18.sp
         )
     }
 }
