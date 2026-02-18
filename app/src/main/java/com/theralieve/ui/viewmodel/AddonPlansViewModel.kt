@@ -32,7 +32,7 @@ class AddonSessionPlansViewModel @Inject constructor(
     private fun load() {
         viewModelScope.launch {
             val location = preferenceManager.getLocationData()?.firstOrNull()
-            _uiState.update { it.copy(type = "session", isLoading = true, error = null, locationEquipments = location?.equipments?:emptyList()) }
+            _uiState.update { it.copy(type = "session", locationName = location?.locationName?:"", isLoading = true, error = null, locationEquipments = location?.equipments?:emptyList()) }
 
             // Member context (Profile flow implies member is logged in)
             val membershipType = preferenceManager.getMemberMembershipType()
@@ -76,7 +76,7 @@ class AddonSessionPlansViewModel @Inject constructor(
 
 
 @HiltViewModel
-class AddonCreditPlansViewModel @Inject constructor(
+class AddonCreditPacksViewModel @Inject constructor(
     private val getPlansUseCase: GetPlansUseCase,
     private val preferenceManager: PreferenceManager,
 ) : ViewModel() {
@@ -95,7 +95,7 @@ class AddonCreditPlansViewModel @Inject constructor(
     private fun load(type: String) {
         viewModelScope.launch {
             val location = preferenceManager.getLocationData()?.firstOrNull()
-            _uiState.update { it.copy(type = type, isLoading = true, error = null, locationEquipments = location?.equipments?:emptyList()) }
+            _uiState.update { it.copy(type = type, locationName = location?.locationName?:"",isLoading = true, error = null, locationEquipments = location?.equipments?:emptyList()) }
 
             // Member context (Profile flow implies member is logged in)
             val membershipType = preferenceManager.getMemberMembershipType()
@@ -115,7 +115,71 @@ class AddonCreditPlansViewModel @Inject constructor(
             ).fold(onSuccess = { plans ->
                 val filtered = plans.filter { plan ->
                     val planType = plan.detail?.plan_type?.lowercase().orEmpty()
-                    planType.contains("credit")
+                    planType.contains("credit",true) && plan.detail?.is_vip_plan != 1
+                }
+
+                _uiState.update {
+                    it.copy(
+                        plans = filtered,
+                        isLoading = false,
+                        isForEmployee = isForEmployeeBool,
+                        error = null
+                    )
+                }
+            }, onFailure = { e ->
+                _uiState.update { it.copy(plans = emptyList(), isLoading = false, error = e.message) }
+            })
+        }
+    }
+
+    init {
+        load("credit")
+    }
+}
+
+
+
+@HiltViewModel
+class AddonCreditPlansViewModel @Inject constructor(
+    private val getPlansUseCase: GetPlansUseCase,
+    private val preferenceManager: PreferenceManager,
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(AddonPlansUiState())
+    val uiState: StateFlow<AddonPlansUiState> = _uiState.asStateFlow()
+
+    private fun loadUserProfile() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                userProfile = preferenceManager.getLoggedInUser()
+            )
+        }
+    }
+
+    private fun load(type: String) {
+        viewModelScope.launch {
+            val location = preferenceManager.getLocationData()?.firstOrNull()
+            _uiState.update { it.copy(type = type,locationName = location?.locationName?:"", isLoading = true, error = null, locationEquipments = location?.equipments?:emptyList()) }
+
+            // Member context (Profile flow implies member is logged in)
+            val membershipType = preferenceManager.getMemberMembershipType()
+            val customerId = preferenceManager.getCustomerId()
+                ?: preferenceManager.getMemberCustomerId()
+                ?: ""
+
+            val employeeNo = preferenceManager.getEmployeeNumber()
+            val isForEmployeeInt = if (!employeeNo.isNullOrBlank()) 1 else null
+            val isForEmployeeBool = isForEmployeeInt == 1
+            loadUserProfile()
+            getPlansUseCase(
+                customerId = customerId,
+                membershipType = membershipType,
+                isForEmployee = isForEmployeeInt,
+                forceRefresh = true,
+            ).fold(onSuccess = { plans ->
+                val filtered = plans.filter { plan ->
+                    val planType = plan.detail?.plan_type?.lowercase().orEmpty()
+                    planType.contains("credit",true) && plan.detail?.is_vip_plan == 1
                 }
 
                 _uiState.update {

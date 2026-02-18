@@ -269,7 +269,7 @@ fun calculateDiscount(
 
     val discountPercentage = when (discountType?.lowercase()) {
         "percentage" -> "${discountValue.toInt()}%"
-        "dollar" -> "${getCurrencySymbol(null)}${String.format("%.2f", discountValue)} off"
+        "dollar" -> "${getCurrencySymbol(null)}${formatPriceTo2Decimal(discountValue)} off"
         else -> "${discountValue.toInt()}%"
     }
 
@@ -413,7 +413,7 @@ fun calculateDiscount(
 
     val discountPercentage = when (discountType?.lowercase()) {
         "percentage" -> "${discountValue.toInt()}%"
-        "dollar" -> "${getCurrencySymbol(null)}${String.format("%.2f", discountValue)} off"
+        "dollar" -> "${getCurrencySymbol(null)}${formatPriceTo2Decimal(discountValue)} off"
         else -> "${discountValue.toInt()}%"
     }
 

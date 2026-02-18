@@ -31,6 +31,7 @@ import com.theralieve.utils.calculateValidity
 import com.theralieve.utils.getCurrencySymbol
 import com.theralieve.utils.calculateDiscount
 import androidx.compose.ui.text.style.TextDecoration
+import com.theralieve.utils.formatPriceTo2Decimal
 
 @Composable
 fun MembershipPlanCard(
@@ -88,14 +89,14 @@ fun MembershipPlanCard(
                     if (discountResult.hasDiscount) {
                         // Show original price with strikethrough
                         Text(
-                            text = "${getCurrencySymbol(plan.detail?.currency)}${String.format("%.2f", discountResult.originalPrice)}",
+                            text = "${getCurrencySymbol(plan.detail?.currency)}${formatPriceTo2Decimal(discountResult.originalPrice)}",
                             style = MaterialTheme.typography.titleMedium,
                             color = TheraColorTokens.TextSecondary,
                             textDecoration = TextDecoration.LineThrough
                         )
                         // Show discounted price
                         Text(
-                            text = "${getCurrencySymbol(plan.detail?.currency)}${String.format("%.2f", discountResult.discountedPrice)}",
+                            text = "${getCurrencySymbol(plan.detail?.currency)}${formatPriceTo2Decimal(discountResult.discountedPrice)}",
                             style = MaterialTheme.typography.displaySmall,
                             color = TheraColorTokens.Primary,
                             fontWeight = FontWeight.Bold

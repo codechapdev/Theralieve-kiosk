@@ -11,7 +11,7 @@ object TheraColorTokens {
     val BackgroundGradientStart = Color(0xFF87CEEB)
     val BackgroundGradientEnd = Color(0xFFFFFFFF)
     val Surface = Color(0xFFFFFFFF)
-    val Background = Color(0xFFF5F5F5)
+    val Background = Color(0xFFFFFFFF)
 
     val TextPrimary = Color(0xFF212121)
     val TextSecondary = Color(0xFF757575)

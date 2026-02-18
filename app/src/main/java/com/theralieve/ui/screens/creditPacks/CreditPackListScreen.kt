@@ -162,10 +162,6 @@ fun CreditPackListScreen(
             // detect if we can scroll further down
             val canScrollDown by remember {
                 derivedStateOf {
-//                    val layoutInfo = gridState.layoutInfo
-//                    val totalItems = layoutInfo.totalItemsCount
-//                    val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-//                    lastVisibleItemIndex < totalItems - 1
                     gridState.canScrollForward
                 }
             }
@@ -221,7 +217,9 @@ fun CreditPackListScreen(
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 22.sp
                                         ),
-                                        color = Color.Black
+                                        color = Color.Black,
+                                        maxLines = 2,
+                                        minLines = 2
                                     )
 
                                     Text(
@@ -230,7 +228,9 @@ fun CreditPackListScreen(
                                             fontWeight = FontWeight.SemiBold,
                                             fontSize = 22.sp
                                         ),
-                                        color = Color.Black
+                                        color = Color.Black,
+                                        maxLines = 2,
+                                        minLines = 2
                                     )
 
                                 }
@@ -264,43 +264,47 @@ fun CreditPackListScreen(
 
                                 Spacer(modifier = Modifier.height(6.dp))
 
-                                    Column {
 
                                         if (discountResult.hasDiscount) {
 
-                                            Text(
-                                                text = "Save ${getCurrencySymbol(plan.detail?.currency)}${
-                                                    DecimalFormat("0.##").format(
-                                                        discountResult.originalPrice - discountResult.discountedPrice
-                                                    )
-                                                }",
-                                                style = MaterialTheme.typography.bodyMedium.copy(
-                                                    fontWeight = FontWeight.SemiBold
-                                                ),
-                                                color = TheraColorTokens.Primary
-                                            )
+//                                            Text(
+//                                                text = "Save ${getCurrencySymbol(plan.detail?.currency)}${
+//                                                    DecimalFormat("0.##").format(
+//                                                        discountResult.originalPrice - discountResult.discountedPrice
+//                                                    )
+//                                                }",
+//                                                style = MaterialTheme.typography.bodyMedium.copy(
+//                                                    fontWeight = FontWeight.SemiBold
+//                                                ),
+//                                                color = TheraColorTokens.Primary
+//                                            )
+//
+//                                            Spacer(modifier = Modifier.height(4.dp))
 
-                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = "${getCurrencySymbol(plan.detail?.currency)}${
+                                                        DecimalFormat("0.##").format(discountResult.originalPrice)
+                                                    }",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = Color.Gray,
+                                                    textDecoration = TextDecoration.LineThrough
+                                                )
 
-                                            Text(
-                                                text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                    DecimalFormat("0.##").format(discountResult.originalPrice)
-                                                }",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = Color.Gray,
-                                                textDecoration = TextDecoration.LineThrough
-                                            )
-
-                                            Text(
-                                                text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                    DecimalFormat("0.##").format(discountResult.discountedPrice)
-                                                }",
-                                                style = MaterialTheme.typography.headlineMedium.copy(
-                                                    fontWeight = FontWeight.ExtraBold,
-                                                    fontSize = 32.sp
-                                                ),
-                                                color = Color.Black
-                                            )
+                                                Text(
+                                                    text = "${getCurrencySymbol(plan.detail?.currency)}${
+                                                        DecimalFormat("0.##").format(discountResult.discountedPrice)
+                                                    }",
+                                                    style = MaterialTheme.typography.headlineMedium.copy(
+                                                        fontWeight = FontWeight.ExtraBold,
+                                                        fontSize = 32.sp
+                                                    ),
+                                                    color = Color.Black
+                                                )
+                                            }
 
                                         } else {
 
@@ -313,7 +317,7 @@ fun CreditPackListScreen(
                                                 color = Color.Black
                                             )
                                         }
-                                    }
+
 
                                 Spacer(modifier = Modifier.height(12.dp))
 

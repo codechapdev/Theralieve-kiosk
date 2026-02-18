@@ -31,7 +31,8 @@ interface ApiService {
     @POST("kiosk/login-member")
     suspend fun loginMember(
         @Part("email") email: RequestBody,
-        @Part("password") password: RequestBody
+        @Part("password") password: RequestBody,
+        @Part("customer_id") customerId: RequestBody,
     ): Response<MemberLoginResponse>
     
     /**

@@ -74,7 +74,8 @@ fun PlanDataScreen(
     uiState: PlanDataUiState,
     onDismiss: () -> Unit,
     onAddSession: () -> Unit,
-    onAddCredit: () -> Unit,
+    onAddCreditPack: () -> Unit,
+    onAddCreditPlan: () -> Unit,
     onAutoRenewal:(String)->Unit,
     onAutoRenewalCancel:(String,String)->Unit,
     onHome:()->Unit,
@@ -103,106 +104,173 @@ fun PlanDataScreen(
 
                 Header(title = "Plan Data", showHome = true, onBack = onDismiss, onHome = onHome)
 
-                // ================= SESSION PACKS =================
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Session Plans",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 6.dp)
-                    )
-                    if (!uiState.sessionPlan.isNullOrEmpty()) {
-                        Text(
-                            text = "Add Session Plan",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            color = TheraColorTokens.Primary,
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = TheraColorTokens.Primary,
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                                .padding(horizontal = 20.dp, vertical = 10.dp)
-                                .throttledClickable { onAddSession() })
-                    }
-                }
-
-                if (uiState.sessionPlan.isNullOrEmpty()) {
-                    EmptyPlanView(
-                        text = "No session plan",
-                        buttonText = "Add Session Plan",
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        onClick = onAddSession
-                    )
-                } else {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        items(uiState.sessionPlan) { plan ->
-                            SessionPackDialogCard(plan,
-                                onCheck={ showDialog  = it.equipments },
-                                autoRenewalToggle = { onAutoRenewal(it) },
-                                showCancellationDialog = onAutoRenewalCancel
-                            )
-                        }
-                    }
-                }
 
                 // ================= CREDIT PACKS =================
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Credit Plans",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 6.dp)
-                    )
-                    if (!uiState.creditPlan.isNullOrEmpty()) {
-                        Text(
-                            text = "Add Credit Plan",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            color = TheraColorTokens.Primary,
-                            modifier = Modifier
-                                .border(
-                                    width = 1.dp,
-                                    color = TheraColorTokens.Primary,
-                                    shape = RoundedCornerShape(16.dp)
-                                )
-                                .padding(horizontal = 20.dp, vertical = 10.dp)
-                                .throttledClickable { onAddCredit() })
-                    }
-                }
 
-                if (uiState.creditPlan.isNullOrEmpty()) {
-                    EmptyPlanView(
-                        text = "No credit packs",
-                        buttonText = "Add Credit Plan",
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        onClick = onAddCredit
-                    )
-                } else {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        items(uiState.creditPlan) { plan ->
-                            CreditPackDialogCard(plan,
-                                autoRenewalToggle = {
-                                    onAutoRenewal(it)
-                                },
-                                showCancellationDialog = onAutoRenewalCancel
-                            )
+                if(uiState.planInfo?.is_credit_plan == 1) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Credit Packs",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 6.dp)
+                        )
+                        if (!uiState.creditPacks.isNullOrEmpty()) {
+                            Text(
+                                text = "Add Credit Pack",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = TheraColorTokens.Primary,
+                                modifier = Modifier
+                                    .border(
+                                        width = 1.dp,
+                                        color = TheraColorTokens.Primary,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                                    .throttledClickable { onAddCreditPack() })
+                        }
+                    }
+
+                    if (uiState.creditPacks.isNullOrEmpty()) {
+                        EmptyPlanView(
+                            text = "No credit packs",
+                            buttonText = "Add Credit Pack",
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            onClick = onAddCreditPack
+                        )
+                    } else {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            items(uiState.creditPacks) { plan ->
+                                CreditPackDialogCard(
+                                    plan,
+                                    autoRenewalToggle = {
+                                        onAutoRenewal(it)
+                                    },
+                                    showCancellationDialog = onAutoRenewalCancel
+                                )
+                            }
                         }
                     }
                 }
+
+                // ================= CREDIT PLANS =================
+
+
+                if(uiState.planInfo?.is_vip_plan == 1) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Credit Plans",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 6.dp)
+                        )
+                        if (!uiState.creditPlans.isNullOrEmpty()) {
+                            Text(
+                                text = "Add Credit Plan",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = TheraColorTokens.Primary,
+                                modifier = Modifier
+                                    .border(
+                                        width = 1.dp,
+                                        color = TheraColorTokens.Primary,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                                    .throttledClickable { onAddCreditPlan() })
+                        }
+                    }
+
+                    if (uiState.creditPlans.isNullOrEmpty()) {
+                        EmptyPlanView(
+                            text = "No credit plan",
+                            buttonText = "Add Credit Plan",
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            onClick = onAddCreditPlan
+                        )
+                    } else {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            items(uiState.creditPlans) { plan ->
+                                CreditPackDialogCard(
+                                    plan,
+                                    autoRenewalToggle = {
+                                        onAutoRenewal(it)
+                                    },
+                                    showCancellationDialog = onAutoRenewalCancel
+                                )
+                            }
+                        }
+                    }
+                }
+
+
+                // ================= SESSION PACKS =================
+                if(uiState.planInfo?.is_session_plan == 1) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Session Plans",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 6.dp)
+                        )
+                        if (!uiState.sessionPacks.isNullOrEmpty()) {
+                            Text(
+                                text = "Add Session Plan",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp,
+                                color = TheraColorTokens.Primary,
+                                modifier = Modifier
+                                    .border(
+                                        width = 1.dp,
+                                        color = TheraColorTokens.Primary,
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                                    .throttledClickable { onAddSession() })
+                        }
+                    }
+
+                    if (uiState.sessionPacks.isNullOrEmpty()) {
+                        EmptyPlanView(
+                            text = "No session plan",
+                            buttonText = "Add Session Plan",
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            onClick = onAddSession
+                        )
+                    } else {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            items(uiState.sessionPacks) { plan ->
+                                SessionPackDialogCard(
+                                    plan,
+                                    onCheck = { showDialog = it.equipments },
+                                    autoRenewalToggle = { onAutoRenewal(it) },
+                                    showCancellationDialog = onAutoRenewalCancel
+                                )
+                            }
+                        }
+                    }
+
+                }
+
             }
         }
     }
@@ -610,7 +678,7 @@ fun CancelReasonDialog(
 @Preview(device = "spec:width=1280dp,height=800dp,dpi=240")
 @Composable
 fun PreviewPlanDataDialog() {
-    PlanDataScreen(uiState = PlanDataUiState(), onDismiss = {}, onAddSession = {}, onAddCredit = {},onAutoRenewalCancel= {_,_->}, onAutoRenewal = {
+    PlanDataScreen(uiState = PlanDataUiState(), onDismiss = {}, onAddSession = {}, onAddCreditPack = {},onAddCreditPlan = {},onAutoRenewalCancel= {_,_->}, onAutoRenewal = {
 
     }, onHome = {})
 }

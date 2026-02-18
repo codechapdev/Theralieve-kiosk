@@ -66,11 +66,12 @@ fun QuestionnaireDialog(
             dismissOnBackPress = true, dismissOnClickOutside = false
         )
     ) {
-        TheraBackgroundDialog {
+//        TheraBackgroundDialog {
             Surface(
                 shape = RoundedCornerShape(24.dp),
                 color = Color.White,
                 tonalElevation = 8.dp,
+                shadowElevation = 8.dp,
                 modifier = Modifier.width(620.dp) // kiosk width
             ) {
                 Column(
@@ -78,6 +79,15 @@ fun QuestionnaireDialog(
                 ) {
 
                     // ───────────── Title ─────────────
+
+                    Text(
+                        text = "If you have a membership or are an employee of this store, you can receive a great discount on the plan. Please enter your membership, club ID, or employee ID to get a marvelous discount.",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = TheraColorTokens.TextPrimary
+                    )
+
+                    Spacer(modifier = Modifier.height(28.dp))
+
                     Text(
                         text = "Are you a Member/Employee ?",
                         style = MaterialTheme.typography.titleLarge,
@@ -245,7 +255,7 @@ fun QuestionnaireDialog(
                     }
                 }
             }
-        }
+//        }
     }
 }
 

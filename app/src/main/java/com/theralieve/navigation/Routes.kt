@@ -25,8 +25,9 @@ object Routes {
     const val PROFILE = "profile"
 
     // Add-on (Session/Credit) purchase flows (NEW)
-    const val ADDON_PLAN_LIST_SESSION = "addon_plan_list_session"
-    const val ADDON_PLAN_LIST_CREDIT = "addon_plan_list_credit"
+    const val ADDON_PLAN_LIST_SESSION_PACK = "addon_plan_list_session_pack"
+    const val ADDON_PLAN_LIST_CREDIT_PACK = "addon_plan_list_credit_pack"
+    const val ADDON_PLAN_LIST_CREDIT_PLAN = "addon_plan_list_credit_plan"
 
     const val ADDON_PLAN_PURCHASE_PREVIEW = "addon_plan_purchase"
     const val ADDON_PLAN_DETAIL = "addon_plan_detail" // {type}

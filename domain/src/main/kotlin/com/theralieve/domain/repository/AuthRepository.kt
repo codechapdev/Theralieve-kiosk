@@ -8,7 +8,7 @@ import com.theralieve.domain.model.Plan
 
 interface AuthRepository {
     suspend fun loginCustomer(email: String, password: String): Result<Customer>
-    suspend fun loginMember(email: String, password: String): Result<Member>
+    suspend fun loginMember(email: String, password: String,customerId:String): Result<Member>
     suspend fun getPlans(
         customerId: String,
         membershipType: String? = null,

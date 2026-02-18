@@ -65,6 +65,7 @@ import com.theralieve.ui.components.TheraPrimaryButton
 import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.utils.EquipmentStatusHelper
 import com.theralieve.ui.utils.throttledClickable
+import com.theralieve.utils.formatPriceTo2Decimal
 import kotlinx.coroutines.launch
 
 /* -------------------------------------------------------------------------
@@ -686,9 +687,7 @@ fun SingleSelectionPanel(
                 Text("Price", color = Color.Black.copy(0.7f), fontSize = 18.sp)
                 Text(
                     if (price > 0.0 && duration > 0) "$${
-                        String.format(
-                            "%.2f", price
-                        )
+                        formatPriceTo2Decimal(price)
                     }" else "- - -",
                     color = Color.Black,
                     fontSize = 28.sp,

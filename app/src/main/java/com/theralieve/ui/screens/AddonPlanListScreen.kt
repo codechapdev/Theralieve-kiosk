@@ -1,7 +1,7 @@
 package com.theralieve.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -25,17 +24,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -46,26 +43,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.theralieve.R
 import com.theralieve.domain.model.LocationEquipment
 import com.theralieve.domain.model.Plan
-import com.theralieve.navigation.Routes
 import com.theralieve.ui.components.EquipmentCarousel
-import com.theralieve.ui.components.Header
-import com.theralieve.ui.components.NetworkImage
-import com.theralieve.ui.components.TheraGradientBackground
 import com.theralieve.ui.components.TheraPrimaryButton
-import com.theralieve.ui.components.TheraSecondaryButton
 import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.utils.throttledClickable
 import com.theralieve.utils.DiscountResult
@@ -83,544 +74,386 @@ fun AddonPlanListScreen(
     isForEmployee: Boolean,
     isLoading: Boolean,
     error: String?,
+    locationName: String?,
+    title: String?,
     onBack: () -> Unit,
+    onHome: () -> Unit,
     onSelectPlan: (Plan, Boolean) -> Unit,
     onViewDetail: (Plan) -> Unit
 ) {
 
-    var titleChanged by remember { mutableStateOf("Pricing Plans") }
-    var selectedFilter by remember { mutableStateOf("All") }
-
-    val filteredList = remember(selectedFilter, plans) {
-        if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
-            if (selectedFilter == "All") {
-                if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) titleChanged = "Pricing Plans"
-                plans
-            } else {
-                plans.filter { plan ->
-                    when (selectedFilter) {
-                        "Session Plan" -> {
-                            if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
-                                titleChanged = "Session Plans"
-                            }
-                            plan.detail?.plan_type?.contains("session", true) == true
-                        }
-
-                        "Credit Plan" -> {
-                            if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
-                                titleChanged = "Credit Plans"
-                            }
-                            plan.detail?.plan_type?.contains(
-                                "credit",
-                                true
-                            ) == true && plan.detail?.is_vip_plan != 1
-                        }
-
-                        else -> {
-                            if (type.lowercase() == Routes.ADDON_TYPE_CREDIT) {
-                                titleChanged = "Membership Plans"
-                            }
-                            plan.detail?.is_vip_plan == 1
-                        }
-                    }
-                }
-            }
-        } else {
-            plans
-        }
-    }
-
-
-    val title = when (type.lowercase()) {
-        Routes.ADDON_TYPE_SESSION -> "Session Plans"
-        Routes.ADDON_TYPE_CREDIT -> "Credit Plans"
-        else -> "Plans"
-    }
-
-    TheraGradientBackground {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            if (title == "Credit Plans") CreditMembershipGridHeader(
-                title = titleChanged, selectedFilter = selectedFilter, onFilterSelected = {
-                    selectedFilter = it
-                }, onBack = onBack, onHome = onBack
-            )
-            else Header(title, onBack = onBack, onHome = onBack)
-
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Loading...",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFF6F8FB), Color(0xFFE9EEF4)
                     )
-                }
-                return@TheraGradientBackground
-            }
-
-            if (error != null) {
-                Text(
-                    text = error,
-                    fontSize = 18.sp,
-                    color = TheraColorTokens.StrokeError,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
+            )
+    ) {
+
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        } else if (plans.isNullOrEmpty()) {
+            Text(
+                text = "No Plans Found",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+
+            PremiumHeaderAddOnList(
+                locationName ?: "", title ?: "", onHome = onHome, onBack = onBack
+            )
+            // Back button
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            val gridState = rememberLazyGridState()
+
+            val scope = rememberCoroutineScope()
+
+            // detect if we can scroll further down
+            val canScrollDown by remember {
+                derivedStateOf {
+                    gridState.canScrollForward
+                }
             }
 
-            if (filteredList.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+            ) {
+                LazyVerticalGrid(
+                    state = gridState,
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    Text(
-                        text = "No Plans Found",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                    )
-                }
-            } else {
 
-                val gridState = rememberLazyGridState()
-
-                val scope = rememberCoroutineScope()
-
-                // detect if we can scroll further down
-                val canScrollDown by remember {
-                    derivedStateOf {
-                        val layoutInfo = gridState.layoutInfo
-                        val totalItems = layoutInfo.totalItemsCount
-                        val lastVisibleItemIndex =
-                            layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-
-                        lastVisibleItemIndex < totalItems - 1
-                    }
-                }
-
-                Box(modifier = Modifier.fillMaxSize()) {
-
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(vertical = 8.dp)
-                    ) {
+                    if (!isLoading && plans.isNotEmpty()) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             EquipmentCarousel(locationEquipments)
                         }
-                        items(filteredList) { plan ->
-                            AddonPlanCard(
-                                plan = plan,
-                                isForEmployee = isForEmployee,
-                                vipDiscount = vipDiscount,
-                                onClick = { onSelectPlan(plan, it) },
-                                onViewDetail = {
-                                    onViewDetail(plan)
-                                })
-                        }
                     }
 
-                    if (canScrollDown) {
-                        FloatingActionButton(
-                            onClick = {
-                                scope.launch {
-                                    gridState.animateScrollBy(400f)
-                                }
-                            },
+                    items(plans) { plan ->
+
+                        var checked by remember { mutableStateOf(true) }
+
+                        Surface(
+                            shape = RoundedCornerShape(24.dp),
+                            color = Color.White,
                             modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 16.dp),
-                            containerColor = Color.White,
-                            elevation = FloatingActionButtonDefaults.elevation(
-                                defaultElevation = 8.dp
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowDownward,
-                                contentDescription = "Scroll Down",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
+                                .fillMaxWidth()
+                                .padding(vertical = 10.dp)
+                                .shadow(6.dp, RoundedCornerShape(24.dp))
+                                .throttledClickable { onSelectPlan(plan, checked) }) {
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(14.dp)
+                            ) {
+
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        modifier = Modifier.weight(1f),
+                                        text = plan.detail?.plan_name?.uppercase() ?: "",
+                                        style = MaterialTheme.typography.titleLarge.copy(
+                                            fontWeight = FontWeight.Bold, fontSize = 22.sp
+                                        ),
+                                        color = Color.Black,
+                                        maxLines = 2,
+                                        minLines = 2
+                                    )
+
+                                    if (plan.detail?.plan_type?.contains("session", true) == true) {
+
+                                        val text = com.theralieve.utils.calculateValidity(
+                                            plan.detail?.frequency, plan.detail?.frequency_limit
+                                        ).takeIf { it.isNotEmpty() } ?: "N/A"
+
+                                        Text(
+                                            text = text,
+                                            style = MaterialTheme.typography.headlineMedium.copy(
+                                                fontWeight = FontWeight.SemiBold, fontSize = 22.sp
+                                            ),
+                                            color = Color.Black,
+                                            maxLines = 2,
+                                            minLines = 2
+                                        )
+
+                                    } else {
+                                        Text(
+                                            text = "${plan.detail?.points} Credits",
+                                            style = MaterialTheme.typography.headlineMedium.copy(
+                                                fontWeight = FontWeight.SemiBold, fontSize = 22.sp
+                                            ),
+                                            color = Color.Black,
+                                            maxLines = 2,
+                                            minLines = 2
+                                        )
+                                    }
+
+                                }
+
+                                // Benefits
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    plan.detail?.bullet_points?.split(",")?.take(4)
+                                        ?.forEach { feature ->
+                                            Text(
+                                                text = "• ${feature.trim()}",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontSize = 15.sp,
+                                                color = Color.DarkGray
+                                            )
+                                        }
+                                }
+
+                                val discountResult = if (plan.detail?.is_vip_plan == 1) {
+                                    DiscountResult(
+                                        originalPrice = (plan.detail?.plan_price
+                                            ?: "0.0").toDoubleOrNull() ?: 0.0,
+                                        discountedPrice = (plan.detail?.plan_price
+                                            ?: "0.0").toDoubleOrNull() ?: 0.0,
+                                        discountPercentage = "",
+                                        hasDiscount = false
+                                    )
+                                } else {
+                                    // Discount Section
+                                    calculateDiscount(
+                                        planPrice = plan.detail?.plan_price,
+                                        discount = plan.detail?.discount,
+                                        discountType = plan.detail?.discount_type,
+                                        discountValidity = plan.detail?.discount_validity,
+                                        employeeDiscount = plan.detail?.employee_discount,
+                                        isForEmployee = isForEmployee,
+                                        appliedVipDiscount = vipDiscount
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+
+
+                                if (discountResult.hasDiscount) {
+
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+//                                        Text(
+//                                            text = "Save ${getCurrencySymbol(plan.detail?.currency)}${
+//                                                DecimalFormat("0.##").format(
+//                                                    discountResult.originalPrice - discountResult.discountedPrice
+//                                                )
+//                                            }", style = MaterialTheme.typography.bodyMedium.copy(
+//                                                fontWeight = FontWeight.SemiBold
+//                                            ), color = TheraColorTokens.Primary
+//                                        )
+
+
+                                        Text(
+                                            text = "${getCurrencySymbol(plan.detail?.currency)}${
+                                                DecimalFormat("0.##").format(discountResult.originalPrice)
+                                            }",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color.Gray,
+                                            textDecoration = TextDecoration.LineThrough
+                                        )
+
+
+                                        Text(
+                                            text = "${getCurrencySymbol(plan.detail?.currency)}${
+                                                DecimalFormat("0.##").format(discountResult.discountedPrice)
+                                            }",
+                                            style = MaterialTheme.typography.headlineMedium.copy(
+                                                fontWeight = FontWeight.ExtraBold, fontSize = 32.sp
+                                            ),
+                                            color = Color.Black
+                                        )
+
+                                    }
+
+
+                                } else {
+
+                                    Text(
+                                        text = "${getCurrencySymbol(plan.detail?.currency)}${plan.detail?.plan_price}",
+                                        style = MaterialTheme.typography.headlineMedium.copy(
+                                            fontWeight = FontWeight.ExtraBold, fontSize = 32.sp
+                                        ),
+                                        color = Color.Black
+                                    )
+                                }
+
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                // CTA
+                                TheraPrimaryButton(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(52.dp),
+                                    label = stringResource(id = R.string.action_enroll_now),
+                                    onClick = {
+                                        onSelectPlan(plan, checked)
+                                    })
+
+                                TextButton(
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    onClick = { onViewDetail(plan) }) {
+                                    Text(
+                                        text = stringResource(id = R.string.action_view_details),
+                                        color = TheraColorTokens.Primary
+                                    )
+                                }
+                            }
                         }
+
+
                     }
                 }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-    }
-}
 
-@Composable
-private fun AddonPlanCard(
-    plan: Plan,
-    isForEmployee: Boolean,
-    vipDiscount: String,
-    onClick: (Boolean) -> Unit,
-    onViewDetail: (Plan) -> Unit,
-) {
-
-    var checked by remember { mutableStateOf(true) }
-
-    Surface(
-        shape = MaterialTheme.shapes.extraLarge,
-        tonalElevation = 4.dp,
-        modifier = Modifier
-            .throttledClickable {
-                onClick(checked)
-            }
-            .fillMaxWidth()) {
-        Box {
-            Column(
-                modifier = Modifier
-                    .background(TheraColorTokens.Background)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                NetworkImage(
-                    imageUrl = plan.detail?.image,
-                    contentDescription = plan.detail?.plan_name,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(0.6f),
-                        text = plan.detail?.plan_name ?: "",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontSize = 22.sp,
-                        color = Color.Black,
-                        maxLines = 2,
-                        minLines = 2
-                    )
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(0.5f), horizontalAlignment = Alignment.End
-                    ) {
-                        val discountResult = if (plan.detail?.is_vip_plan == 1) {
-                            DiscountResult(
-                                originalPrice = plan.detail?.plan_price?.toDouble() ?: 0.0,
-                                discountedPrice = plan.detail?.plan_price?.toDouble() ?: 0.0,
-                                discountPercentage = "",
-                                hasDiscount = false
-                            )
-                        } else {
-                            calculateDiscount(
-                                planPrice = plan.detail?.plan_price,
-                                discount = plan.detail?.discount,
-                                discountType = plan.detail?.discount_type,
-                                discountValidity = plan.detail?.discount_validity,
-                                employeeDiscount = plan.detail?.employee_discount,
-                                isForEmployee = isForEmployee,
-                                appliedVipDiscount = vipDiscount
-                            )
-                        }
-
-                        val currency = getCurrencySymbol(plan.detail?.currency)
-
-                        if (discountResult.hasDiscount) {
-                            Text(
-                                text = "$currency${
-                                    DecimalFormat("0.##").format(discountResult.originalPrice)
-                                }",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.Gray,
-                                textDecoration = TextDecoration.LineThrough,
-                                fontSize = 16.sp,
-                            )
-                            Text(
-                                text = "$currency${
-                                    DecimalFormat("0.##").format(discountResult.discountedPrice)
-                                }",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = TheraColorTokens.Primary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp,
-                            )
-                        } else {
-                            Text(
-                                text = "$currency${plan.detail?.plan_price ?: ""}",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = TheraColorTokens.Primary,
-                            )
-                        }
-                    }
-                }
-
-                if (plan.detail?.plan_type == "Session Pack") {
-                    val text = com.theralieve.utils.calculateValidity(
-                        plan.detail?.frequency, plan.detail?.frequency_limit
-                    ).takeIf { it.isNotEmpty() } ?: "N/A"
-                    Text(
-                        text = "Session Pack : $text",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 18.sp,
-                        color = Color.Black
-                    )
-                } else {
-                    Text(
-                        text = "Credit Pack : ${plan.detail?.points}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 18.sp,
-                        color = Color.Black
-                    )
-                }
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
-                    plan.detail?.bullet_points?.split(",")?.take(4)?.forEach { feature ->
-                        Text(
-                            text = "• ${feature.trim()}",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontSize = 16.sp,
-                            color = Color.Black
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Text(
-                    text = AnnotatedString.fromHtml(plan.detail?.plan_desc ?: ""),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 18.sp,
-                    color = Color.Black,
-                    maxLines = 1
-                )
-
-                /*Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-                    Text(
-                        text = "Auto Renew :",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
-
-                    IosLikeSwitch(
-                        checked = checked,
-                        onCheckedChange = {
-                            if((plan.detail?.is_vip_plan?:0) != 1)
-                                checked = it
-                        }
-                    )
-
-                }*/
-
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TheraSecondaryButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(70.dp),
-                        label = stringResource(id = R.string.action_view_details),
+                if (canScrollDown) {
+                    FloatingActionButton(
                         onClick = {
-                            onViewDetail(plan)
-                        })
-                    TheraPrimaryButton(
+                            scope.launch {
+                                gridState.animateScrollBy(400f)
+                            }
+                        },
                         modifier = Modifier
-                            .weight(1f)
-                            .height(70.dp),
-                        label = stringResource(id = R.string.action_enroll_now),
-                        onClick = {
-                            onClick(checked)
-                        })
-                }
-
-            }
-
-            if ((plan.detail?.is_vip_plan ?: 0) == 1) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(12.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(
-                                    Color(0xFFFFD700), // Gold
-                                    Color(0xFFFFA000)  // Orange-gold
-                                )
-                            )
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 16.dp),
+                        containerColor = Color.White,
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 8.dp
                         )
-                        .padding(horizontal = 14.dp, vertical = 6.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Text(
-                            text = "VIP",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
+                            imageVector = Icons.Default.ArrowDownward,
+                            contentDescription = "Scroll Down",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
+
                 }
+
             }
 
         }
     }
+
+
 }
 
-
 @Composable
-fun CreditMembershipGridHeader(
+private fun PremiumHeaderAddOnList(
+    locationName: String,
     title: String,
-    selectedFilter: String,
-    onFilterSelected: (String) -> Unit,
-    onBack: () -> Unit,
+    onBack: () -> Unit = {},
     onHome: () -> Unit = {},
 ) {
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-//            .background(Color(0xFFE8F5FE)) // Light wellness blue
-            .padding(vertical = 16.dp),
-    ) {
-
-        Row(
-            modifier = Modifier, verticalAlignment = Alignment.Top
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp) // large for kiosk touch
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .throttledClickable { onBack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color(0xFF1A73E8), // Theralieve Blue
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-        }
-
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineLarge,
-            )
-
-            Text(
-                text = "Best Values... Cancel Anytime",
-                style = MaterialTheme.typography.titleLarge,
-            )
-        }
-        // Title
-
-
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CreditFilterDropdown(
-                selectedFilter = selectedFilter, onFilterSelected = onFilterSelected
-            )
-            Box(
-                modifier = Modifier
-                    .size(56.dp) // large for kiosk touch
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .throttledClickable { onHome() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Home,
-                    contentDescription = "Back",
-                    tint = Color(0xFF1A73E8), // Theralieve Blue
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-        }
-
-    }
-
-
-}
-
-@Composable
-fun CreditFilterDropdown(
-    selectedFilter: String, onFilterSelected: (String) -> Unit
-) {
-    val filters = listOf("All", "Credit Plan", "Membership Plan")
-    var expanded by remember { mutableStateOf(false) }
-
-    Box {
-        // Filter button
+    Surface(shadowElevation = 0.dp) {
         Box(
             modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.White)
-                .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
-                .throttledClickable { expanded = true }
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            contentAlignment = Alignment.Center) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = selectedFilter, color = Color.Black, fontSize = 16.sp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
+                .fillMaxWidth()
+                .height(130.dp)
+                .background(Color(0xFF2F6497))
+                .padding(horizontal = 24.dp)
+        ) {
+            Row(
+                modifier = Modifier.align(Alignment.CenterStart),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .size(56.dp) // large for kiosk touch
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .throttledClickable { onBack() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF1A73E8), // Theralieve Blue
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
                     contentDescription = null,
-                    tint = Color.Black
+                    modifier = Modifier.height(60.dp)
+                )
+
+                Text(
+                    text = "${locationName.uppercase()}",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold, fontSize = 22.sp
+                    ),
+                    color = Color.White
                 )
             }
-        }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.background(Color.White)
-        ) {
-            filters.forEach { filter ->
-                DropdownMenuItem(text = {
-                    Text(
-                        text = filter, color = Color.Black
+            Row(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .background(
+                            color = Color(0xFF1E88E5), shape = RoundedCornerShape(16.dp)
+                        )
+                        .padding(horizontal = 24.dp, vertical = 14.dp),
+                    text = title.uppercase(),
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(56.dp) // large for kiosk touch
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .throttledClickable { onHome() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Home,
+                        contentDescription = "Back",
+                        tint = Color(0xFF1A73E8), // Theralieve Blue
+                        modifier = Modifier.size(32.dp)
                     )
-                }, onClick = {
-                    onFilterSelected(filter)
-                    expanded = false
-                })
+                }
             }
         }
     }
 }
+
+
 

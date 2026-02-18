@@ -9,8 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.DecimalFormat
 
 
+fun formatPriceTo2Decimal(price:Any?):String{
+   return DecimalFormat("0.##").format(price)
+}
 
 fun Modifier.trackUserInteraction(
     onUserInteraction: () -> Unit

@@ -102,11 +102,12 @@ class AuthRepositoryImpl @Inject constructor(
     /**
      * Member login
      */
-    override suspend fun loginMember(email: String, password: String): Result<Member> {
+    override suspend fun loginMember(email: String, password: String,customerId:String): Result<Member> {
         return try {
             val response = apiService.loginMember(
                 email = email.toRequestBody(MultipartBody.FORM),
-                password = password.toRequestBody(MultipartBody.FORM)
+                password = password.toRequestBody(MultipartBody.FORM),
+                customerId = customerId.toRequestBody(MultipartBody.FORM)
             )
 
             Log.d("AuthRepositoryImpl", "loginMember ${response.isSuccessful}")

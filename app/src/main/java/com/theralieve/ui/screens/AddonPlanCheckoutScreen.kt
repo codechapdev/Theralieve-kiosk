@@ -41,6 +41,7 @@ import com.theralieve.ui.viewmodel.ReaderUiState
 import com.theralieve.utils.DiscountResult
 //import com.theralieve.utils.StripeCheckoutCoordinator
 import com.theralieve.utils.calculateDiscount
+import com.theralieve.utils.formatPriceTo2Decimal
 import com.theralieve.utils.getCurrencySymbol
 
 @Composable
@@ -179,7 +180,7 @@ fun AddonPlanCheckoutScreen(
             )
 
             Text(
-                text = "$currency${String.format("%.2f", total)}",
+                text = "$currency${formatPriceTo2Decimal(total)}",
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontSize = 64.sp,
                     fontWeight = FontWeight.Bold

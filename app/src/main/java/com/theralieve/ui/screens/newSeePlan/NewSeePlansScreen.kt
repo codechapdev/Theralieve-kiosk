@@ -126,22 +126,6 @@ fun NewSeePlansScreen(
                         onClick = onSingleClick
                     )
 
-                    if(uiState.hasSessionPlans) {
-                        PricingCard(
-                            modifier = Modifier.weight(1f),
-                            icon = Icons.Default.Inventory2,
-                            titlePrefix = "Session ",
-                            titleHighlight = "Packs",
-                            bullets = listOf(
-                                "SAVE on each session used",
-                                "Choose your points",
-                                "No expiration",
-                                "Use points on any therapy"
-                            ),
-                            onClick = onSessionPackClick
-                        )
-                    }
-
                     if(uiState.hasCreditPacks) {
                         PricingCard(
                             modifier = Modifier.weight(1f),
@@ -172,6 +156,22 @@ fun NewSeePlansScreen(
                                 "Best value"
                             ),
                             onClick = onPlanClick
+                        )
+                    }
+
+                    if(uiState.hasSessionPlans) {
+                        PricingCard(
+                            modifier = Modifier.weight(1f),
+                            icon = Icons.Default.Inventory2,
+                            titlePrefix = "Session ",
+                            titleHighlight = "Packs",
+                            bullets = listOf(
+                                "Discounted price",
+                                "Choose your session",
+                                "No expiry",
+                                "Therapy-specific sessions"
+                            ),
+                            onClick = onSessionPackClick
                         )
                     }
                 }

@@ -61,6 +61,7 @@ import com.theralieve.ui.screens.singleSession.CheckoutSingleSessionScreen
 import com.theralieve.ui.screens.singleSession.SingleSelectedEquipmentScreen
 import com.theralieve.ui.screens.singleSession.viewModel.CheckoutSingleSessionViewModel
 import com.theralieve.ui.theme.TheraColorTokens
+import com.theralieve.ui.viewmodel.AddonCreditPacksViewModel
 import com.theralieve.ui.viewmodel.AddonCreditPlansViewModel
 import com.theralieve.ui.viewmodel.AddonPlanCheckoutViewModel
 import com.theralieve.ui.viewmodel.AddonPlanDetailViewModel
@@ -77,7 +78,6 @@ import com.theralieve.ui.viewmodel.RegistrationViewModel
 import com.theralieve.ui.viewmodel.WelcomeViewModel
 import com.theralieve.utils.PaymentLauncherProvider
 import kotlinx.coroutines.launch
-import okhttp3.Route
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -123,9 +123,9 @@ fun NavGraph(
             })
         }
 
-        composable(Routes.NEW_SEE_PLAN){
+        composable(Routes.NEW_SEE_PLAN) {
 
-            val viewModel : NewSeePlanViewModel = hiltViewModel()
+            val viewModel: NewSeePlanViewModel = hiltViewModel()
             val locationEquipments by viewModel.locationEquipments.collectAsStateWithLifecycle()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -149,8 +149,7 @@ fun NavGraph(
                 },
                 onBack = {
                     navController.popBackStack()
-                }
-            )
+                })
         }
 
 
@@ -271,8 +270,7 @@ fun NavGraph(
                     },
                     onDialogConsumed = {
                         equipmentListViewModel.hideDialog()
-                    }
-                )
+                    })
             }
         }
 
@@ -346,12 +344,11 @@ fun NavGraph(
                 },
                 onCreditScreen = {
                     Routes.forCreditPurchase = true
-                    navController.navigate(Routes.ADDON_PLAN_LIST_CREDIT)
+                    navController.navigate(Routes.ADDON_PLAN_LIST_CREDIT_PACK)
                 },
-                onDialogConsumed ={
+                onDialogConsumed = {
                     equipmentListViewModel.hideDialog()
-                }
-            )
+                })
         }
 
 
@@ -362,9 +359,11 @@ fun NavGraph(
             PlanDataScreen(uiState = uiState, onDismiss = {
                 navController.popBackStack()
             }, onAddSession = {
-                navController.navigate(Routes.ADDON_PLAN_LIST_SESSION)
-            }, onAddCredit = {
-                navController.navigate(Routes.ADDON_PLAN_LIST_CREDIT)
+                navController.navigate(Routes.ADDON_PLAN_LIST_SESSION_PACK)
+            }, onAddCreditPack = {
+                navController.navigate(Routes.ADDON_PLAN_LIST_CREDIT_PACK)
+            }, onAddCreditPlan = {
+                navController.navigate(Routes.ADDON_PLAN_LIST_CREDIT_PLAN)
             }, onAutoRenewal = {
                 viewModel.updateRenewal(it)
             }, onAutoRenewalCancel = { planId, reason ->
@@ -695,7 +694,7 @@ fun NavGraph(
         }
 
 
-        composable(Routes.CREDIT_PACK_LIST){
+        composable(Routes.CREDIT_PACK_LIST) {
             val viewModel: CreditPackViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -728,7 +727,7 @@ fun NavGraph(
                     navController.navigate(route)
 //                    navController.navigate("${Routes.MEMBERSHIP_DETAIL}/${plan.detail?.id}")
                 },
-                onBack= {
+                onBack = {
                     navController.popBackStack()
                 },
                 onHome = {
@@ -763,7 +762,7 @@ fun NavGraph(
             )
         }
 
-        composable(Routes.CREDIT_PLAN_LIST){
+        composable(Routes.CREDIT_PLAN_LIST) {
             val viewModel: CreditPlanViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -796,7 +795,7 @@ fun NavGraph(
                     navController.navigate(route)
 //                    navController.navigate("${Routes.MEMBERSHIP_DETAIL}/${plan.detail?.id}")
                 },
-                onBack ={
+                onBack = {
                     navController.popBackStack()
                 },
                 onHome = {
@@ -831,7 +830,7 @@ fun NavGraph(
             )
         }
 
-        composable(Routes.SESSION_PACK_LIST){
+        composable(Routes.SESSION_PACK_LIST) {
             val viewModel: SessionPackListViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -864,7 +863,7 @@ fun NavGraph(
                     navController.navigate(route)
 //                    navController.navigate("${Routes.MEMBERSHIP_DETAIL}/${plan.detail?.id}")
                 },
-                onBack ={
+                onBack = {
                     navController.popBackStack()
                 },
                 onHome = {
@@ -1384,13 +1383,15 @@ fun NavGraph(
         }
 
         composable(
-            route = Routes.ADDON_PLAN_LIST_SESSION
+            route = Routes.ADDON_PLAN_LIST_SESSION_PACK
         ) { backStackEntry ->
 
             val vm: AddonSessionPlansViewModel = hiltViewModel()
             val uiState by vm.uiState.collectAsStateWithLifecycle()
 
             AddonPlanListScreen(
+                title = "SESSION PACKS",
+                locationName=uiState.locationName,
                 type = "session",
                 plans = uiState.plans,
                 locationEquipments = uiState.locationEquipments,
@@ -1407,6 +1408,11 @@ fun NavGraph(
                     )
                     navController.navigate(route)
                 },
+                onHome = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                },
                 onViewDetail = {
                     navController.navigate("${Routes.ADDON_PLAN_DETAIL}/${it.detail?.id}")
                 })
@@ -1414,14 +1420,15 @@ fun NavGraph(
 
 
         composable(
-            route = Routes.ADDON_PLAN_LIST_CREDIT
+            route = Routes.ADDON_PLAN_LIST_CREDIT_PACK
         ) { backStackEntry ->
-
-            val vm: AddonCreditPlansViewModel = hiltViewModel()
+            val vm: AddonCreditPacksViewModel = hiltViewModel()
             val uiState by vm.uiState.collectAsStateWithLifecycle()
 
             AddonPlanListScreen(
+                title = "CREDIT PACKS",
                 type = "credit",
+                locationName = uiState.locationName,
                 plans = uiState.plans,
                 locationEquipments = uiState.locationEquipments,
                 vipDiscount = uiState.userProfile?.vipDiscount ?: "0",
@@ -1436,6 +1443,49 @@ fun NavGraph(
                         isRenew = isRenew
                     )
                     navController.navigate(route)
+                },
+                onHome={
+
+                        navController.navigate(Routes.WELCOME) {
+                            popUpTo(0) { inclusive = true }
+                        }
+
+                },
+                onViewDetail = {
+                    navController.navigate("${Routes.ADDON_PLAN_DETAIL}/${it.detail?.id}")
+                })
+        }
+
+        composable(
+            route = Routes.ADDON_PLAN_LIST_CREDIT_PLAN
+        ) { backStackEntry ->
+
+            val vm: AddonCreditPlansViewModel = hiltViewModel()
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
+
+            AddonPlanListScreen(
+                title="CREDIT PLANS",
+                type = "credit",
+                locationName=uiState.locationName,
+                plans = uiState.plans,
+                locationEquipments = uiState.locationEquipments,
+                vipDiscount = uiState.userProfile?.vipDiscount ?: "0",
+                isForEmployee = uiState.isForEmployee,
+                isLoading = uiState.isLoading,
+                error = uiState.error,
+                onBack = { navController.popBackStack() },
+                onSelectPlan = { plan, isRenew ->
+                    val route = Routes.addonPlanCheckoutPreviewRoute(
+                        planId = plan.detail?.id?.toString() ?: "",
+                        isForEmployee = uiState.isForEmployee,
+                        isRenew = isRenew
+                    )
+                    navController.navigate(route)
+                },
+                onHome = {
+                    navController.navigate(Routes.WELCOME) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 },
                 onViewDetail = {
                     navController.navigate("${Routes.ADDON_PLAN_DETAIL}/${it.detail?.id}")

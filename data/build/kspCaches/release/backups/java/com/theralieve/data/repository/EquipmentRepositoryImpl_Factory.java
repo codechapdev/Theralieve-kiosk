@@ -2,6 +2,7 @@ package com.theralieve.data.repository;
 
 import com.theralieve.data.api.ApiService;
 import com.theralieve.data.local.TheraJetDatabase;
+import com.theralieve.data.storage.PreferenceManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.Provider;
@@ -30,24 +31,29 @@ public final class EquipmentRepositoryImpl_Factory implements Factory<EquipmentR
 
   private final Provider<TheraJetDatabase> databaseProvider;
 
+  private final Provider<PreferenceManager> preferenceManagerProvider;
+
   private EquipmentRepositoryImpl_Factory(Provider<ApiService> apiServiceProvider,
-      Provider<TheraJetDatabase> databaseProvider) {
+      Provider<TheraJetDatabase> databaseProvider,
+      Provider<PreferenceManager> preferenceManagerProvider) {
     this.apiServiceProvider = apiServiceProvider;
     this.databaseProvider = databaseProvider;
+    this.preferenceManagerProvider = preferenceManagerProvider;
   }
 
   @Override
   public EquipmentRepositoryImpl get() {
-    return newInstance(apiServiceProvider.get(), databaseProvider.get());
+    return newInstance(apiServiceProvider.get(), databaseProvider.get(), preferenceManagerProvider.get());
   }
 
   public static EquipmentRepositoryImpl_Factory create(Provider<ApiService> apiServiceProvider,
-      Provider<TheraJetDatabase> databaseProvider) {
-    return new EquipmentRepositoryImpl_Factory(apiServiceProvider, databaseProvider);
+      Provider<TheraJetDatabase> databaseProvider,
+      Provider<PreferenceManager> preferenceManagerProvider) {
+    return new EquipmentRepositoryImpl_Factory(apiServiceProvider, databaseProvider, preferenceManagerProvider);
   }
 
   public static EquipmentRepositoryImpl newInstance(ApiService apiService,
-      TheraJetDatabase database) {
-    return new EquipmentRepositoryImpl(apiService, database);
+      TheraJetDatabase database, PreferenceManager preferenceManager) {
+    return new EquipmentRepositoryImpl(apiService, database, preferenceManager);
   }
 }

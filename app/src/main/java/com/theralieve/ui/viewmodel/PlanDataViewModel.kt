@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.theralieve.data.storage.PreferenceManager
 import com.theralieve.domain.usecase.CancelRenewalUseCase
 import com.theralieve.domain.usecase.GetCurrentPlanUseCase
+import com.theralieve.domain.usecase.GetPlanInfoUseCase
 import com.theralieve.domain.usecase.UpdateRenewalUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ class PlanDataViewModel @Inject constructor(
     private val currentPlanUseCase: GetCurrentPlanUseCase,
     private val updateRenewalUseCase: UpdateRenewalUseCase,
     private val cancelRenewalUseCase: CancelRenewalUseCase,
+    private val getPlanInfoUseCase: GetPlanInfoUseCase,
     private  val  preferenceManager: PreferenceManager
     ) : ViewModel() {
 
@@ -31,11 +33,14 @@ class PlanDataViewModel @Inject constructor(
             val plan = currentPlanUseCase(
                 (preferenceManager.getMemberId()?:"0").toInt()
             )
+            val planInfo = getPlanInfoUseCase().getOrNull()
             _uiState.value = _uiState.value.copy(
                 isLoading = false,
-                creditPlan = plan.getOrNull()?.creditplan,
-                sessionPlan = plan.getOrNull()?.sessiondata,
-                error = plan.exceptionOrNull()?.message
+                creditPlans = plan.getOrNull()?.creditplan?.filter { it.is_vip_plan == 1 },
+                creditPacks = plan.getOrNull()?.creditplan?.filter { it.is_vip_plan != 1 },
+                sessionPacks = plan.getOrNull()?.sessiondata,
+                error = plan.exceptionOrNull()?.message,
+                planInfo = planInfo
             )
         }
     }

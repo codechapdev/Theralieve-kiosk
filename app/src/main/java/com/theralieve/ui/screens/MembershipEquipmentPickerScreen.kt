@@ -72,6 +72,7 @@ import com.theralieve.ui.components.TheraSecondaryButton
 import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.utils.throttledClickable
 import com.theralieve.utils.calculateDiscount
+import com.theralieve.utils.formatPriceTo2Decimal
 import com.theralieve.utils.getCurrencySymbol
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
@@ -310,7 +311,7 @@ fun MembershipGridScreen(
                                             } else {
                                                 // Show regular price
                                                 Text(
-                                                    text = "${getCurrencySymbol(plan.detail?.currency)}${plan.detail?.plan_price}",
+                                                    text = "${getCurrencySymbol(plan.detail?.currency)}${formatPriceTo2Decimal(plan.detail?.plan_price)}",
                                                     style = MaterialTheme.typography.titleLarge,
                                                     color = TheraColorTokens.Primary,
                                                 )

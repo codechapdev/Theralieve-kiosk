@@ -67,6 +67,7 @@ import com.theralieve.ui.screens.creditSession.EquipmentItemCard
 import com.theralieve.ui.screens.creditSession.HorizontalSelectionPanel
 import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.utils.throttledClickable
+import com.theralieve.utils.formatPriceTo2Decimal
 
 /* -------------------------------------------------------------------------
  * DATA MODELS
@@ -647,7 +648,7 @@ fun EquipmentListScreen(
                                         } else if (!isMember) {
                                             Text(
                                                 text = if (isMember) "${totalPoints} Points"
-                                                else "$ ${totalPrice}",
+                                                else "$ ${formatPriceTo2Decimal(totalPrice)}",
                                                 fontSize = 22.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = TheraColorTokens.PrimaryDark
@@ -855,9 +856,7 @@ fun HorizontalSelectionPanel(
                     Text("Price", color = Color.Black.copy(0.7f), fontSize = 18.sp)
                     Text(
                         if (price > 0.0 && duration > 0) "$${
-                            String.format(
-                                "%.2f", price
-                            )
+                            formatPriceTo2Decimal(price)
                         }" else "- - -",
                         color = Color.Black,
                         fontSize = 28.sp,

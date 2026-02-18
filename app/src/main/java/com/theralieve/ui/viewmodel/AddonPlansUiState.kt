@@ -6,6 +6,7 @@ import com.theralieve.domain.model.UserProfile
 
 data class AddonPlansUiState(
     val type: String = "",
+    val locationName: String = "",
     val plans: List<Plan> = emptyList(),
     val locationEquipments: List<LocationEquipment> = emptyList(),
     val userProfile: UserProfile? = null,

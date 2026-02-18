@@ -61,6 +61,7 @@ import com.theralieve.ui.viewmodel.ReaderUiState
 //import com.theralieve.utils.StripeCheckoutCoordinator
 import com.theralieve.utils.getCurrencySymbol
 import com.theralieve.utils.calculateDiscount
+import com.theralieve.utils.formatPriceTo2Decimal
 
 
 @Composable
@@ -230,7 +231,7 @@ fun CheckoutScreen(
     if (uiState.showSuccessDialog && currentPlan == null) {
         SuccessDialog(
             title = "Payment Successful!",
-            message = "Your payment of $currencySymbol${String.format("%.2f", total)} has been processed successfully. Please proceed to your selected equipment unit.",
+            message = "Your payment of $currencySymbol${formatPriceTo2Decimal(total)} has been processed successfully. Please proceed to your selected equipment unit.",
             onDismiss = {
                 viewModel.dismissSuccessDialog()
                 onPayNow()
@@ -304,7 +305,7 @@ fun CheckoutScreen(
                         }*/
 
                         Text(
-                            text = "$currencySymbol${String.format("%.2f", total)}",
+                            text = "$currencySymbol${formatPriceTo2Decimal(total)}",
                             style = MaterialTheme.typography.displayLarge.copy(
                                 fontSize = when {
                                     screenHeight > 1000 -> 64.sp
