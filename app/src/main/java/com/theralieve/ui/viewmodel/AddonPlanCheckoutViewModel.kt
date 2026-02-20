@@ -368,7 +368,7 @@ class AddonPlanCheckoutViewModel @Inject constructor(
             override fun onTransactionSuccess(transactionResult: JSONObject?) {
                 Log.d(TAG, "Payment Success: $transactionResult")
                 val tnxId =try {
-                    val tnId = transactionResult?.optString("transId")
+                    val tnId = transactionResult?.optString("refId")
                     if(tnId.isNullOrEmpty()) System.currentTimeMillis().toString() else tnId
                 } catch (e: Exception) {
                     System.currentTimeMillis().toString()

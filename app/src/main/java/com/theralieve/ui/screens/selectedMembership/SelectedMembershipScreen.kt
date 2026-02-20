@@ -11,40 +11,32 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.theralieve.R
 import com.theralieve.domain.model.Plan
-import com.theralieve.ui.components.NetworkImage
 import com.theralieve.ui.components.TheraGradientBackground
 import com.theralieve.ui.components.TheraPrimaryButton
 import com.theralieve.ui.theme.TheraColorTokens
@@ -57,33 +49,35 @@ import java.text.DecimalFormat
 fun SelectedMembershipScreen(
     plan: Plan?,
     isForEmployee: Boolean,
+    vipDiscount: String,
     onBack: () -> Unit,
-    onHome :() -> Unit,
+    onHome: () -> Unit,
     onPurchase: (Plan?) -> Unit
 ) {
     val detail = plan?.detail
-    val sliderImages = listOf(
+    listOf(
         R.drawable.slider3,
 //        R.drawable.slider4
     )
 
     TheraGradientBackground {
-        Column(modifier = Modifier.fillMaxSize().padding(vertical = 12.dp)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(vertical = 12.dp)) {
 
             // 🔹 TOP BAR
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp,vertical = 26.dp)
+                    .padding(horizontal = 24.dp, vertical = 26.dp)
             ) {
                 Box(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(CircleShape)
                         .background(Color.White)
-                        .throttledClickable { onBack() },
-                    contentAlignment = Alignment.Center
+                        .throttledClickable { onBack() }, contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -97,7 +91,10 @@ fun SelectedMembershipScreen(
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text("Affordable Wellness", style = MaterialTheme.typography.headlineMedium)
-                    Text("Best Values • Cancel Anytime", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Best Values • Cancel Anytime",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -182,7 +179,8 @@ fun SelectedMembershipScreen(
                             discountType = detail?.discount_type,
                             discountValidity = detail?.discount_validity,
                             employeeDiscount = detail?.employee_discount,
-                            isForEmployee = isForEmployee
+                            isForEmployee = isForEmployee,
+                            appliedVipDiscount = vipDiscount
                         )
 
                         // 💰 PRICE SECTION
@@ -199,7 +197,7 @@ fun SelectedMembershipScreen(
                                     // Original price (striked)
                                     Text(
                                         text = "${getCurrencySymbol(detail?.currency)}${
-                                            DecimalFormat("0.##").format(discountResult.originalPrice)
+                                            DecimalFormat("0.00").format(discountResult.originalPrice)
                                         }",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = Color.Gray,
@@ -209,7 +207,7 @@ fun SelectedMembershipScreen(
                                     // Discounted price
                                     Text(
                                         text = "${getCurrencySymbol(detail?.currency)}${
-                                            DecimalFormat("0.##").format(discountResult.discountedPrice)
+                                            DecimalFormat("0.00").format(discountResult.discountedPrice)
                                         }",
                                         style = MaterialTheme.typography.headlineMedium,
                                         color = TheraColorTokens.Primary,
@@ -219,7 +217,7 @@ fun SelectedMembershipScreen(
                                     // 💸 Savings info
                                     Text(
                                         text = "You save ${getCurrencySymbol(detail?.currency)}${
-                                            DecimalFormat("0.##").format(
+                                            DecimalFormat("0.00").format(
                                                 discountResult.originalPrice - discountResult.discountedPrice
                                             )
                                         } (${discountResult.discountPercentage})",
@@ -240,19 +238,41 @@ fun SelectedMembershipScreen(
 
                         }
 
+                        if((vipDiscount.toIntOrNull()?:0)>0) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    append("You are being charged a prorated amount of ")
+                                    pushStyle(
+                                        SpanStyle(
+                                            color = TheraColorTokens.Primary,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    )
+                                    append("$${plan?.detail?.billing_price} ")
+                                    pop()
+                                    append(" for the current month. Regular billing will start from the ")
+                                    pushStyle(
+                                        SpanStyle(
+                                            color = TheraColorTokens.Primary,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    )
+                                    append("1st of next month.")
+                                    pop()
+                                }, style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+
                         // 📦 PLAN TYPE
                         Text(
                             text = if (detail?.plan_type == "Session Pack") {
-                                val validity = com.theralieve.utils.calculateValidity(
-                                    detail.frequency,
-                                    detail.frequency_limit
-                                ).takeIf { it.isNotEmpty() } ?: "N/A"
-                                "Session Pack • $validity"
-                            } else {
-                                "Credit Pack • ${detail?.points} Credits"
-                            },
-                            style = MaterialTheme.typography.titleLarge
-                        )
+                            val validity = com.theralieve.utils.calculateValidity(
+                                detail.frequency, detail.frequency_limit
+                            ).takeIf { it.isNotEmpty() } ?: "N/A"
+                            "Session Pack • $validity"
+                        } else {
+                            "Credit Pack • ${detail?.points} Credits"
+                        }, style = MaterialTheme.typography.titleLarge)
 
                         // 📋 FEATURES CARD
                         Column(
@@ -262,9 +282,7 @@ fun SelectedMembershipScreen(
                                 .padding(20.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            detail?.bullet_points
-                                ?.split(",")
-                                ?.forEach { feature ->
+                            detail?.bullet_points?.split(",")?.forEach { feature ->
                                     Text(
                                         text = "✓ ${feature.trim()}",
                                         style = MaterialTheme.typography.titleMedium
@@ -279,8 +297,7 @@ fun SelectedMembershipScreen(
                             .fillMaxWidth()
                             .height(76.dp),
                         label = stringResource(id = R.string.action_purchase),
-                        onClick = { onPurchase(plan) }
-                    )
+                        onClick = { onPurchase(plan) })
                 }
             }
         }
@@ -288,8 +305,8 @@ fun SelectedMembershipScreen(
 }
 
 
-@Preview(device = "spec:width=1280dp,height=800dp,dpi=240", showSystemUi = true,
-    showBackground = true
+@Preview(
+    device = "spec:width=1280dp,height=800dp,dpi=240", showSystemUi = true, showBackground = true
 )
 @Composable
 fun PreviewSelectedMembershipScreen() {
@@ -298,7 +315,8 @@ fun PreviewSelectedMembershipScreen() {
         isForEmployee = false,
         onBack = {},
         onPurchase = {},
-        onHome = {}
+        onHome = {},
+        vipDiscount = "0"
     )
 }
 

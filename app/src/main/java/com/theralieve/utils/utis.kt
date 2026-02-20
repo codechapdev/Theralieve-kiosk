@@ -7,13 +7,15 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.math.RoundingMode
 import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DecimalFormat
 
 
 fun formatPriceTo2Decimal(price:Any?):String{
-   return DecimalFormat("0.##").format(price)
+//    roundingMode = RoundingMode.HALF_UP
+   return DecimalFormat("0.00").format(price)
 }
 
 fun Modifier.trackUserInteraction(

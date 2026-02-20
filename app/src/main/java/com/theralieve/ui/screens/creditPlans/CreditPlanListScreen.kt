@@ -289,7 +289,7 @@ fun CreditPlanListScreen(
 
 //                                        Text(
 //                                            text = "Save ${getCurrencySymbol(plan.detail?.currency)}${
-//                                                DecimalFormat("0.##").format(
+//                                                DecimalFormat("0.00").format(
 //                                                    discountResult.originalPrice - discountResult.discountedPrice
 //                                                )
 //                                            }",
@@ -307,7 +307,7 @@ fun CreditPlanListScreen(
                                         ) {
                                             Text(
                                                 text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                    DecimalFormat("0.##").format(discountResult.originalPrice)
+                                                    DecimalFormat("0.00").format(discountResult.originalPrice)
                                                 }",
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 color = Color.Gray,
@@ -316,7 +316,7 @@ fun CreditPlanListScreen(
 
                                             Text(
                                                 text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                    DecimalFormat("0.##").format(discountResult.discountedPrice)
+                                                    DecimalFormat("0.00").format(discountResult.discountedPrice)
                                                 }",
                                                 style = MaterialTheme.typography.headlineMedium.copy(
                                                     fontWeight = FontWeight.ExtraBold,

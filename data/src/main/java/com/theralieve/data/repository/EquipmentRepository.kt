@@ -313,6 +313,7 @@ class EquipmentRepositoryImpl @Inject constructor(
             if (response.isSuccessful && response.body()?.status == "success") {
                 val body = response.body()
                 if (body != null) {
+                    preferenceManager.saveVipDiscount(body.vip_discount?:"0")
                     Result.success(
                         UserPlan(
                             planId = body.plan_id?:0,

@@ -154,7 +154,7 @@ fun SingleSelectedEquipmentScreen(
 
                     if (totalPrice > 0) {
                         Text(
-                            text = "Total Price: $${DecimalFormat("0.##").format(totalPrice)}",
+                            text = "Total Price: $${DecimalFormat("0.00").format(totalPrice)}",
                             style = MaterialTheme.typography.headlineMedium,
                             color = TheraColorTokens.Primary,
                             fontWeight = FontWeight.Bold
@@ -220,7 +220,7 @@ fun EquipmentReviewCard(item: SelectedEquipment) {
 
             if (item.price > 0) {
                 Text(
-                    text = "Price: $${DecimalFormat("0.##").format(item.price)}",
+                    text = "Price: $${DecimalFormat("0.00").format(item.price)}",
                     style = MaterialTheme.typography.titleMedium,
                     color = TheraColorTokens.Primary,
                     fontWeight = FontWeight.Bold

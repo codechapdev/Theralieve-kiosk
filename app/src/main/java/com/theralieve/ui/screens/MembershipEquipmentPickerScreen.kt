@@ -283,7 +283,7 @@ fun MembershipGridScreen(
                                             if (discountResult.hasDiscount) {
                                                 Text(
                                                     text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                        DecimalFormat("0.##").format(
+                                                        DecimalFormat("0.00").format(
                                                             discountResult.originalPrice
                                                         )
                                                     }",
@@ -294,7 +294,7 @@ fun MembershipGridScreen(
                                                 // Show discounted price
                                                 Text(
                                                     text = "${getCurrencySymbol(plan.detail?.currency)}${
-                                                        DecimalFormat("0.##").format(
+                                                        DecimalFormat("0.00").format(
                                                             discountResult.discountedPrice
                                                         )
                                                     }",

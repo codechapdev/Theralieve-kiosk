@@ -8,7 +8,9 @@ import com.theralieve.data.storage.PreferenceManager
 import com.theralieve.domain.model.Plan
 import com.theralieve.domain.usecase.AddMemberUseCase
 import com.theralieve.domain.usecase.AddPaymentUseCase
+import com.theralieve.domain.usecase.GetPlanInfoUseCase
 import com.theralieve.domain.usecase.GetPlanUseCase
+import com.theralieve.domain.usecase.GetUserPlanUseCase
 import com.theralieve.ui.screens.RegistrationFormState
 import com.theralieve.ui.viewmodel.RegistrationUiState
 import com.theralieve.ui.viewmodel.SelectedMembershipUiState
@@ -25,6 +27,7 @@ import javax.inject.Inject
 class SelectedMembershipViewModel @Inject constructor(
     private val preferenceManager: PreferenceManager,
     private val getPlanUseCase: GetPlanUseCase,
+    private val getUserPlanUseCase: GetUserPlanUseCase,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SelectedMembershipUiState())
     val uiState: StateFlow<SelectedMembershipUiState> = _uiState.asStateFlow()
@@ -50,8 +53,17 @@ class SelectedMembershipViewModel @Inject constructor(
             "setIsForEmployee() completed. New value: ${_uiState.value.isForEmployee}"
         )
         viewModelScope.launch {
-            getPlanUseCase(planId).getOrNull()?.let {
-                setPlan(it)
+            getUserPlanUseCase(
+                (preferenceManager.getMemberId()?:"0").toIntOrNull()?:0
+            ).onSuccess {
+                _uiState.update { uiState ->
+                    uiState.copy(
+                        vipDiscount = it?.vipDiscount?:"0"
+                    )
+                }
+                getPlanUseCase(planId).getOrNull()?.let {
+                    setPlan(it)
+                }
             }
         }
     }

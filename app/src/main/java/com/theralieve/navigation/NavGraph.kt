@@ -1085,6 +1085,7 @@ fun NavGraph(
             SelectedMembershipScreen(
                 plan = uiState.plan,
                 isForEmployee = uiState.isForEmployee,
+                vipDiscount = uiState.vipDiscount,
                 onBack = {
                     navController.popBackStack()
                 },
@@ -1569,6 +1570,7 @@ fun NavGraph(
             SelectedMembershipScreen(
                 plan = uiState.plan,
                 isForEmployee = uiState.isForEmployee,
+                vipDiscount = uiState.vipDiscount,
                 onBack = {
                     navController.popBackStack()
                 },

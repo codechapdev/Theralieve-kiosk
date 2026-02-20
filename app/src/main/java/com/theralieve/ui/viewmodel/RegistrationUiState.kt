@@ -30,6 +30,7 @@ data class SelectedMembershipUiState(
     val membershipType: String? = null,
     val isForEmployee: Boolean = false,
     val isRenew: Boolean = false,
+    val vipDiscount: String = "0.0",
 )
 
 

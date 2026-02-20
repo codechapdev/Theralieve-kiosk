@@ -4,29 +4,13 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.AllInbox
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Inventory2
-import androidx.compose.material.icons.filled.Layers
-import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.LooksOne
-import androidx.compose.material.icons.filled.ViewModule
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -39,15 +23,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.theralieve.R
 import com.theralieve.domain.model.LocationEquipment
 import com.theralieve.ui.components.EquipmentCarousel
 import com.theralieve.ui.screens.newSeePlan.viewModel.NewSeePlanViewModel
@@ -57,7 +40,7 @@ import com.theralieve.ui.utils.throttledClickable
 @Composable
 fun NewSeePlansScreen(
     uiState: NewSeePlanViewModel.NewSeePlanUiState,
-    locationEquipments:List<LocationEquipment>,
+    locationEquipments: List<LocationEquipment>,
     onSingleClick: () -> Unit,
     onSessionPackClick: () -> Unit,
     onPackClick: () -> Unit,
@@ -66,7 +49,7 @@ fun NewSeePlansScreen(
     onBack: () -> Unit,
 ) {
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -78,44 +61,54 @@ fun NewSeePlansScreen(
                 )
             )
     ) {
+        val screenWidth = maxWidth
+        val screenHeight = maxHeight
+
+        val headerTextSize = (screenWidth.value * 0.03f).sp
+        val titleTextSize = (screenWidth.value * 0.022f).sp
+        val cardHeight = screenHeight * 0.45f
+        val horizontalPadding = screenWidth * 0.04f
 
         Column {
 
             PremiumHeader(
                 onHome = onHome,
-                onBack = onBack
+                onBack = onBack,
+                headerTextSize = headerTextSize
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(screenHeight * 0.02f))
 
             Text(
                 text = "Best-in-class Therapies, Dramatic Savings!",
-                fontSize = 26.sp,
+                fontSize = titleTextSize,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(screenHeight * 0.02f))
 
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                verticalArrangement = Arrangement.spacedBy(screenHeight * 0.03f)
             ) {
 
-                EquipmentCarousel(locationEquipments,
-                    cardWidth = 200,
-                    cardHeight = 120
+                EquipmentCarousel(
+                    locationEquipments,
+                    cardWidth = (screenWidth.value * 0.18f).toInt(),
+                    cardHeight = (screenHeight.value * 0.15f).toInt()
                 )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 40.dp),
-                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                        .padding(horizontal = horizontalPadding),
+                    horizontalArrangement = Arrangement.spacedBy(screenWidth * 0.02f)
                 ) {
+
                     PricingCard(
                         modifier = Modifier.weight(1f),
-                        icon = Icons.Default.LooksOne, // number 1 icon
+                        icon = Icons.Default.LooksOne,
                         titlePrefix = "Single ",
                         titleHighlight = "Session",
                         bullets = listOf(
@@ -123,10 +116,12 @@ fun NewSeePlansScreen(
                             "Your choice of therapy",
                             "Purchase anytime"
                         ),
+                        cardHeight = cardHeight,
+                        screenWidth = screenWidth,
                         onClick = onSingleClick
                     )
 
-                    if(uiState.hasCreditPacks) {
+                    if (uiState.hasCreditPacks) {
                         PricingCard(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Default.AccountBalance,
@@ -136,13 +131,16 @@ fun NewSeePlansScreen(
                                 "SAVE on each session used",
                                 "Choose your points",
                                 "No expiration",
-                                "Use points on any therapy"
+                                "Use points on any therapy",
+                                "Do not auto-renew"
                             ),
+                            cardHeight = cardHeight,
+                            screenWidth = screenWidth,
                             onClick = onPackClick
                         )
                     }
 
-                    if(uiState.hasCreditPlans) {
+                    if (uiState.hasCreditPlans) {
                         PricingCard(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Default.LocalOffer,
@@ -155,11 +153,13 @@ fun NewSeePlansScreen(
                                 "Monthly billing",
                                 "Best value"
                             ),
+                            cardHeight = cardHeight,
+                            screenWidth = screenWidth,
                             onClick = onPlanClick
                         )
                     }
 
-                    if(uiState.hasSessionPlans) {
+                    if (uiState.hasSessionPlans) {
                         PricingCard(
                             modifier = Modifier.weight(1f),
                             icon = Icons.Default.Inventory2,
@@ -171,6 +171,8 @@ fun NewSeePlansScreen(
                                 "No expiry",
                                 "Therapy-specific sessions"
                             ),
+                            cardHeight = cardHeight,
+                            screenWidth = screenWidth,
                             onClick = onSessionPackClick
                         )
                     }
@@ -182,26 +184,24 @@ fun NewSeePlansScreen(
 
 @Composable
 private fun PremiumHeader(
-    onHome:()->Unit,
-    onBack:()->Unit
+    onHome: () -> Unit,
+    onBack: () -> Unit,
+    headerTextSize: androidx.compose.ui.unit.TextUnit
 ) {
 
-    Surface(
-        shadowElevation = 8.dp
-    ) {
+    Surface(shadowElevation = 8.dp) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
                 .background(Color(0xFF2F6497))
-                .padding(horizontal = 24.dp)
-            ,
+                .padding(horizontal = 24.dp),
             contentAlignment = Alignment.Center
         ) {
 
             Box(
                 modifier = Modifier
-                    .size(50.dp) // large for kiosk touch
+                    .size(50.dp)
                     .clip(CircleShape)
                     .background(Color.White)
                     .align(Alignment.CenterStart)
@@ -211,22 +211,21 @@ private fun PremiumHeader(
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color(0xFF1A73E8), // Theralieve Blue
+                    tint = Color(0xFF1A73E8),
                     modifier = Modifier.size(30.dp)
                 )
             }
 
-
             Text(
                 text = "Wellness ... Made Affordable!",
                 color = Color.White,
-                fontSize = 36.sp,
+                fontSize = headerTextSize,
                 fontWeight = FontWeight.SemiBold
             )
 
             Box(
                 modifier = Modifier
-                    .size(50.dp) // large for kiosk touch
+                    .size(50.dp)
                     .clip(CircleShape)
                     .background(Color.White)
                     .align(Alignment.CenterEnd)
@@ -235,16 +234,14 @@ private fun PremiumHeader(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Home,
-                    contentDescription = "Back",
-                    tint = Color(0xFF1A73E8), // Theralieve Blue
+                    contentDescription = "Home",
+                    tint = Color(0xFF1A73E8),
                     modifier = Modifier.size(30.dp)
                 )
             }
         }
     }
 }
-
-
 
 @Composable
 fun PricingCard(
@@ -253,15 +250,15 @@ fun PricingCard(
     titlePrefix: String,
     titleHighlight: String,
     bullets: List<String>,
+    cardHeight: Dp,
+    screenWidth: Dp,
     onClick: () -> Unit
 ) {
 
-
     Surface(
-        modifier = modifier
-            .height(400.dp),
+        modifier = modifier.height(cardHeight),
         shape = RoundedCornerShape(24.dp),
-        tonalElevation  = 0.dp,
+        tonalElevation = 0.dp,
         shadowElevation = 0.dp,
         color = Color.White
     ) {
@@ -269,23 +266,27 @@ fun PricingCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(
+                    horizontal = screenWidth * 0.015f,
+                    vertical = screenWidth * 0.012f
+                ),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
                 Image(
                     imageVector = icon,
                     contentDescription = "icon",
-                    modifier = Modifier.size(42.dp),
-                    colorFilter = ColorFilter.lighting(TheraColorTokens.TextGreen, TheraColorTokens.PrimaryDark)
+                    modifier = Modifier.size(screenWidth * 0.035f),
+                    colorFilter = ColorFilter.lighting(
+                        TheraColorTokens.TextGreen,
+                        TheraColorTokens.PrimaryDark
+                    )
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(screenWidth * 0.01f))
 
                 Column(
                     modifier = Modifier
@@ -294,7 +295,10 @@ fun PricingCard(
                             color = Color(0xFF1E88E5),
                             shape = RoundedCornerShape(12.dp)
                         )
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                        .padding(
+                            horizontal = screenWidth * 0.015f,
+                            vertical = screenWidth * 0.01f
+                        ),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -307,26 +311,24 @@ fun PricingCard(
                                 )
                             ) { append(titleHighlight) }
                         },
-                        fontSize = 26.sp
+                        fontSize = (screenWidth.value * 0.022f).sp
                     )
                 }
-
             }
 
-
             Column(
-                modifier= Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(screenWidth * 0.008f),
             ) {
                 bullets.forEach {
-                    PricingBullet(it)
+                    PricingBullet(it, screenWidth)
                 }
             }
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(70.dp)
+                    .height(screenWidth * 0.045f)
                     .clip(RoundedCornerShape(14.dp))
                     .background(Color(0xFF1E88E5))
                     .throttledClickable { onClick() },
@@ -335,7 +337,7 @@ fun PricingCard(
                 Text(
                     "SELECT",
                     color = Color.White,
-                    fontSize = 22.sp,
+                    fontSize = (screenWidth.value * 0.02f).sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -343,39 +345,82 @@ fun PricingCard(
     }
 }
 
-
 @Composable
-fun PricingBullet(text: String) {
+fun PricingBullet(text: String, screenWidth: Dp) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(screenWidth * 0.006f)
     ) {
 
         Box(
             modifier = Modifier
-                .size(8.dp)
+                .size(screenWidth * 0.006f)
                 .clip(CircleShape)
                 .background(Color(0xFF1E88E5))
         )
         Text(
             text = text,
-            fontSize = 16.sp,
+            fontSize = (screenWidth.value * 0.014f).sp,
             color = Color(0xFF333333),
-            lineHeight = 18.sp
+            lineHeight = (screenWidth.value * 0.016f).sp
         )
     }
 }
 
-
-@Preview(device = "spec:width=1280dp,height=800dp,dpi=240")
+@Preview(device = "spec:width=1080dp,height=720dp,dpi=240")
 @Composable
 fun PreviewNewSeePlansScreen() {
+
+    val locationEquipments = listOf(
+        LocationEquipment(
+            equipmentId = 5,
+            equipmentName = "Aqualieve® Cryo/Heat Recovery Chair with Massage",
+            image = "uploads/equipment/BRkfSZOCizbm0sY9oc4UOAL0kTvMMUpIIVsBje2I.png",
+            lowestPoint = "10"
+        ),
+        LocationEquipment(
+            equipmentId = 32,
+            equipmentName = "Pelvic Chair",
+            image = "uploads/equipment/up87XUFO8axRYApCgh2ef4DLS3BZTY4SvGIyDs3S.png",
+            lowestPoint = "50"
+        ),
+        LocationEquipment(
+            equipmentId = 35,
+            equipmentName = "TheraJet",
+            image = "uploads/equipment/orTivmxOAIvwqh9LjAZJCBRNCoKeIDA6gpoLrPNO.png",
+            lowestPoint = "10"
+        ),
+        LocationEquipment(
+            equipmentId = 31,
+            equipmentName = "HydroPulse Therapeutic Wave System",
+            image = "uploads/equipment/JFGp0wVmRzNGqNilEQxkpgryV0e6UQYbQxKetO1D.png",
+            lowestPoint = "50"
+        ),
+        LocationEquipment(
+            equipmentId = 33,
+            equipmentName = "PEMF MAT System",
+            image = "uploads/equipment/gNAn9VxY6IJZOkZCRc9SC6m9ZSz9fzs0ruenw713.png",
+            lowestPoint = "5"
+        ),
+        LocationEquipment(
+            equipmentId = 15,
+            equipmentName = "SolaDerm® Redlight photon system",
+            image = "uploads/equipment/DegEadbeSAG1jLOv7z7brJLalVlxZlrg2PbcfX3X.png",
+            lowestPoint = "15"
+        ),
+        LocationEquipment(
+            equipmentId = 17,
+            equipmentName = "TheraVive® PEMF System",
+            image = "uploads/equipment/n2iOSQjs8HIF4FOkAuofSLGXfWuvvNPpK3Ipxpzt.png",
+            lowestPoint = "40"
+        )
+    )
+
+
     NewSeePlansScreen(
         uiState = NewSeePlanViewModel.NewSeePlanUiState(),
-        locationEquipments = emptyList(),
-        onSingleClick = {
-
-        },
+        locationEquipments = locationEquipments,
+        onSingleClick = {},
         onSessionPackClick = {},
         onPackClick = {},
         onPlanClick = {},
@@ -383,6 +428,3 @@ fun PreviewNewSeePlansScreen() {
         onBack = {},
     )
 }
-
-
-
