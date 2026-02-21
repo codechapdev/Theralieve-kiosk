@@ -151,7 +151,7 @@ fun MemberLoginDialog(
                                     .fillMaxWidth()
                                     .height(70.dp),
                                 textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, autoCorrect = false),
                                 enabled = !state.isLoggingIn,
                                 isError = (state.userIdError ?: emailError) != null,
                                 singleLine = true
