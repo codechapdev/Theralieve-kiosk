@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.theralieve.R
 import com.theralieve.domain.model.Plan
+import com.theralieve.domain.model.plans
 import com.theralieve.ui.components.TheraGradientBackground
 import com.theralieve.ui.components.TheraPrimaryButton
 import com.theralieve.ui.theme.TheraColorTokens
@@ -117,33 +119,45 @@ fun SelectedMembershipScreen(
 
             }
 
-            // 🔹 MAIN CONTENT
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
-                horizontalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-
-                // 🖼 IMAGE CARD
+            if(plan  == null){
                 Box(
                     modifier = Modifier
-                        .weight(0.45f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(32.dp))
-                        .background(Color.White.copy(alpha = 0.15f))
-                        .padding(16.dp)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator(
+                        modifier = Modifier, color = Color.White
+                    )
+                }
+
+            }else {
+                // 🔹 MAIN CONTENT
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
+
+                    // 🖼 IMAGE CARD
+                    Box(
+                        modifier = Modifier
+                            .weight(0.45f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(32.dp))
+                            .background(Color.White.copy(alpha = 0.15f))
+                            .padding(16.dp)
+                    ) {
 //                    val randomImage = remember {
 //                        sliderImages.random()
 //                    }
 
-                    Image(
-                        painter = painterResource(id = R.drawable.slider3),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+                        Image(
+                            painter = painterResource(id = R.drawable.new_img),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
 
 //                    NetworkImage(
 //                        imageUrl = detail?.image,
@@ -151,153 +165,156 @@ fun SelectedMembershipScreen(
 //                        contentScale = ContentScale.Fit,
 //                        modifier = Modifier.fillMaxSize()
 //                    )
-                }
+                    }
 
-                // 📦 INFO CARD
-                Column(
-                    modifier = Modifier
-                        .weight(0.55f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(32.dp))
-                        .background(Color.White)
-                        .padding(32.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
+                    // 📦 INFO CARD
+                    Column(
+                        modifier = Modifier
+                            .weight(0.55f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(32.dp))
+                            .background(Color.White)
+                            .padding(32.dp),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
 
-                        // 🏷 PLAN NAME
-                        Text(
-                            text = detail?.plan_name ?: "Membership Plan",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                            // 🏷 PLAN NAME
+                            Text(
+                                text = detail?.plan_name ?: "Membership Plan",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold
+                            )
 
-                        val discountResult = calculateDiscount(
-                            planPrice = detail?.plan_price,
-                            discount = detail?.discount,
-                            discountType = detail?.discount_type,
-                            discountValidity = detail?.discount_validity,
-                            employeeDiscount = detail?.employee_discount,
-                            isForEmployee = isForEmployee,
-                            appliedVipDiscount = vipDiscount
-                        )
+                            val discountResult = calculateDiscount(
+                                planPrice = detail?.plan_price,
+                                discount = detail?.discount,
+                                discountType = detail?.discount_type,
+                                discountValidity = detail?.discount_validity,
+                                employeeDiscount = detail?.employee_discount,
+                                isForEmployee = isForEmployee,
+                                appliedVipDiscount = vipDiscount
+                            )
 
-                        // 💰 PRICE SECTION
-                        Column(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(TheraColorTokens.Primary.copy(alpha = 0.08f))
-                                .padding(20.dp)
-                        ) {
-                            if (discountResult.hasDiscount) {
+                            // 💰 PRICE SECTION
+                            Column(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(TheraColorTokens.Primary.copy(alpha = 0.08f))
+                                    .padding(20.dp)
+                            ) {
+                                if (discountResult.hasDiscount) {
 
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-                                    // Original price (striked)
+                                        // Original price (striked)
+                                        Text(
+                                            text = "${getCurrencySymbol(detail?.currency)}${
+                                                DecimalFormat("0.00").format(discountResult.originalPrice)
+                                            }",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = Color.Gray,
+                                            textDecoration = TextDecoration.LineThrough
+                                        )
+
+                                        // Discounted price
+                                        Text(
+                                            text = "${getCurrencySymbol(detail?.currency)}${
+                                                DecimalFormat("0.00").format(discountResult.discountedPrice)
+                                            }",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            color = TheraColorTokens.Primary,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        // 💸 Savings info
+                                        Text(
+                                            text = "You save ${getCurrencySymbol(detail?.currency)}${
+                                                DecimalFormat("0.00").format(
+                                                    discountResult.originalPrice - discountResult.discountedPrice
+                                                )
+                                            }",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = Color(0xFF2E7D32), // green = savings
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+
+                                } else {
                                     Text(
-                                        text = "${getCurrencySymbol(detail?.currency)}${
-                                            DecimalFormat("0.00").format(discountResult.originalPrice)
-                                        }",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.Gray,
-                                        textDecoration = TextDecoration.LineThrough
-                                    )
-
-                                    // Discounted price
-                                    Text(
-                                        text = "${getCurrencySymbol(detail?.currency)}${
-                                            DecimalFormat("0.00").format(discountResult.discountedPrice)
-                                        }",
+                                        text = "${getCurrencySymbol(detail?.currency)}${detail?.plan_price}",
                                         style = MaterialTheme.typography.headlineMedium,
                                         color = TheraColorTokens.Primary,
                                         fontWeight = FontWeight.Bold
                                     )
-
-                                    // 💸 Savings info
-                                    Text(
-                                        text = "You save ${getCurrencySymbol(detail?.currency)}${
-                                            DecimalFormat("0.00").format(
-                                                discountResult.originalPrice - discountResult.discountedPrice
-                                            )
-                                        } (${discountResult.discountPercentage})",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = Color(0xFF2E7D32), // green = savings
-                                        fontWeight = FontWeight.SemiBold
-                                    )
                                 }
 
-                            } else {
+                            }
+
+                            if ((plan?.detail?.billing_price?.toDoubleOrNull()
+                                    ?: 0.0) > 0.0 && plan?.detail?.is_vip_plan == 1
+                            ) {
                                 Text(
-                                    text = "${getCurrencySymbol(detail?.currency)}${detail?.plan_price}",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = TheraColorTokens.Primary,
-                                    fontWeight = FontWeight.Bold
+                                    text = buildAnnotatedString {
+                                        append("You are being charged a prorated amount of ")
+                                        pushStyle(
+                                            SpanStyle(
+                                                color = TheraColorTokens.Primary,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        )
+                                        append("$${plan.detail?.billing_price} ")
+                                        pop()
+                                        append(" for the current month. Regular billing will start from the ")
+                                        pushStyle(
+                                            SpanStyle(
+                                                color = TheraColorTokens.Primary,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        )
+                                        append("1st of next month.")
+                                        pop()
+                                    }, style = MaterialTheme.typography.titleLarge
                                 )
                             }
 
-                        }
-
-                        if((vipDiscount.toIntOrNull()?:0)>0) {
+                            // 📦 PLAN TYPE
                             Text(
-                                text = buildAnnotatedString {
-                                    append("You are being charged a prorated amount of ")
-                                    pushStyle(
-                                        SpanStyle(
-                                            color = TheraColorTokens.Primary,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    )
-                                    append("$${plan?.detail?.billing_price} ")
-                                    pop()
-                                    append(" for the current month. Regular billing will start from the ")
-                                    pushStyle(
-                                        SpanStyle(
-                                            color = TheraColorTokens.Primary,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    )
-                                    append("1st of next month.")
-                                    pop()
-                                }, style = MaterialTheme.typography.titleLarge
-                            )
-                        }
+                                text = if (detail?.plan_type == "Session Pack") {
+                                    val validity = com.theralieve.utils.calculateValidity(
+                                        detail.frequency, detail.frequency_limit
+                                    ).takeIf { it.isNotEmpty() } ?: "N/A"
+                                    "Session Pack • $validity"
+                                } else {
+                                    "Credit Pack • ${detail?.points} Credits"
+                                }, style = MaterialTheme.typography.titleLarge)
 
-                        // 📦 PLAN TYPE
-                        Text(
-                            text = if (detail?.plan_type == "Session Pack") {
-                            val validity = com.theralieve.utils.calculateValidity(
-                                detail.frequency, detail.frequency_limit
-                            ).takeIf { it.isNotEmpty() } ?: "N/A"
-                            "Session Pack • $validity"
-                        } else {
-                            "Credit Pack • ${detail?.points} Credits"
-                        }, style = MaterialTheme.typography.titleLarge)
-
-                        // 📋 FEATURES CARD
-                        Column(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(Color(0xFFF7F9FC))
-                                .padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            detail?.bullet_points?.split(",")?.forEach { feature ->
+                            // 📋 FEATURES CARD
+                            Column(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(Color(0xFFF7F9FC))
+                                    .padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                detail?.bullet_points?.split(",")?.forEach { feature ->
                                     Text(
                                         text = "✓ ${feature.trim()}",
                                         style = MaterialTheme.typography.titleMedium
                                     )
                                 }
+                            }
                         }
-                    }
 
-                    // 🛒 PURCHASE BUTTON
-                    TheraPrimaryButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(76.dp),
-                        label = stringResource(id = R.string.action_purchase),
-                        onClick = { onPurchase(plan) })
+                        // 🛒 PURCHASE BUTTON
+                        TheraPrimaryButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(76.dp),
+                            label = stringResource(id = R.string.action_purchase),
+                            onClick = { onPurchase(plan) })
+                    }
                 }
             }
         }
@@ -311,7 +328,7 @@ fun SelectedMembershipScreen(
 @Composable
 fun PreviewSelectedMembershipScreen() {
     SelectedMembershipScreen(
-        plan = null,
+        plan = plans.get(0),
         isForEmployee = false,
         onBack = {},
         onPurchase = {},

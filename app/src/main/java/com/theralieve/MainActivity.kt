@@ -60,8 +60,8 @@ class MainActivity : ComponentActivity() {
 //        checkAndRequestPermissions()
         
         // Enable kiosk mode
-//        KioskModeManager.enableKioskMode(this)
-        
+        KioskModeManager.enableKioskMode(this)
+
         setContent {
             TheraJetTabTheme {
                 // Re-apply kiosk mode on configuration changes
@@ -107,10 +107,7 @@ class MainActivity : ComponentActivity() {
     
     override fun onResume() {
         super.onResume()
-        // Re-apply kiosk mode when activity resumes
-//        KioskModeManager.reapplyKioskMode(this)
-//        // Bring to front in case it was in background
-//        KioskModeManager.bringToFront(this)
+        KioskModeManager.reapplyKioskMode(this)
     }
     
     override fun onPause() {
@@ -153,6 +150,7 @@ class MainActivity : ComponentActivity() {
         // if (KioskModeManager.handleBackPress()) {
         //     return
         // }
+        if (KioskModeManager.shouldBlockBackPress()) return
         super.onBackPressed()
     }
 }

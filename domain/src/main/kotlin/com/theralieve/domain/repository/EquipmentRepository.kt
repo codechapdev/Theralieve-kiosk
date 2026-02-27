@@ -37,7 +37,7 @@ interface EquipmentRepository {
     
     suspend fun getEquipmentStatus(deviceNames: List<String>): Result<Map<String?, DeviceStatus>?>
     
-    suspend fun getEquipmentDetails(equipmentId: Int): Result<EquipmentDetail?>
+    suspend fun getEquipmentDetails(equipmentId: Int,locationId:String): Result<EquipmentDetail?>
     
     suspend fun clearEquipmentCache()
     

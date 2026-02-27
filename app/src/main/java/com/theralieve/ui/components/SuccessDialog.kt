@@ -4,12 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +20,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.theralieve.ui.theme.TheraColorTokens
+import com.theralieve.ui.utils.throttledClickable
 import kotlinx.coroutines.delay
 
 @Composable
@@ -372,6 +380,183 @@ fun PaymentInfoDialog(
     }
 }
 
+
+@Composable
+fun ExitKioskDialog(
+    onNo: () -> Unit,
+    onExit: () -> Unit
+) {
+    Dialog(onDismissRequest = onNo) {
+        Surface(
+            shape = RoundedCornerShape(32.dp),
+            color = Color.White,
+            tonalElevation = 16.dp,
+            modifier = Modifier
+                .width(650.dp)
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 48.dp, vertical = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+
+                    // 🔐 ICON
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .background(
+                                TheraColorTokens.Primary.copy(alpha = 0.1f),
+                                CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            modifier = Modifier.size(60.dp),
+                            tint = TheraColorTokens.Primary
+                        )
+                    }
+
+                    // 🏷 TITLE
+                    Text(
+                        text = "Exit Kiosk Mode?",
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TheraColorTokens.TextPrimary,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = "Do you really want to exit kiosk mode?",
+                        fontSize = 20.sp,
+                        color = TheraColorTokens.TextSecondary,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 🔘 BUTTONS
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .height(60.dp)
+                            .width(160.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF22C55E))
+                            .throttledClickable { onNo() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No, Stay", color = Color.Black, fontWeight = FontWeight.SemiBold, fontSize = 20.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(50.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .height(60.dp)
+                            .width(160.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(TheraColorTokens.StrokeError)
+                            .throttledClickable { onExit() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Yes, Exit", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 22.sp
+                        )
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ExitKioskCustomDialog(
+    onNo: () -> Unit,
+    onExit: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.6f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier
+                .width(300.dp)
+                .wrapContentHeight(),
+            elevation = CardDefaults.cardElevation(12.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Exit Kiosk Mode",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Do you want to exit kiosk mode?",
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    // 🟢 NO button
+                    Button(
+                        onClick = onNo,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Gray
+                        )
+                    ) {
+                        Text("No")
+                    }
+
+                    // 🔴 EXIT button
+                    Button(
+                        onClick = onExit,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red
+                        )
+                    ) {
+                        Text("Exit")
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
 @Composable
 private fun PaymentStep(text: String) {
     Text(
@@ -384,8 +569,12 @@ private fun PaymentStep(text: String) {
 @Composable
 fun SuccessDialogPreview() {
 
-    PaymentInfoDialog(
-        {})
+
+    ExitKioskDialog(
+        {},{}
+    )
+//    PaymentInfoDialog(
+//        {})
 //    SuccessDialog(
 //        title = "Success",
 //        message = "Your appointment has been booked successfully!",

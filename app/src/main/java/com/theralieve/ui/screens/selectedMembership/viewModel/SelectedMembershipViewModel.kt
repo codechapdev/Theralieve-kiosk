@@ -53,16 +53,34 @@ class SelectedMembershipViewModel @Inject constructor(
             "setIsForEmployee() completed. New value: ${_uiState.value.isForEmployee}"
         )
         viewModelScope.launch {
-            getUserPlanUseCase(
-                (preferenceManager.getMemberId()?:"0").toIntOrNull()?:0
-            ).onSuccess {
-                _uiState.update { uiState ->
-                    uiState.copy(
-                        vipDiscount = it?.vipDiscount?:"0"
-                    )
-                }
+            val userId = (preferenceManager.getMemberId()?:"0").toIntOrNull()?:0
+            if(userId == 0){
                 getPlanUseCase(planId).getOrNull()?.let {
                     setPlan(it)
+                }
+            }else {
+                getUserPlanUseCase(
+                    (preferenceManager.getMemberId() ?: "0").toIntOrNull() ?: 0
+                ).onSuccess {
+                    _uiState.update { uiState ->
+                        uiState.copy(
+                            vipDiscount = it?.vipDiscount ?: "0"
+                        )
+                    }
+                    getPlanUseCase(planId).getOrNull()?.let {
+                        if(it.detail?.is_vip_plan == 1){
+                            _uiState.update { uiState ->
+                                uiState.copy(
+                                    vipDiscount = "0"
+                                )
+                            }
+                        }
+                        setPlan(it)
+                    }
+                }.onFailure {
+                    getPlanUseCase(planId).getOrNull()?.let {
+                        setPlan(it)
+                    }
                 }
             }
         }

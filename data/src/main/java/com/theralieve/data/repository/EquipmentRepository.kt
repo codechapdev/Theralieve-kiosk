@@ -231,10 +231,11 @@ class EquipmentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getEquipmentDetails(equipmentId: Int): Result<EquipmentDetail?> {
+    override suspend fun getEquipmentDetails(equipmentId: Int,locationId:String): Result<EquipmentDetail?> {
         return try {
             val response = apiService.getEquipmentDetails(
-                equipmentId = equipmentId.toString().toRequestBody(MultipartBody.FORM)
+                equipmentId = equipmentId.toString().toRequestBody(MultipartBody.FORM),
+                locationId = locationId.toRequestBody(MultipartBody.FORM)
             )
 
             if (response.isSuccessful && response.body() != null) {

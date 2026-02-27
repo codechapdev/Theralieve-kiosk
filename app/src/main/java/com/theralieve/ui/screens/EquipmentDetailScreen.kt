@@ -47,9 +47,9 @@ fun EquipmentDetailScreen(
     
     // Responsive sizing for kiosk
     val imageSize = when {
-        screenHeight > 1000 -> 350.dp
-        screenHeight > 800 -> 300.dp
-        else -> 250.dp
+        screenHeight > 1000 -> 360.dp
+        screenHeight > 800 -> 310.dp
+        else -> 260.dp
     }
     
     val titleSize = when {

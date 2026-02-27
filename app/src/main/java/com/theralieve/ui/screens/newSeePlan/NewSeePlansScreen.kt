@@ -47,6 +47,7 @@ fun NewSeePlansScreen(
     onPlanClick: () -> Unit,
     onHome: () -> Unit,
     onBack: () -> Unit,
+    onViewDetailEquipment: (Int) -> Unit = {}
 ) {
 
     BoxWithConstraints(
@@ -95,8 +96,9 @@ fun NewSeePlansScreen(
 
                 EquipmentCarousel(
                     locationEquipments,
-                    cardWidth = (screenWidth.value * 0.18f).toInt(),
-                    cardHeight = (screenHeight.value * 0.15f).toInt()
+                    cardWidth = (screenWidth.value * 0.16f).toInt(),
+                    cardHeight = (screenHeight.value * 0.13f).toInt(),
+                    onViewDetail = onViewDetailEquipment
                 )
 
                 Row(
@@ -217,7 +219,7 @@ private fun PremiumHeader(
             }
 
             Text(
-                text = "Wellness ... Made Affordable!",
+                text = "What Every Body Wants!",
                 color = Color.White,
                 fontSize = headerTextSize,
                 fontWeight = FontWeight.SemiBold
@@ -267,8 +269,8 @@ fun PricingCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    horizontal = screenWidth * 0.015f,
-                    vertical = screenWidth * 0.012f
+                    horizontal = screenWidth * 0.012f,
+                    vertical = screenWidth * 0.010f
                 ),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -279,14 +281,14 @@ fun PricingCard(
                 Image(
                     imageVector = icon,
                     contentDescription = "icon",
-                    modifier = Modifier.size(screenWidth * 0.035f),
+                    modifier = Modifier.size(screenWidth * 0.032f),
                     colorFilter = ColorFilter.lighting(
                         TheraColorTokens.TextGreen,
                         TheraColorTokens.PrimaryDark
                     )
                 )
 
-                Spacer(modifier = Modifier.height(screenWidth * 0.01f))
+                Spacer(modifier = Modifier.height(screenWidth * 0.009f))
 
                 Column(
                     modifier = Modifier
@@ -296,8 +298,8 @@ fun PricingCard(
                             shape = RoundedCornerShape(12.dp)
                         )
                         .padding(
-                            horizontal = screenWidth * 0.015f,
-                            vertical = screenWidth * 0.01f
+                            horizontal = screenWidth * 0.008f,
+                            vertical = screenWidth * 0.007f
                         ),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -311,7 +313,7 @@ fun PricingCard(
                                 )
                             ) { append(titleHighlight) }
                         },
-                        fontSize = (screenWidth.value * 0.022f).sp
+                        fontSize = (screenWidth.value * 0.018f).sp
                     )
                 }
             }
@@ -328,8 +330,8 @@ fun PricingCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(screenWidth * 0.045f)
-                    .clip(RoundedCornerShape(14.dp))
+                    .height(screenWidth * 0.03f)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFF1E88E5))
                     .throttledClickable { onClick() },
                 contentAlignment = Alignment.Center
@@ -337,7 +339,7 @@ fun PricingCard(
                 Text(
                     "SELECT",
                     color = Color.White,
-                    fontSize = (screenWidth.value * 0.02f).sp,
+                    fontSize = (screenWidth.value * 0.016f).sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -349,25 +351,25 @@ fun PricingCard(
 fun PricingBullet(text: String, screenWidth: Dp) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(screenWidth * 0.006f)
+        horizontalArrangement = Arrangement.spacedBy(screenWidth * 0.004f)
     ) {
 
         Box(
             modifier = Modifier
-                .size(screenWidth * 0.006f)
+                .size(screenWidth * 0.004f)
                 .clip(CircleShape)
                 .background(Color(0xFF1E88E5))
         )
         Text(
             text = text,
-            fontSize = (screenWidth.value * 0.014f).sp,
+            fontSize = (screenWidth.value * 0.012f).sp,
             color = Color(0xFF333333),
             lineHeight = (screenWidth.value * 0.016f).sp
         )
     }
 }
 
-@Preview(device = "spec:width=1080dp,height=720dp,dpi=240")
+@Preview(device = "spec:width=1280dp,height=720dp,dpi=320")
 @Composable
 fun PreviewNewSeePlansScreen() {
 

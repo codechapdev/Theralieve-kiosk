@@ -22,6 +22,7 @@ import com.theralieve.domain.usecase.StartMachineUseCase
 import com.theralieve.domain.usecase.VerifyPaymentUseCase
 import com.theralieve.ui.screens.SelectedEquipment
 import com.theralieve.ui.screens.singleSession.viewModel.CheckoutSingleSessionViewModel
+import com.theralieve.utils.DiscountResult
 import com.theralieve.utils.IoTManager
 import com.theralieve.utils.PaymentSdk
 import com.theralieve.utils.calculateDiscount
@@ -213,7 +214,14 @@ class CheckoutViewModel @Inject constructor(
             )
 
             // Calculate discounted price - using the same logic as Membership Grid Screen
-            val discountResult = calculateDiscount(
+            val discountResult =  if( plan.detail?.is_vip_plan == 1) {
+                DiscountResult(
+                    plan.detail?.billing_price?.toDoubleOrNull()?:0.0,
+                    plan.detail?.billing_price?.toDoubleOrNull()?:0.0,
+                    "",
+                    false
+                )
+            }else calculateDiscount(
                 planPrice = plan.detail?.plan_price,
                 discount = plan.detail?.discount,
                 discountType = plan.detail?.discount_type,

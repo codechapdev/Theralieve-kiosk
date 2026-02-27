@@ -1,5 +1,6 @@
 package com.theralieve.utils
 
+import android.app.Activity
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -25,10 +26,12 @@ fun <T : PaymentSdk> PaymentLauncherProvider(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        KioskModeManager.enableKioskMode(context as Activity)
         viewModel.handleResult(result)
     }
 
     LaunchedEffect(launcher) {
+        KioskModeManager.disableKioskMode(context as Activity)
         viewModel.setLauncher(launcher, context as ComponentActivity)
     }
 

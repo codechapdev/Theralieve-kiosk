@@ -5,13 +5,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -61,11 +65,13 @@ import com.theralieve.R
 import com.theralieve.domain.model.Location
 import com.theralieve.domain.model.LocationEquipment
 import com.theralieve.domain.model.Plan
+import com.theralieve.domain.model.plans
 import com.theralieve.ui.components.EquipmentCarousel
 import com.theralieve.ui.components.NetworkImage
 import com.theralieve.ui.components.TheraPrimaryButton
 import com.theralieve.ui.components.TheraSecondaryButton
 import com.theralieve.ui.screens.QuestionnaireDialog
+import com.theralieve.ui.screens.creditPlans.CreditPlanListScreen
 import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.utils.throttledClickable
 import com.theralieve.utils.calculateDiscount
@@ -95,6 +101,7 @@ fun CreditPackListScreen(
     onEmployeeIdChange: (String) -> Unit = {},
     isForEmployee: Boolean = false,
     location: Location? = null,
+    onViewDetailEquipment: (Int)->Unit = {},
 ) {
 
     // Show questionnaire dialog
@@ -122,7 +129,7 @@ fun CreditPackListScreen(
         )
     }
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
             .background(
@@ -131,8 +138,10 @@ fun CreditPackListScreen(
                         Color(0xFFF6F8FB), Color(0xFFE9EEF4)
                     )
                 )
-            )
+            ).padding(WindowInsets.navigationBars.asPaddingValues())
     ) {
+        val screenWidth = maxWidth
+        val screenHeight = maxHeight
 
         if (isLoading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
@@ -179,7 +188,11 @@ fun CreditPackListScreen(
 
                     if (!isLoading && !showQuestionnaire && plans.isNotEmpty()) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
-                            EquipmentCarousel(locationEquipments)
+                            EquipmentCarousel(locationEquipments,
+                                cardWidth = (screenWidth.value * 0.16f).toInt(),
+                                cardHeight = (screenHeight.value * 0.13f).toInt(),
+                                onViewDetail = onViewDetailEquipment
+                            )
                         }
                     }
 
@@ -215,49 +228,40 @@ fun CreditPackListScreen(
                                         text = plan.detail?.plan_name?.uppercase() ?: "",
                                         style = MaterialTheme.typography.titleLarge.copy(
                                             fontWeight = FontWeight.Bold,
-                                            fontSize = 22.sp
+                                            fontSize = 24.sp
                                         ),
                                         color = Color.Black,
                                         maxLines = 2,
                                         minLines = 2
                                     )
-
-                                    Text(
-                                        text = "${plan.detail?.points} Credits",
-                                        style = MaterialTheme.typography.headlineMedium.copy(
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 22.sp
-                                        ),
-                                        color = Color.Black,
-                                        maxLines = 2,
-                                        minLines = 2
-                                    )
-
                                 }
 
-                                // Benefits
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                Box(
+                                    modifier = Modifier.fillMaxSize()
                                 ) {
-                                    val bullets = plan.detail?.bullet_points
-                                        ?.split(",")
-                                        ?.map { it.trim() }
-                                        ?: emptyList()
+                                    // Benefits
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        val bullets = plan.detail?.bullet_points
+                                            ?.split(",")
+                                            ?.map { it.trim() }
+                                            ?: emptyList()
 
-                                    val fixedBullets = List(4) { index ->
-                                        bullets.getOrNull(index) ?: ""
-                                    }
+                                        val fixedBullets = List(4) { index ->
+                                            bullets.getOrNull(index) ?: ""
+                                        }
 
-                                    fixedBullets.forEach { feature ->
-                                        Text(
-                                            text = if (feature.isNotEmpty()) "• $feature" else " ",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontSize = 15.sp,
-                                            color = Color.DarkGray
-                                        )
-                                    }
+                                        fixedBullets.forEach { feature ->
+                                            Text(
+                                                text = if (feature.isNotEmpty()) "• $feature" else " ",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                fontSize = 15.sp,
+                                                color = Color.DarkGray
+                                            )
+                                        }
 
-                                    /*plan.detail?.bullet_points
+                                        /*plan.detail?.bullet_points
                                         ?.split(",")
                                         ?.take(4)
                                         ?.forEach { feature ->
@@ -268,8 +272,24 @@ fun CreditPackListScreen(
                                                 color = Color.DarkGray
                                             )
                                         }*/
-                                }
+                                    }
 
+                                    Text(
+                                        modifier = Modifier.background(
+                                            color = Color(0xFF1E88E5),
+                                            shape = RoundedCornerShape(4.dp)
+                                        ).padding(horizontal=6.dp,vertical=1.dp).align(Alignment.TopEnd)
+                                        ,
+                                        text = "${plan.detail?.points} Credits",
+                                        style = MaterialTheme.typography.headlineMedium.copy(
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 16.sp
+                                        ),
+                                        color = Color.White
+                                    )
+
+
+                                }
                                 // Discount Section
                                 val discountResult = calculateDiscount(
                                     planPrice = plan.detail?.plan_price,
@@ -280,7 +300,7 @@ fun CreditPackListScreen(
                                     isForEmployee = isForEmployee
                                 )
 
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(2.dp))
 
 
                                         if (discountResult.hasDiscount) {
@@ -336,8 +356,6 @@ fun CreditPackListScreen(
                                             )
                                         }
 
-
-                                Spacer(modifier = Modifier.height(12.dp))
 
                                 // CTA
                                 TheraPrimaryButton(
@@ -458,7 +476,7 @@ private fun PremiumHeaderCreditPack(
                 Text(
                     modifier = Modifier
                         .background(
-                            color = Color(0xFF1E88E5), shape = RoundedCornerShape(16.dp)
+                            color = Color(0xFF1E88E5), shape = RoundedCornerShape(8.dp)
                         )
                         .padding(horizontal = 24.dp, vertical = 14.dp),
                     text = "CREDIT PACKS",
@@ -489,6 +507,65 @@ private fun PremiumHeaderCreditPack(
 }
 
 // preview here with dummy data
+
+
+@Preview(device = "spec:width=1280dp,height=720dp,dpi=320", showSystemUi = true)
+@Composable
+fun PreviewCreditPackListScreen(){
+    val locationEquipments = listOf(
+        LocationEquipment(
+            equipmentId = 5,
+            equipmentName = "Aqualieve® Cryo/Heat Recovery Chair with Massage",
+            image = "uploads/equipment/BRkfSZOCizbm0sY9oc4UOAL0kTvMMUpIIVsBje2I.png",
+            lowestPoint = "10"
+        ),
+        LocationEquipment(
+            equipmentId = 32,
+            equipmentName = "Pelvic Chair",
+            image = "uploads/equipment/up87XUFO8axRYApCgh2ef4DLS3BZTY4SvGIyDs3S.png",
+            lowestPoint = "50"
+        ),
+        LocationEquipment(
+            equipmentId = 35,
+            equipmentName = "TheraJet",
+            image = "uploads/equipment/orTivmxOAIvwqh9LjAZJCBRNCoKeIDA6gpoLrPNO.png",
+            lowestPoint = "10"
+        ),
+        LocationEquipment(
+            equipmentId = 31,
+            equipmentName = "HydroPulse Therapeutic Wave System",
+            image = "uploads/equipment/JFGp0wVmRzNGqNilEQxkpgryV0e6UQYbQxKetO1D.png",
+            lowestPoint = "50"
+        ),
+        LocationEquipment(
+            equipmentId = 33,
+            equipmentName = "PEMF MAT System",
+            image = "uploads/equipment/gNAn9VxY6IJZOkZCRc9SC6m9ZSz9fzs0ruenw713.png",
+            lowestPoint = "5"
+        ),
+        LocationEquipment(
+            equipmentId = 15,
+            equipmentName = "SolaDerm® Redlight photon system",
+            image = "uploads/equipment/DegEadbeSAG1jLOv7z7brJLalVlxZlrg2PbcfX3X.png",
+            lowestPoint = "15"
+        ),
+        LocationEquipment(
+            equipmentId = 17,
+            equipmentName = "TheraVive® PEMF System",
+            image = "uploads/equipment/n2iOSQjs8HIF4FOkAuofSLGXfWuvvNPpK3Ipxpzt.png",
+            lowestPoint = "40"
+        )
+    )
+    CreditPackListScreen(
+        plans = plans,
+        locationEquipments = locationEquipments,
+        isLoading = false,
+        onViewDetail = {},
+        onPlanSelected = { _, _ -> },
+        onHome = {},
+        onBack = {},
+    )
+}
 
 
 

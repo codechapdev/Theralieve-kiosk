@@ -97,7 +97,8 @@ interface ApiService {
     @Multipart
     @POST("kiosk/get-equipment-details")
     suspend fun getEquipmentDetails(
-        @Part("equipment_id") equipmentId: RequestBody
+        @Part("equipment_id") equipmentId: RequestBody,
+        @Part("location_id") locationId: RequestBody,
     ): Response<EquipmentDetailsResponse>
 
     /**

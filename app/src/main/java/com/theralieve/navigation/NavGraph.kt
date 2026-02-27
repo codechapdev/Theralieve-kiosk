@@ -1,5 +1,6 @@
 package com.theralieve.navigation
 
+import android.app.Activity
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
@@ -15,9 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -29,6 +33,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.theralieve.ui.components.ExitKioskDialog
 import com.theralieve.ui.components.SuccessDialog
 import com.theralieve.ui.components.TheraGradientBackground
 import com.theralieve.ui.components.TheraPrimaryButton
@@ -76,6 +81,7 @@ import com.theralieve.ui.viewmodel.MyPlanViewModel
 import com.theralieve.ui.viewmodel.PlanDataViewModel
 import com.theralieve.ui.viewmodel.RegistrationViewModel
 import com.theralieve.ui.viewmodel.WelcomeViewModel
+import com.theralieve.utils.KioskModeManager
 import com.theralieve.utils.PaymentLauncherProvider
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
@@ -93,10 +99,13 @@ fun NavGraph(
     ) {
 
         composable(Routes.WELCOME) {
+
             val welcomeViewModel: WelcomeViewModel = hiltViewModel()
             val welcomeUiState by welcomeViewModel.uiState.collectAsStateWithLifecycle()
 
+
             val lifecycleOwner = LocalLifecycleOwner.current
+            val activity = LocalContext.current as Activity
 
             LaunchedEffect(lifecycleOwner) {
                 lifecycleOwner.lifecycle.repeatOnLifecycle(
@@ -105,6 +114,8 @@ fun NavGraph(
                     welcomeViewModel.preloadData()
                 }
             }
+
+
 
             /*WelcomeScreen(uiState = welcomeUiState, onNonMemberClick = {
                 // Use cached data for smooth UX - equipment is preloaded on welcome screen
@@ -120,6 +131,12 @@ fun NavGraph(
                 navController.navigate(Routes.NEW_SEE_PLAN)
             }, onExistingClick = {
                 navController.navigate(Routes.MEMBER_LOGIN)
+            }, onExitRequest = {
+                activity?.let {
+                    KioskModeManager.disableKioskMode(it)
+                    it.stopLockTask()
+                    it.finishAffinity()
+                }
             })
         }
 
@@ -149,7 +166,11 @@ fun NavGraph(
                 },
                 onBack = {
                     navController.popBackStack()
-                })
+                },
+                onViewDetailEquipment = {
+                    navController.navigate("${Routes.EQUIPMENT_DETAIL}/${it}/false")
+                }
+                )
         }
 
 
@@ -758,7 +779,10 @@ fun NavGraph(
                     viewModel.verifyEmployeeId(employeeId)
                 },
                 isForEmployee = uiState.isForEmployee,
-                location = uiState.location
+                location = uiState.location,
+                onViewDetailEquipment={
+                    navController.navigate("${Routes.EQUIPMENT_DETAIL}/${it}/false")
+                }
             )
         }
 
@@ -826,7 +850,10 @@ fun NavGraph(
                     viewModel.verifyEmployeeId(employeeId)
                 },
                 isForEmployee = uiState.isForEmployee,
-                location = uiState.location
+                location = uiState.location,
+                onViewDetailEquipment = {
+                    navController.navigate("${Routes.EQUIPMENT_DETAIL}/${it}/false")
+                }
             )
         }
 
@@ -894,7 +921,10 @@ fun NavGraph(
                     viewModel.verifyEmployeeId(employeeId)
                 },
                 isForEmployee = uiState.isForEmployee,
-                location = uiState.location
+                location = uiState.location,
+                onViewDetailEquipment = {
+                    navController.navigate("${Routes.EQUIPMENT_DETAIL}/${it}/false")
+                }
             )
         }
 
@@ -1416,7 +1446,11 @@ fun NavGraph(
                 },
                 onViewDetail = {
                     navController.navigate("${Routes.ADDON_PLAN_DETAIL}/${it.detail?.id}")
-                })
+                },
+                onViewDetailEquipment={
+                    navController.navigate("${Routes.EQUIPMENT_DETAIL}/${it}/true")
+                }
+            )
         }
 
 
@@ -1454,7 +1488,11 @@ fun NavGraph(
                 },
                 onViewDetail = {
                     navController.navigate("${Routes.ADDON_PLAN_DETAIL}/${it.detail?.id}")
-                })
+                },
+                onViewDetailEquipment={
+                    navController.navigate("${Routes.EQUIPMENT_DETAIL}/${it}/true")
+                }
+            )
         }
 
         composable(
@@ -1490,7 +1528,11 @@ fun NavGraph(
                 },
                 onViewDetail = {
                     navController.navigate("${Routes.ADDON_PLAN_DETAIL}/${it.detail?.id}")
-                })
+                },
+                onViewDetailEquipment={
+                    navController.navigate("${Routes.EQUIPMENT_DETAIL}/${it}/true")
+                }
+            )
         }
 
 

@@ -201,7 +201,7 @@ fun MemberLoginDialog(
                                 text = state.passcodeError ?: " ",
                                 color = MaterialTheme.colorScheme.error,
                                 fontSize = 14.sp,
-                                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                                modifier = Modifier.padding(start = 16.dp, top = 2.dp)
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -218,7 +218,7 @@ fun MemberLoginDialog(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
 
                             TheraPrimaryButton(
                                 label = if (state.isLoggingIn) "Logging in..." else "Login",

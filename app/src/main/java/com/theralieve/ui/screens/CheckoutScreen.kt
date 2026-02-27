@@ -161,9 +161,11 @@ fun CheckoutScreen(
     }
 
     // Match price calculation with EquipmentListScreen / CheckoutViewModel; multi-selection uses sum of prices
-    val total = if (currentPlan != null && discountResult != null) {
+    val total = if(currentPlan != null  && currentPlan.detail?.is_vip_plan == 1){
+        currentPlan.detail?.billing_price?.toDoubleOrNull()?:0.0
+    } else if (currentPlan != null && discountResult != null) {
         discountResult.discountedPrice
-    } else {
+    } else  {
         if (uiState.selectedEquipments != null && !uiState.selectedEquipments.isNullOrEmpty()) {
             uiState.selectedEquipments!!.sumOf { it.price }
         } else if (equipment != null && unit != null) {
@@ -184,6 +186,7 @@ fun CheckoutScreen(
             }
         } else 0.0
     }
+
     val currencySymbol = getCurrencySymbol(currentPlan?.detail?.currency ?: "USD")
     val paymentTimeoutSeconds = 120 // 2 minutes
     var timeRemaining by remember { mutableStateOf(paymentTimeoutSeconds) }
@@ -198,18 +201,19 @@ fun CheckoutScreen(
     LaunchedEffect(uiState.paymentStatus) {
         val shouldContinue = when (uiState.paymentStatus) {
             PaymentStatus.Idle,
-            PaymentStatus.WaitingForCard -> true
-            PaymentStatus.ProcessingPayment,
+            PaymentStatus.WaitingForCard,
+            PaymentStatus.ProcessingPayment-> true
+
             PaymentStatus.PaymentSuccess,
             PaymentStatus.PaymentFailed -> false
         }
         
-        while (timeRemaining > 0 && shouldContinue && uiState.paymentStatus == PaymentStatus.WaitingForCard) {
+        while (timeRemaining > 0 && shouldContinue && (uiState.paymentStatus == PaymentStatus.WaitingForCard || uiState.paymentStatus == PaymentStatus.ProcessingPayment)) {
             delay(1000)
             timeRemaining--
         }
         // If timeout reached, go back
-        if (timeRemaining == 0 && uiState.paymentStatus == PaymentStatus.WaitingForCard) {
+        if (timeRemaining == 0 && (uiState.paymentStatus == PaymentStatus.WaitingForCard || uiState.paymentStatus == PaymentStatus.ProcessingPayment)) {
             onBack()
         }
     }

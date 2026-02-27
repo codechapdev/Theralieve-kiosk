@@ -53,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -848,7 +849,8 @@ fun EquipmentItemCard(
         NetworkImage(
             imageUrl = image,
             contentDescription = name,
-            modifier = Modifier.matchParentSize()
+            modifier = Modifier.matchParentSize(),
+            contentScale = ContentScale.Fit
         )
 
         AnimatedVisibility(

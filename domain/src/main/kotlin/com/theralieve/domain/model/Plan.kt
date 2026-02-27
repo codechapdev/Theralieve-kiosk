@@ -48,7 +48,142 @@ data class PlanEquipment(
     val sessionsIncluded: Int = 1,
 )
 
+// testing
 
+
+val plans = listOf(
+    Plan(
+        detail = PlanDetail(
+            id = 114,
+            plan_type = "Credit Plan",
+            plan_name = "REVIVE-PLAN",
+            currency = "USD",
+            plan_price = "49.00",
+            bullet_points = "Monthly Billing, Cancel Anytime, Auto-renews, No Refunds",
+            image = "uploads/plan/1771416993_REVIVE PLAN.jpg",
+            term = "<p>test</p>",
+            plan_desc = "<p>test</p>",
+            points = 50,
+            membership_type = "outside_member",
+            is_vip_plan = 1,
+            vip_discount = 0,
+            order_plan = "1",
+            status = 1,
+            created_date = "2026-02-18 12:16:33",
+            billing_price = "7",
+            frequency = "Term",
+            frequency_limit = "8",
+            discount = null,
+            discount_type = null,
+            discount_validity = null,
+            employee_discount = null,
+            gift_points = null,
+            customer_id = "WE7040",
+            introductory_plan = null,
+            is_for_employee = null,
+            is_gift = null,
+            updated_date = null,
+            validity = null
+        ),
+        equipments = listOf(
+            PlanEquipment(
+                id = 1,
+                name = "TENS Therapy",
+                image = "uploads/equipment/tens.png",
+                time = 20,
+                sessionsIncluded = 1
+            )
+        )
+    ),
+
+    Plan(
+        detail = PlanDetail(
+            id = 115,
+            plan_type = "Credit Plan",
+            plan_name = "RECOVERY-PLAN",
+            currency = "USD",
+            plan_price = "99.00",
+            bullet_points = "Monthly Billing, Cancel Anytime, Auto-renews, No Refunds",
+            image = "uploads/plan/1771417391_RECOVERY PLAN.jpg",
+            term = "<p>test</p>",
+            plan_desc = "<p>TEST</p>",
+            points = 120,
+            membership_type = "outside_member",
+            is_vip_plan = 1,
+            vip_discount = 0,
+            order_plan = "2",
+            status = 1,
+            created_date = "2026-02-18 12:23:11",
+            billing_price = "14.14",
+            frequency = "Weekly",
+            frequency_limit = "12",
+            discount = null,
+            discount_type = null,
+            discount_validity = null,
+            employee_discount = null,
+            gift_points = null,
+            customer_id = "WE7040",
+            introductory_plan = null,
+            is_for_employee = null,
+            is_gift = null,
+            updated_date = null,
+            validity = null
+        ),
+        equipments = listOf(
+            PlanEquipment(
+                id = 2,
+                name = "Ultrasound Therapy",
+                image = "uploads/equipment/ultrasound.png",
+                time = 30,
+                sessionsIncluded = 2
+            )
+        )
+    ),
+
+    Plan(
+        detail = PlanDetail(
+            id = 116,
+            plan_type = "Credit Plan",
+            plan_name = "RESTORE-PLAN",
+            currency = "USD",
+            plan_price = "199.00",
+            bullet_points = "Monthly Billing, Cancel Anytime, Auto-renews, No Refunds",
+            image = "uploads/plan/1771417683_restore PLAN.jpg",
+            term = "<p>test</p>",
+            plan_desc = "<p>test</p>",
+            points = 300,
+            membership_type = "outside_member",
+            is_vip_plan = 1,
+            vip_discount = 50,
+            order_plan = "3",
+            status = 1,
+            created_date = "2026-02-18 12:28:03",
+            billing_price = "28.43",
+            frequency = null,
+            frequency_limit = null,
+            discount = null,
+            discount_type = null,
+            discount_validity = null,
+            employee_discount = null,
+            gift_points = null,
+            customer_id = "WE7040",
+            introductory_plan = null,
+            is_for_employee = null,
+            is_gift = null,
+            updated_date = "2026-02-19 13:12:10",
+            validity = null
+        ),
+        equipments = listOf(
+            PlanEquipment(
+                id = 3,
+                name = "Laser Therapy",
+                image = "uploads/equipment/laser.png",
+                time = 25,
+                sessionsIncluded = 3
+            )
+        )
+    )
+)
 
 // current plan
 

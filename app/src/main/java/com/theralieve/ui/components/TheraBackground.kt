@@ -9,8 +9,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -68,7 +71,71 @@ fun TheraGradientBackground(
                             TheraColorTokens.BackgroundGradientEnd
                         )
                     )
-                )
+                ).padding(WindowInsets.navigationBars.asPaddingValues())
+        ) {
+
+            // TOP ALERT HOST
+            AnimatedVisibility(
+                visible = alertState.visible,
+                enter = slideInVertically { -it } + fadeIn(),
+                exit = slideOutVertically { -it } + fadeOut(),
+                modifier = Modifier.align(Alignment.TopCenter)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(400.dp)
+                        .background(
+                            Color.Black.copy(alpha = 0.9f),
+                            shape = RoundedCornerShape(
+                                bottomStart = 16.dp,
+                                bottomEnd = 16.dp
+                            )
+                        )
+                        .padding(vertical = 14.dp, horizontal = 24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        modifier = Modifier.padding(4.dp),
+                        text = alertState.message,
+                        color = Color.White,
+                        fontSize = 18.sp
+                    )
+                }
+            }
+
+            content(alertState)
+
+        }
+    }
+}
+
+@Composable
+fun TheraGradientBackgroundDark(
+    modifier: Modifier = Modifier,
+    alertState: TheraAlertState = rememberTheraAlertState(),
+    content: @Composable BoxScope.(TheraAlertState) -> Unit
+) {
+
+    LaunchedEffect(alertState.visible) {
+        if (alertState.visible) {
+            delay(2000)
+            alertState.hide()
+        }
+    }
+
+    TheraJetTabTheme {
+
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            TheraColorTokens.Primary.copy(0.6f),
+                            TheraColorTokens.Primary.copy(0.2f)
+                        )
+                    )
+                ).padding(WindowInsets.navigationBars.asPaddingValues())
         ) {
 
             // TOP ALERT HOST

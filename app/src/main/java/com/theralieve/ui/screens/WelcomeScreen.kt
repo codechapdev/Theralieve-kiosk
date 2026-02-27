@@ -36,16 +36,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.fontscaling.MathUtils.lerp
 import androidx.compose.ui.unit.sp
 import com.theralieve.R
+import com.theralieve.ui.components.ExitKioskDialog
+import com.theralieve.ui.components.KioskExitLogo
+import com.theralieve.ui.theme.TheraColorTokens
 import com.theralieve.ui.theme.TheraJetTabTheme
 import com.theralieve.ui.utils.throttledClickable
 import com.theralieve.ui.viewmodel.WelcomeUiState
@@ -56,7 +64,8 @@ fun WelcomeScreen(
     uiState: WelcomeUiState,
     modifier: Modifier = Modifier,
     onNewClick: () -> Unit,
-    onExistingClick: () -> Unit
+    onExistingClick: () -> Unit,
+    onExitRequest: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -75,7 +84,9 @@ fun WelcomeScreen(
             // =======================
             // TOP HEADER BAR
             // =======================
-            KioskHeader(uiState.locationName)
+            KioskHeader(uiState.locationName){
+                onExitRequest()
+            }
 
             Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
 
@@ -102,7 +113,19 @@ fun WelcomeScreen(
 
 
 @Composable
-private fun KioskHeader(locationName: String) {
+private fun KioskHeader(locationName: String,onExit:()->Unit) {
+
+    var showExit by remember { mutableStateOf(false) }
+        if(showExit){
+            ExitKioskDialog(
+                {
+                    showExit = false
+                },{
+                    onExit()
+                }
+            )
+        }
+
 
     Row(
         modifier = Modifier
@@ -112,11 +135,9 @@ private fun KioskHeader(locationName: String) {
             .padding(horizontal = 40.dp), verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Image(
-            painter = painterResource(id = R.drawable.app_logo),
-            contentDescription = null,
-            modifier = Modifier.height(60.dp)
-        )
+        KioskExitLogo{
+            showExit = true
+        }
 
         Spacer(modifier = Modifier.width(16.dp))
 
@@ -135,11 +156,29 @@ private fun LeftImagePanel(
 ) {
 
     val images = remember {
-        listOf(
+        /*listOf(
+            R.drawable.slider_one,
+            R.drawable.slider_two,
+            R.drawable.slider_six,
+            R.drawable.slider_three,
+            R.drawable.slider_seven,
+            R.drawable.slider_four,
+            R.drawable.slider_eight,
+            R.drawable.slider_five,
+            R.drawable.slider_nine
+        )*/
+//        listOf(
 //            R.drawable.slider1,
 //            R.drawable.slider2,
-            R.drawable.slider3,
-            R.drawable.slider4
+//            R.drawable.slider3,
+//            R.drawable.slider4
+//        )
+        listOf(
+            R.drawable.new_image1,
+            R.drawable.new_image2,
+            R.drawable.new_image3,
+//            R.drawable.new_image4,
+            R.drawable.new_image5
         )
     }
 
@@ -154,7 +193,14 @@ private fun LeftImagePanel(
     }
 
     Box(
-        modifier = modifier.fillMaxHeight()
+        modifier = modifier.fillMaxHeight().background(
+            Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFFFFFFFF), Color(0xFFF4F6F9)
+                )
+            )
+        ),
+        contentAlignment = Alignment.Center
     ) {
 
         AnimatedContent(
@@ -168,17 +214,33 @@ private fun LeftImagePanel(
             },
             label = "ImageFadeTransition"
         ) { index ->
+            val painter = painterResource(id = images[index])
+            Box(modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+//                Image(
+//                    painter = painter,
+//                    contentDescription = null,
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .blur(40.dp), // 👈 adjust blur strength
+//                    contentScale = ContentScale.Crop
+//                )
 
-            Image(
-                painter = painterResource(id = images[index]),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.Center).graphicsLayer {
+                        scaleX = 1.15f
+                        scaleY = 1.15f
+                    },
+                    contentScale = ContentScale.Fit,
+                )
+            }
         }
 
         // Soft premium overlay
-        Box(
+        /*Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
@@ -189,7 +251,8 @@ private fun LeftImagePanel(
                         )
                     )
                 )
-        )
+        )*/
+
     }
 }
 
@@ -209,7 +272,7 @@ private fun RightContentPanel(
                     )
                 )
             )
-            .padding(horizontal = 46.dp, vertical = 56.dp)
+            .padding(horizontal = 46.dp, vertical = 70.dp)
     ) {
 
         Column(
@@ -244,7 +307,7 @@ private fun RightContentPanel(
                                     Color(0xFF1976D2), Color(0xFF42A5F5)
                                 )
                             ), RoundedCornerShape(50)
-                        )
+                        ).align(Alignment.CenterHorizontally)
                 )
             }
 
@@ -386,7 +449,7 @@ fun Bullet(text: String) {
 }
 
 
-@Preview(device = "spec:width=1280dp,height=800dp,dpi=240")
+@Preview(device = "spec:width=1080dp,height=720dp,dpi=240")
 @Composable
 private fun WelcomeScreenPreview() {
     TheraJetTabTheme {
